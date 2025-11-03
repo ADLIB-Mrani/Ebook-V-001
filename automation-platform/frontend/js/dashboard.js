@@ -640,7 +640,7 @@ function getOpportunities(plan) {
 }
 
 function downloadPlan() {
-    alert('Fonctionnalité en cours de développement. Tu recevras bientôt un email avec le lien de téléchargement PDF.');
+    showNotification('Fonctionnalité en cours de développement. Tu recevras bientôt un email avec le lien de téléchargement PDF.', 'info');
 }
 
 function sharePlan() {
@@ -650,11 +650,44 @@ function sharePlan() {
             title: 'Mon Plan Personnalisé - PlanGenerator',
             text: 'Découvre mon plan personnalisé créé avec PlanGenerator !',
             url: url
+        }).catch((error) => {
+            // User cancelled or error occurred
+            if (error.name !== 'AbortError') {
+                console.error('Error sharing:', error);
+            }
         });
     } else {
         // Fallback: copy to clipboard
-        navigator.clipboard.writeText(url).then(() => {
-            alert('Lien copié dans le presse-papier !');
-        });
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(() => {
+                showNotification('Lien copié dans le presse-papier !', 'success');
+            }).catch((error) => {
+                console.error('Failed to copy to clipboard:', error);
+                showNotification('Impossible de copier le lien. Veuillez le copier manuellement depuis la barre d\'adresse.', 'error');
+            });
+        } else {
+            // Clipboard API not available
+            showNotification('Lien: ' + url + '\nCopiez-le manuellement depuis la barre d\'adresse.', 'info');
+        }
     }
+}
+
+// Helper function to show notifications using Bootstrap toast or simple div
+function showNotification(message, type = 'info') {
+    // Create a simple notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 500px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 150);
+    }, 5000);
 }
