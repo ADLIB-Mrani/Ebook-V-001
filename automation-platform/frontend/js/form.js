@@ -116,9 +116,14 @@ document.getElementById('planForm').addEventListener('submit', async function(e)
         userId: generateUserId()
     };
     
-    // Show loading modal
-    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-    loadingModal.show();
+    // Show loading modal (if bootstrap is available)
+    try {
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        loadingModal.show();
+    } catch (e) {
+        // Bootstrap not loaded, continue anyway
+        console.log('Bootstrap modal not available');
+    }
     
     // Simulate plan generation (replace with actual API call)
     setTimeout(() => {
