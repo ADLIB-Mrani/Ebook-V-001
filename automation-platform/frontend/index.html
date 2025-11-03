@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Plans Personnalisés - Étudiants</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-rocket-takeoff"></i> PlanGenerator
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="form.html">Créer mon plan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Fonctionnalités</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">À propos</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero bg-gradient text-white py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">Ton Plan Personnalisé en Quelques Clics</h1>
+                    <p class="lead mb-4">
+                        Génère automatiquement un plan d'action détaillé avec roadmaps, 
+                        diagrammes de Gantt, et reçois des mises à jour sur les nouvelles opportunités.
+                    </p>
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a href="form.html" class="btn btn-light btn-lg px-4 me-md-2">
+                            <i class="bi bi-plus-circle"></i> Créer mon plan
+                        </a>
+                        <a href="#features" class="btn btn-outline-light btn-lg px-4">
+                            En savoir plus
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card shadow-lg border-0 mt-4 mt-lg-0">
+                        <div class="card-body p-4">
+                            <h5 class="card-title text-dark mb-3">
+                                <i class="bi bi-star-fill text-warning"></i> 100% Gratuit
+                            </h5>
+                            <ul class="list-unstyled text-dark">
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Plans illimités</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Mises à jour automatiques</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Export PDF</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Notifications email</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Roadmaps visuelles</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">Fonctionnalités Puissantes</h2>
+                <p class="lead text-muted">Tout ce dont tu as besoin pour réussir</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3 mx-auto">
+                                <i class="bi bi-journal-text"></i>
+                            </div>
+                            <h4 class="card-title">Plans Personnalisés</h4>
+                            <p class="card-text text-muted">
+                                Génère un plan adapté à ta situation, tes objectifs et ton niveau.
+                                Plusieurs templates disponibles : programmation, business, freelancing...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-success bg-gradient text-white rounded-circle mb-3 mx-auto">
+                                <i class="bi bi-graph-up"></i>
+                            </div>
+                            <h4 class="card-title">Visualisations</h4>
+                            <p class="card-text text-muted">
+                                Roadmaps interactives, diagrammes de Gantt, graphiques de progression
+                                et mind maps pour visualiser ton parcours.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-info bg-gradient text-white rounded-circle mb-3 mx-auto">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </div>
+                            <h4 class="card-title">Mises à Jour Auto</h4>
+                            <p class="card-text text-muted">
+                                Reçois automatiquement les nouvelles opportunités, bourses, hackathons
+                                et ressources correspondant à ton profil.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-warning bg-gradient text-white rounded-circle mb-3 mx-auto">
+                                <i class="bi bi-file-earmark-pdf"></i>
+                            </div>
+                            <h4 class="card-title">Export PDF</h4>
+                            <p class="card-text text-muted">
+                                Télécharge ton plan complet en PDF haute qualité avec tous les 
+                                visuels et checklists.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-danger bg-gradient text-white rounded-circle mb-3 mx-auto">
+                                <i class="bi bi-envelope"></i>
+                            </div>
+                            <h4 class="card-title">Notifications Email</h4>
+                            <p class="card-text text-muted">
+                                Reçois des emails personnalisés avec les nouvelles opportunités,
+                                rappels de jalons et actualités.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-secondary bg-gradient text-white rounded-circle mb-3 mx-auto">
+                                <i class="bi bi-speedometer2"></i>
+                            </div>
+                            <h4 class="card-title">Dashboard</h4>
+                            <p class="card-text text-muted">
+                                Accède à ton dashboard personnalisé avec suivi de progression,
+                                prochaines étapes et statistiques.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Plans Section -->
+    <section class="bg-light py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">Plans Disponibles</h2>
+                <p class="lead text-muted">Choisis le plan qui correspond à tes objectifs</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-code-slash"></i> Programmation</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="bi bi-check text-success"></i> Roadmap 6-12 mois</li>
+                                <li class="mb-2"><i class="bi bi-check text-success"></i> Ressources gratuites</li>
+                                <li class="mb-2"><i class="bi bi-check text-success"></i> Projets pratiques</li>
+                                <li class="mb-2"><i class="bi bi-check text-success"></i> Opportunités hackathons</li>
+                                <li class="mb-2"><i class="bi bi-check text-success"></i> Portfolio building</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="bi bi-briefcase"></i> Business</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="bi bi-check text-success"></i> Validation d'idée</li>
+                                <li class="mb-2"><i class="bi bi-check text-success"></i> Micro-entreprise</li>
+                                <li class="mb-2"><i class="bi bi-check text-success"></i> PEPITE et aides</li>
+                                <li class="mb-2"><i class="bi bi-check text-success"></i> Business plan</li>
+                                <li class="mb-2"><i class="bi bi-check text-success"></i> Financement</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="bi bi-laptop"></i> Freelancing</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="bi bi-check text-success"></i> Compétences clés</li>
+                                <li class="mb-2"><i class="bi bi-check text-success"></i> Portfolio professionnel</li>
+                                <li class="mb-2"><i class="bi bi-check text-success"></i> Plateformes (Malt, etc.)</li>
+                                <li class="mb-2"><i class="bi bi-check text-success"></i> Tarification</li>
+                                <li class="mb-2"><i class="bi bi-check text-success"></i> Premiers clients</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <a href="form.html" class="btn btn-primary btn-lg">
+                    <i class="bi bi-arrow-right-circle"></i> Créer mon plan maintenant
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">Comment ça marche ?</h2>
+                <p class="lead text-muted">Simple et rapide</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-3 text-center">
+                    <div class="step-number bg-primary text-white rounded-circle mx-auto mb-3">1</div>
+                    <h5>Remplis le formulaire</h5>
+                    <p class="text-muted">Partage tes infos, objectifs et contraintes</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="step-number bg-primary text-white rounded-circle mx-auto mb-3">2</div>
+                    <h5>Génération automatique</h5>
+                    <p class="text-muted">Le système crée ton plan personnalisé</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="step-number bg-primary text-white rounded-circle mx-auto mb-3">3</div>
+                    <h5>Reçois ton plan</h5>
+                    <p class="text-muted">Page web dynamique + PDF téléchargeable</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="step-number bg-primary text-white rounded-circle mx-auto mb-3">4</div>
+                    <h5>Mises à jour auto</h5>
+                    <p class="text-muted">Notifications sur nouvelles opportunités</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="bg-primary text-white py-5">
+        <div class="container text-center">
+            <h2 class="display-5 fw-bold mb-4">Prêt à démarrer ?</h2>
+            <p class="lead mb-4">Crée ton plan personnalisé gratuitement en moins de 5 minutes</p>
+            <a href="form.html" class="btn btn-light btn-lg px-5">
+                <i class="bi bi-rocket-takeoff"></i> Commencer maintenant
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="bi bi-rocket-takeoff"></i> PlanGenerator</h5>
+                    <p class="text-muted">Génération automatique de plans personnalisés pour étudiants</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-0">
+                        Fait avec <i class="bi bi-heart-fill text-danger"></i> pour les étudiants français
+                    </p>
+                    <p class="text-muted">
+                        <small>100% gratuit • Open Source • GitHub Student Pack</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
