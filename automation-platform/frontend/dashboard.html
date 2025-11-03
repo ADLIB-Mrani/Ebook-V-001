@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Plan - PlanGenerator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-rocket-takeoff"></i> PlanGenerator
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="dashboard.html">Mon Plan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="form.html">Nouveau Plan</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Success Banner -->
+    <div class="alert alert-success alert-dismissible fade show mb-0" role="alert">
+        <div class="container">
+            <h4 class="alert-heading"><i class="bi bi-check-circle-fill"></i> Ton plan a été généré avec succès !</h4>
+            <p class="mb-0">Consulte ci-dessous ton plan personnalisé. Tu recevras également un email avec tous les détails.</p>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Dashboard Content -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <!-- User Info Card -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h3 class="mb-2">Bonjour <span id="userName"></span> !</h3>
+                                    <p class="text-muted mb-0" id="planSummary"></p>
+                                </div>
+                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                    <button class="btn btn-primary" onclick="downloadPlan()">
+                                        <i class="bi bi-file-earmark-pdf"></i> Télécharger PDF
+                                    </button>
+                                    <button class="btn btn-outline-primary" onclick="sharePlan()">
+                                        <i class="bi bi-share"></i> Partager
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card shadow-sm stat-card border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Durée totale</h6>
+                                    <h3 class="mb-0" id="planDuration"></h3>
+                                </div>
+                                <div class="text-primary">
+                                    <i class="bi bi-calendar3 fs-2"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card shadow-sm stat-card border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Étapes clés</h6>
+                                    <h3 class="mb-0" id="milestoneCount">0</h3>
+                                </div>
+                                <div class="text-success">
+                                    <i class="bi bi-flag fs-2"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card shadow-sm stat-card border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Temps/semaine</h6>
+                                    <h3 class="mb-0" id="weeklyTime"></h3>
+                                </div>
+                                <div class="text-info">
+                                    <i class="bi bi-clock fs-2"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card shadow-sm stat-card border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Budget mensuel</h6>
+                                    <h3 class="mb-0" id="monthlyBudget"></h3>
+                                </div>
+                                <div class="text-warning">
+                                    <i class="bi bi-piggy-bank fs-2"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Tabs -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <ul class="nav nav-tabs card-header-tabs" id="planTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="roadmap-tab" data-bs-toggle="tab" data-bs-target="#roadmap" type="button">
+                                <i class="bi bi-map"></i> Roadmap
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="milestones-tab" data-bs-toggle="tab" data-bs-target="#milestones" type="button">
+                                <i class="bi bi-list-check"></i> Étapes Clés
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="resources-tab" data-bs-toggle="tab" data-bs-target="#resources" type="button">
+                                <i class="bi bi-book"></i> Ressources
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="opportunities-tab" data-bs-toggle="tab" data-bs-target="#opportunities" type="button">
+                                <i class="bi bi-lightning"></i> Opportunités
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="planTabsContent">
+                        <!-- Roadmap Tab -->
+                        <div class="tab-pane fade show active" id="roadmap" role="tabpanel">
+                            <h5 class="mb-4">Ton parcours personnalisé</h5>
+                            <div id="roadmapContent" class="roadmap-container">
+                                <!-- Roadmap will be generated here -->
+                            </div>
+                        </div>
+
+                        <!-- Milestones Tab -->
+                        <div class="tab-pane fade" id="milestones" role="tabpanel">
+                            <h5 class="mb-4">Étapes clés à accomplir</h5>
+                            <div id="milestonesContent">
+                                <!-- Milestones will be generated here -->
+                            </div>
+                        </div>
+
+                        <!-- Resources Tab -->
+                        <div class="tab-pane fade" id="resources" role="tabpanel">
+                            <h5 class="mb-4">Ressources recommandées</h5>
+                            <div id="resourcesContent">
+                                <!-- Resources will be generated here -->
+                            </div>
+                        </div>
+
+                        <!-- Opportunities Tab -->
+                        <div class="tab-pane fade" id="opportunities" role="tabpanel">
+                            <h5 class="mb-4">Opportunités pour toi</h5>
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Tu recevras des notifications par email quand de nouvelles opportunités correspondant à ton profil seront disponibles.
+                            </div>
+                            <div id="opportunitiesContent">
+                                <!-- Opportunities will be generated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Steps Card -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card shadow-sm border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-arrow-right-circle"></i> Prochaines étapes</h5>
+                        </div>
+                        <div class="card-body">
+                            <ol class="mb-0">
+                                <li class="mb-2">Consulte ton email pour recevoir le lien vers ton plan et le PDF complet</li>
+                                <li class="mb-2">Sauvegarde cette page dans tes favoris pour y revenir facilement</li>
+                                <li class="mb-2">Configure tes notifications pour recevoir les nouvelles opportunités</li>
+                                <li class="mb-2">Commence par la première étape de ta roadmap dès aujourd'hui</li>
+                                <li>Rejoins notre communauté Discord pour échanger avec d'autres étudiants</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container text-center">
+            <p class="mb-0">
+                <i class="bi bi-shield-check"></i> Tes données sont sécurisées et ne seront jamais vendues
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
