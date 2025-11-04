@@ -17,18 +17,19 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^7.6.3",
-    "dotenv": "^16.3.1",
-    "cors": "^2.8.5",
-    "nodemailer": "^6.9.7",
     "@sendgrid/mail": "^7.7.0",
-    "puppeteer": "^21.5.2",
     "axios": "^1.6.0",
-    "cheerio": "^1.0.0-rc.12",
-    "node-cron": "^3.0.3",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2"
+    "cheerio": "^1.0.0-rc.12",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.6.3",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.7",
+    "pdfkit": "^0.17.2",
+    "puppeteer": "^21.5.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

@@ -3,6 +3,9 @@ const router = express.Router();
 const User = require('../models/User');
 const { generatePlan } = require('../services/generator');
 const { sendWelcomeEmail } = require('../services/email');
+const { generatePlanPDF } = require('../services/pdfGenerator');
+const path = require('path');
+const fs = require('fs');
 
 // Create new user and generate plan
 router.post('/create', async (req, res) => {
@@ -120,6 +123,55 @@ router.patch('/:userId/progress', async (req, res) => {
         
     } catch (error) {
         console.error('Error updating progress:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// Download user plan as PDF
+router.post('/download-pdf', async (req, res) => {
+    try {
+        const planData = req.body;
+        
+        // Create temp directory if it doesn't exist
+        const tempDir = path.join(__dirname, '../../temp');
+        if (!fs.existsSync(tempDir)) {
+            fs.mkdirSync(tempDir, { recursive: true });
+        }
+        
+        // Generate PDF filename
+        const fileName = `plan_${planData.name.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
+        const filePath = path.join(tempDir, fileName);
+        
+        // Generate PDF
+        await generatePlanPDF(planData, filePath);
+        
+        // Send file for download
+        res.download(filePath, fileName, (err) => {
+            if (err) {
+                console.error('Error sending file:', err);
+                res.status(500).json({
+                    success: false,
+                    error: 'Error sending PDF'
+                });
+            }
+            
+            // Delete file after sending
+            setTimeout(() => {
+                try {
+                    if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath);
+                    }
+                } catch (deleteErr) {
+                    console.error('Error deleting temp file:', deleteErr);
+                }
+            }, 5000);
+        });
+        
+    } catch (error) {
+        console.error('Error generating PDF:', error);
         res.status(500).json({
             success: false,
             error: error.message
