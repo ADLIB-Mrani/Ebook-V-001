@@ -2,6 +2,11 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 
+// PDF Layout Constants
+const HEADER_HEIGHT = 150;
+const TASK_INDENT = 60;
+const SECTION_INDENT = 70;
+
 /**
  * Generate a PDF plan for the user
  * @param {Object} plan - The user's plan object
@@ -27,7 +32,7 @@ const generatePlanPDF = (plan, outputPath) => {
             doc.pipe(stream);
 
             // Add header with gradient-like background
-            doc.rect(0, 0, doc.page.width, 150).fill('#667eea');
+            doc.rect(0, 0, doc.page.width, HEADER_HEIGHT).fill('#667eea');
             
             // Title
             doc.fillColor('#ffffff')
@@ -142,7 +147,7 @@ const generatePlanPDF = (plan, outputPath) => {
                         doc.addPage();
                         yPosition = 50;
                     }
-                    doc.text(`  • ${task}`, 60, yPosition);
+                    doc.text(`  • ${task}`, TASK_INDENT, yPosition);
                     yPosition += 18;
                 });
 
@@ -189,7 +194,7 @@ const generatePlanPDF = (plan, outputPath) => {
 
                     doc.fillColor('#666666')
                         .fontSize(9)
-                        .text(resource.description, 70, yPosition, {
+                        .text(resource.description, SECTION_INDENT, yPosition, {
                             width: doc.page.width - 120
                         });
 

@@ -273,14 +273,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function filterCategory(category) {
+function filterCategory(category, event) {
     currentCategory = category;
     
     // Update active button
     document.querySelectorAll('.btn-group button').forEach(btn => {
         btn.classList.remove('active');
     });
-    event.target.classList.add('active');
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
     
     renderResources();
 }

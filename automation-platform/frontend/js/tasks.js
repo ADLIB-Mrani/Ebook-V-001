@@ -105,14 +105,16 @@ function deleteTask(taskId) {
     }
 }
 
-function filterTasks(filter) {
+function filterTasks(filter, event) {
     currentFilter = filter;
     
     // Update button states
     document.querySelectorAll('.btn-group button').forEach(btn => {
         btn.classList.remove('active');
     });
-    event.target.classList.add('active');
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
     
     renderTasks();
 }
