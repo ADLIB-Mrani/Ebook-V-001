@@ -253,7 +253,9 @@ function addMessage(text, sender) {
     bubbleDiv.className = 'message-bubble';
     
     if (sender === 'bot') {
-        bubbleDiv.innerHTML = `<strong>Assistant:</strong><br>${text.replace(/\n/g, '<br>')}`;
+        // Sanitize text to prevent XSS
+        const sanitizedText = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        bubbleDiv.innerHTML = `<strong>Assistant:</strong><br>${sanitizedText.replace(/\n/g, '<br>')}`;
     } else {
         bubbleDiv.textContent = text;
     }

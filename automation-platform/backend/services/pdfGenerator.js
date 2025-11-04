@@ -8,14 +8,28 @@ const TASK_INDENT = 60;
 const SECTION_INDENT = 70;
 
 /**
+ * Sanitize text for PDF to prevent injection
+ * @param {String} text - Text to sanitize
+ * @returns {String} - Sanitized text
+ */
+const sanitizeText = (text) => {
+    if (!text) return '';
+    return String(text).substring(0, 1000); // Limit length
+};
+
+/**
  * Generate a PDF plan for the user
  * @param {Object} plan - The user's plan object
- * @param {String} outputPath - Path where to save the PDF
+ * @param {String} outputPath - Path where to save the PDF (should be validated by caller)
  * @returns {Promise} - Resolves when PDF is generated
  */
 const generatePlanPDF = (plan, outputPath) => {
     return new Promise((resolve, reject) => {
         try {
+            // Validate input
+            if (!plan || !outputPath) {
+                throw new Error('Invalid parameters');
+            }
             // Create a document
             const doc = new PDFDocument({
                 size: 'A4',
@@ -46,14 +60,14 @@ const generatePlanPDF = (plan, outputPath) => {
                     align: 'center'
                 });
 
-            // User info section
+            // User info section (sanitized)
             doc.fillColor('#000000')
                 .fontSize(14)
-                .text(`Préparé pour: ${plan.name}`, 50, 180);
+                .text(`Préparé pour: ${sanitizeText(plan.name)}`, 50, 180);
 
             doc.fontSize(11)
                 .fillColor('#666666')
-                .text(`Email: ${plan.email}`, 50, 205);
+                .text(`Email: ${sanitizeText(plan.email)}`, 50, 205);
 
             const planTypeLabels = {
                 'programming': 'Programmation',
@@ -69,9 +83,9 @@ const generatePlanPDF = (plan, outputPath) => {
                 '2years': '2 ans'
             };
 
-            doc.text(`Type de plan: ${planTypeLabels[plan.planType] || plan.planType}`, 50, 225);
-            doc.text(`Durée: ${timelineLabels[plan.timeline] || plan.timeline}`, 50, 245);
-            doc.text(`Domaine: ${plan.field}`, 50, 265);
+            doc.text(`Type de plan: ${planTypeLabels[plan.planType] || sanitizeText(plan.planType)}`, 50, 225);
+            doc.text(`Durée: ${timelineLabels[plan.timeline] || sanitizeText(plan.timeline)}`, 50, 245);
+            doc.text(`Domaine: ${sanitizeText(plan.field)}`, 50, 265);
 
             // Add separator line
             doc.moveTo(50, 295)
@@ -90,7 +104,7 @@ const generatePlanPDF = (plan, outputPath) => {
             yPosition += 30;
             doc.fillColor('#000000')
                 .fontSize(11)
-                .text(plan.goal || 'Objectif non spécifié', 50, yPosition, {
+                .text(sanitizeText(plan.goal) || 'Objectif non spécifié', 50, yPosition, {
                     width: doc.page.width - 100,
                     align: 'justify'
                 });

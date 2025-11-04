@@ -1,11 +1,21 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const User = require('../models/User');
 const { generatePlan } = require('../services/generator');
 const { sendWelcomeEmail } = require('../services/email');
 const { generatePlanPDF } = require('../services/pdfGenerator');
 const path = require('path');
 const fs = require('fs');
+
+// Rate limiter for PDF downloads - 10 requests per 15 minutes per IP
+const pdfDownloadLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10, // Limit each IP to 10 requests per windowMs
+    message: 'Trop de requêtes de téléchargement PDF. Réessaye dans 15 minutes.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
 
 // Create new user and generate plan
 router.post('/create', async (req, res) => {
@@ -130,10 +140,18 @@ router.patch('/:userId/progress', async (req, res) => {
     }
 });
 
-// Download user plan as PDF
-router.post('/download-pdf', async (req, res) => {
+// Download user plan as PDF (with rate limiting)
+router.post('/download-pdf', pdfDownloadLimiter, async (req, res) => {
     try {
         const planData = req.body;
+        
+        // Validate and sanitize input
+        if (!planData || !planData.name) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid plan data'
+            });
+        }
         
         // Create temp directory if it doesn't exist
         const tempDir = path.join(__dirname, '../../temp');
@@ -141,8 +159,9 @@ router.post('/download-pdf', async (req, res) => {
             fs.mkdirSync(tempDir, { recursive: true });
         }
         
-        // Generate PDF filename
-        const fileName = `plan_${planData.name.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
+        // Sanitize filename to prevent path traversal
+        const safeName = planData.name.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 50);
+        const fileName = `plan_${safeName}_${Date.now()}.pdf`;
         const filePath = path.join(tempDir, fileName);
         
         // Generate PDF
