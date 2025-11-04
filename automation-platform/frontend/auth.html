@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion / Inscription - PlanGenerator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-rocket-takeoff"></i> PlanGenerator
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="auth.html">Connexion</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Auth Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-5 col-md-8">
+                    <!-- Info Banner -->
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle"></i> 
+                        <strong>Mode démo:</strong> Cette fonctionnalité sauvegarde tes données localement. 
+                        Pour sauvegarder en ligne, configure une base de données MongoDB.
+                    </div>
+
+                    <!-- Tabs for Login/Signup -->
+                    <div class="card shadow-lg border-0">
+                        <div class="card-body p-4">
+                            <ul class="nav nav-pills nav-fill mb-4" id="authTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="login-tab" data-bs-toggle="pill" 
+                                            data-bs-target="#login" type="button">
+                                        <i class="bi bi-box-arrow-in-right"></i> Connexion
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="signup-tab" data-bs-toggle="pill" 
+                                            data-bs-target="#signup" type="button">
+                                        <i class="bi bi-person-plus"></i> Inscription
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content" id="authTabsContent">
+                                <!-- Login Tab -->
+                                <div class="tab-pane fade show active" id="login" role="tabpanel">
+                                    <h4 class="text-center mb-4">Bienvenue ! 👋</h4>
+                                    <form id="loginForm">
+                                        <div class="mb-3">
+                                            <label for="loginEmail" class="form-label">Email</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                                <input type="email" class="form-control" id="loginEmail" 
+                                                       placeholder="ton@email.com" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="loginPassword" class="form-label">Mot de passe</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                                <input type="password" class="form-control" id="loginPassword" 
+                                                       placeholder="••••••••" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" id="rememberMe">
+                                            <label class="form-check-label" for="rememberMe">
+                                                Se souvenir de moi
+                                            </label>
+                                        </div>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary btn-lg">
+                                                <i class="bi bi-box-arrow-in-right"></i> Se connecter
+                                            </button>
+                                        </div>
+                                    </form>
+                                    <div class="text-center mt-3">
+                                        <a href="#" class="text-muted small">Mot de passe oublié ?</a>
+                                    </div>
+                                </div>
+
+                                <!-- Signup Tab -->
+                                <div class="tab-pane fade" id="signup" role="tabpanel">
+                                    <h4 class="text-center mb-4">Créer un compte</h4>
+                                    <form id="signupForm">
+                                        <div class="mb-3">
+                                            <label for="signupName" class="form-label">Prénom</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                                <input type="text" class="form-control" id="signupName" 
+                                                       placeholder="Ton prénom" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="signupEmail" class="form-label">Email</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                                <input type="email" class="form-control" id="signupEmail" 
+                                                       placeholder="ton@email.com" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="signupPassword" class="form-label">Mot de passe</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                                <input type="password" class="form-control" id="signupPassword" 
+                                                       placeholder="••••••••" required minlength="6">
+                                            </div>
+                                            <div class="form-text">Au moins 6 caractères</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="signupPasswordConfirm" class="form-label">Confirmer le mot de passe</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                                                <input type="password" class="form-control" id="signupPasswordConfirm" 
+                                                       placeholder="••••••••" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                                            <label class="form-check-label small" for="agreeTerms">
+                                                J'accepte les conditions d'utilisation et la politique de confidentialité
+                                            </label>
+                                        </div>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-success btn-lg">
+                                                <i class="bi bi-person-plus"></i> Créer mon compte
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Benefits Section -->
+                    <div class="card mt-4 border-0 shadow-sm">
+                        <div class="card-body">
+                            <h6 class="card-title text-center mb-3">Pourquoi créer un compte ?</h6>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Sauvegarde de tous tes plans et tâches
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Accès depuis n'importe quel appareil
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Notifications personnalisées par email
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Suivi de progression à long terme
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    100% gratuit, pas de publicités
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">
+                <i class="bi bi-shield-check"></i> Tes données sont protégées et ne seront jamais vendues
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
