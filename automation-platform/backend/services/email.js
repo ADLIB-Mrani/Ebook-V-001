@@ -220,8 +220,96 @@ const generateReminderEmailHTML = (name, nextMilestone) => {
     `;
 };
 
+const sendPDFEmail = async (email, name, pdfPath) => {
+    const fs = require('fs');
+    const path = require('path');
+    
+    if (!process.env.SENDGRID_API_KEY) {
+        console.log('SendGrid not configured - PDF email would be sent to:', email);
+        return { success: true, demo: true };
+    }
+    
+    // Verify the file exists and is a PDF (additional security check)
+    if (!fs.existsSync(pdfPath) || !pdfPath.endsWith('.pdf')) {
+        throw new Error('Invalid PDF file');
+    }
+    
+    // Read PDF file as base64
+    const pdfBuffer = fs.readFileSync(pdfPath);
+    const pdfBase64 = pdfBuffer.toString('base64');
+    
+    const msg = {
+        to: email,
+        from: process.env.FROM_EMAIL || 'noreply@plangenerator.com',
+        subject: `${name}, voici ton plan personnalisé en PDF 📄`,
+        html: generatePDFEmailHTML(name),
+        attachments: [
+            {
+                content: pdfBase64,
+                filename: `Mon_Plan_${name.replace(/\s+/g, '_')}.pdf`,
+                type: 'application/pdf',
+                disposition: 'attachment'
+            }
+        ]
+    };
+    
+    try {
+        await sgMail.send(msg);
+        console.log(`PDF email sent to ${email}`);
+        return { success: true };
+    } catch (error) {
+        console.error('Error sending PDF email:', error);
+        throw error;
+    }
+};
+
+const generatePDFEmailHTML = (name) => {
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 Ton Plan en PDF</h1>
+            <p>Bonjour ${name} !</p>
+        </div>
+        <div class="content">
+            <p>Voici ton plan personnalisé au format PDF en pièce jointe.</p>
+            
+            <p>Tu peux maintenant :</p>
+            <ul>
+                <li>📥 Télécharger et sauvegarder le PDF</li>
+                <li>🖨️ L'imprimer pour l'avoir toujours sous les yeux</li>
+                <li>📧 Le partager avec ton entourage</li>
+                <li>📱 L'avoir sur tous tes appareils</li>
+            </ul>
+            
+            <p><strong>💡 Astuce:</strong> Relis ton plan chaque semaine pour rester motivé et suivre ta progression !</p>
+            
+            <center>
+                <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard.html" class="button">
+                    Accéder à mon dashboard
+                </a>
+            </center>
+        </div>
+    </div>
+</body>
+</html>
+    `;
+};
+
 module.exports = {
     sendWelcomeEmail,
     sendOpportunityEmail,
-    sendProgressReminder
+    sendProgressReminder,
+    sendPDFEmail
 };

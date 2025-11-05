@@ -16,6 +16,12 @@ document.addEventListener('DOMContentLoaded', function() {
     generateMilestones(userPlan);
     generateResources(userPlan);
     generateOpportunities(userPlan);
+    
+    // Auto-generate tasks if not already created
+    generateAutoTasks(userPlan);
+    
+    // Generate Gantt chart
+    generateGanttChart(userPlan);
 });
 
 function populateUserInfo(plan) {
@@ -742,4 +748,206 @@ function showNotification(message, type = 'info') {
         notification.classList.remove('show');
         setTimeout(() => notification.remove(), 150);
     }, 5000);
+}
+
+// Generate Gantt Chart
+function generateGanttChart(plan) {
+    const ganttChart = document.getElementById('ganttChart');
+    const tasks = JSON.parse(localStorage.getItem('userTasks') || '[]');
+    
+    if (tasks.length === 0) {
+        ganttChart.innerHTML = '<p class="text-center text-muted py-5">Aucune tâche disponible. Les tâches seront générées automatiquement.</p>';
+        return;
+    }
+    
+    // Filter and sort tasks by due date
+    const tasksWithDates = tasks.filter(t => t.dueDate).sort((a, b) => 
+        new Date(a.dueDate) - new Date(b.dueDate)
+    );
+    
+    if (tasksWithDates.length === 0) {
+        ganttChart.innerHTML = '<p class="text-center text-muted py-5">Aucune tâche avec date d\'échéance.</p>';
+        return;
+    }
+    
+    // Calculate date range
+    const startDate = new Date(tasksWithDates[0].dueDate);
+    const endDate = new Date(tasksWithDates[tasksWithDates.length - 1].dueDate);
+    const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    
+    // Build timeline header
+    const monthsSet = new Set();
+    let currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+        monthsSet.add(currentDate.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }));
+        currentDate.setMonth(currentDate.getMonth() + 1);
+    }
+    
+    let html = '<div class="gantt-wrapper" style="overflow-x: auto;">';
+    
+    // Timeline header
+    html += '<div class="gantt-timeline mb-3" style="min-width: 800px;">';
+    html += '<div class="d-flex justify-content-between border-bottom pb-2 mb-2">';
+    monthsSet.forEach(month => {
+        html += `<div class="text-center fw-bold text-primary">${month}</div>`;
+    });
+    html += '</div></div>';
+    
+    // Task bars
+    html += '<div class="gantt-tasks" style="min-width: 800px;">';
+    
+    const priorityColors = {
+        'high': '#dc3545',
+        'medium': '#ffc107',
+        'low': '#198754'
+    };
+    
+    tasksWithDates.forEach(task => {
+        const taskDate = new Date(task.dueDate);
+        const daysFromStart = Math.ceil((taskDate - startDate) / (1000 * 60 * 60 * 24));
+        const leftPercent = (daysFromStart / totalDays) * 100;
+        
+        // Bar width represents 1 week or less
+        const barWidth = Math.min(10, (7 / totalDays) * 100);
+        
+        const color = priorityColors[task.priority] || '#6c757d';
+        const opacity = task.completed ? '0.5' : '1';
+        
+        html += `
+            <div class="gantt-bar mb-2" style="
+                margin-left: ${leftPercent}%;
+                width: ${barWidth}%;
+                background-color: ${color};
+                opacity: ${opacity};
+                height: 40px;
+                border-radius: 5px;
+                display: flex;
+                align-items: center;
+                padding: 0 10px;
+                color: white;
+                font-size: 0.85rem;
+                position: relative;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            " title="${task.title} - ${formatDate(task.dueDate)}">
+                <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    ${task.title.length > 30 ? task.title.substring(0, 30) + '...' : task.title}
+                    ${task.completed ? ' ✓' : ''}
+                </span>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    
+    // Legend
+    html += '<div class="gantt-legend mt-4">';
+    html += '<h6 class="mb-3">Légende:</h6>';
+    html += '<div class="d-flex gap-4 flex-wrap">';
+    html += '<div><span style="display: inline-block; width: 20px; height: 20px; background: #dc3545; border-radius: 3px;"></span> Priorité Haute</div>';
+    html += '<div><span style="display: inline-block; width: 20px; height: 20px; background: #ffc107; border-radius: 3px;"></span> Priorité Moyenne</div>';
+    html += '<div><span style="display: inline-block; width: 20px; height: 20px; background: #198754; border-radius: 3px;"></span> Priorité Basse</div>';
+    html += '<div><span style="display: inline-block; width: 20px; height: 20px; background: #6c757d; opacity: 0.5; border-radius: 3px;"></span> Complétée</div>';
+    html += '</div></div>';
+    
+    html += '</div>';
+    
+    ganttChart.innerHTML = html;
+}
+
+// Auto-generate tasks based on user plan
+function generateAutoTasks(plan) {
+    // Check if tasks have already been generated
+    const tasksGenerated = localStorage.getItem('tasksAutoGenerated');
+    if (tasksGenerated === 'true') {
+        return; // Tasks already generated
+    }
+    
+    const existingTasks = JSON.parse(localStorage.getItem('userTasks') || '[]');
+    const phases = getRoadmapPhases(plan);
+    const newTasks = [];
+    
+    // Calculate start date
+    const startDate = new Date();
+    
+    // Timeline in days based on plan
+    const timelineDays = {
+        '3months': 90,
+        '6months': 180,
+        '1year': 365,
+        '2years': 730
+    };
+    
+    const totalDays = timelineDays[plan.timeline] || 180;
+    const daysPerPhase = Math.floor(totalDays / phases.length);
+    
+    phases.forEach((phase, phaseIndex) => {
+        const phaseStartDay = phaseIndex * daysPerPhase;
+        const taskDaysInterval = Math.floor(daysPerPhase / phase.tasks.length);
+        
+        phase.tasks.forEach((taskTitle, taskIndex) => {
+            const taskDueDay = phaseStartDay + (taskIndex + 1) * taskDaysInterval;
+            const dueDate = new Date(startDate);
+            dueDate.setDate(dueDate.getDate() + taskDueDay);
+            
+            // Priority based on phase
+            let priority = 'medium';
+            if (phaseIndex === 0) priority = 'high'; // First phase is high priority
+            else if (phaseIndex === phases.length - 1) priority = 'low'; // Last phase can be lower
+            
+            const task = {
+                id: Date.now() + taskIndex + phaseIndex * 1000,
+                title: `${phase.title}: ${taskTitle}`,
+                description: `Phase ${phaseIndex + 1} - ${phase.duration}`,
+                dueDate: dueDate.toISOString().split('T')[0],
+                priority: priority,
+                completed: false,
+                createdAt: new Date().toISOString(),
+                completedAt: null,
+                autoGenerated: true
+            };
+            
+            newTasks.push(task);
+        });
+    });
+    
+    // Merge with existing tasks and save
+    const allTasks = [...newTasks, ...existingTasks];
+    localStorage.setItem('userTasks', JSON.stringify(allTasks));
+    localStorage.setItem('tasksAutoGenerated', 'true');
+    
+    showNotification(`${newTasks.length} tâches ont été créées automatiquement pour ton plan !`, 'success');
+}
+
+// Send PDF via email
+async function sendPDFByEmail() {
+    const userPlan = JSON.parse(localStorage.getItem('userPlan'));
+    
+    if (!userPlan) {
+        showNotification('Erreur: Plan non trouvé', 'error');
+        return;
+    }
+    
+    try {
+        showNotification('Envoi du PDF par email en cours...', 'info');
+        
+        const response = await fetch('/api/users/send-pdf-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userPlan)
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok || !result.success) {
+            throw new Error(result.error || 'Erreur lors de l\'envoi de l\'email');
+        }
+        
+        showNotification('PDF envoyé avec succès par email ! 📧', 'success');
+        
+    } catch (error) {
+        console.error('Error sending PDF email:', error);
+        showNotification('Erreur lors de l\'envoi de l\'email. Veuillez réessayer.', 'error');
+    }
 }
