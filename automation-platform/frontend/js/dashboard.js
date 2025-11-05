@@ -639,8 +639,52 @@ function getOpportunities(plan) {
     ];
 }
 
-function downloadPlan() {
-    showNotification('Fonctionnalité en cours de développement. Tu recevras bientôt un email avec le lien de téléchargement PDF.', 'info');
+async function downloadPlan() {
+    const userPlan = JSON.parse(localStorage.getItem('userPlan'));
+    
+    if (!userPlan) {
+        showNotification('Erreur: Plan non trouvé', 'error');
+        return;
+    }
+    
+    try {
+        showNotification('Génération du PDF en cours...', 'info');
+        
+        const response = await fetch('/api/users/download-pdf', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userPlan)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Erreur lors de la génération du PDF');
+        }
+        
+        // Get the blob from response
+        const blob = await response.blob();
+        
+        // Create a download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `Mon_Plan_${userPlan.name.replace(/\s+/g, '_')}.pdf`;
+        
+        document.body.appendChild(a);
+        a.click();
+        
+        // Clean up
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        showNotification('PDF téléchargé avec succès ! 📄', 'success');
+        
+    } catch (error) {
+        console.error('Error downloading PDF:', error);
+        showNotification('Erreur lors du téléchargement du PDF. Veuillez réessayer.', 'error');
+    }
 }
 
 function sharePlan() {

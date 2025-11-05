@@ -1,4 +1,4 @@
-# Plateforme d'Automatisation de Plans Personnalisés
+# 🚀 Plateforme d'Automatisation de Plans Personnalisés - PlanGenerator
 
 ## 🎯 Objectif
 
@@ -7,6 +7,58 @@ Créer une plateforme web où les utilisateurs remplissent un formulaire sur leu
 - Des visuels (roadmaps, diagrammes de Gantt, graphiques)
 - Des mises à jour automatiques sur les nouvelles opportunités
 - Des notifications par email
+
+## ✨ Nouvelles Fonctionnalités (Récemment Ajoutées)
+
+### 📄 Export PDF Fonctionnel
+- ✅ Génération automatique de PDF haute qualité avec PDFKit
+- ✅ Téléchargement direct depuis le dashboard
+- ✅ Inclut roadmaps, ressources, et étapes clés stylisées
+- ✅ API endpoint `/api/users/download-pdf`
+
+### ✅ Gestion de Tâches (To-Do Lists)
+- ✅ Interface complète de gestion de tâches
+- ✅ Priorités (basse, moyenne, haute) avec couleurs
+- ✅ Dates d'échéance et rappels automatiques
+- ✅ Filtrage (toutes, en cours, terminées)
+- ✅ Statistiques de progression en temps réel
+- ✅ Notifications browser pour les rappels
+- ✅ Sauvegarde locale (localStorage)
+
+### 🤖 Chatbot Assistant Intelligent
+- ✅ Assistant disponible 24/7 avec base de connaissances
+- ✅ Sujets couverts:
+  - Recherche de stage et emploi
+  - Bourses et financements (CROUS, PEPITE, i-Lab)
+  - Freelancing et micro-entreprise
+  - Ressources d'apprentissage gratuites
+  - Programmation (Python, JavaScript, etc.)
+  - Business et entrepreneuriat
+  - Motivation et conseils
+- ✅ Questions rapides pré-configurées
+- ✅ Interface conversationnelle moderne
+
+### 📚 Bibliothèque de Ressources
+- ✅ 25+ ressources gratuites et freemium
+- ✅ Catégories: Programmation, Business, Design, Outils
+- ✅ Recherche en temps réel
+- ✅ Filtrage par catégorie
+- ✅ Tags pour faciliter la découverte
+- ✅ Liens directs vers chaque ressource
+- ✅ Section dédiée au GitHub Student Pack
+
+### 🎨 Améliorations Visuelles
+- ✅ Animations CSS personnalisées (fade-in, slide-in)
+- ✅ Cartes avec effet hover-lift
+- ✅ Dégradés et effets modernes
+- ✅ Icons animés avec pulse effect
+- ✅ Barres de progression fluides
+- ✅ Notifications avec animations de slide
+
+### 🧭 Navigation Améliorée
+- ✅ Navbar cohérente sur toutes les pages
+- ✅ Liens vers toutes les nouvelles fonctionnalités
+- ✅ Design responsive et moderne
 
 ## 🛠️ Technologies Utilisées (100% Gratuites via GitHub Student Pack)
 
