@@ -140,6 +140,62 @@ router.patch('/:userId/progress', async (req, res) => {
     }
 });
 
+// Send PDF via email
+router.post('/send-pdf-email', pdfDownloadLimiter, async (req, res) => {
+    try {
+        const planData = req.body;
+        
+        // Validate input
+        if (!planData || !planData.name || !planData.email) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid plan data or email'
+            });
+        }
+        
+        // Create temp directory if it doesn't exist
+        const tempDir = path.join(__dirname, '../../temp');
+        if (!fs.existsSync(tempDir)) {
+            fs.mkdirSync(tempDir, { recursive: true });
+        }
+        
+        // Sanitize filename
+        const safeName = planData.name.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 50);
+        const fileName = `plan_${safeName}_${Date.now()}.pdf`;
+        const filePath = path.join(tempDir, fileName);
+        
+        // Generate PDF
+        await generatePlanPDF(planData, filePath);
+        
+        // Send email with PDF attachment
+        const { sendPDFEmail } = require('../services/email');
+        await sendPDFEmail(planData.email, planData.name, filePath);
+        
+        // Delete temp file after sending
+        setTimeout(() => {
+            try {
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+            } catch (deleteErr) {
+                console.error('Error deleting temp file:', deleteErr);
+            }
+        }, 5000);
+        
+        res.json({
+            success: true,
+            message: 'PDF sent successfully via email'
+        });
+        
+    } catch (error) {
+        console.error('Error sending PDF email:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
 // Download user plan as PDF (with rate limiting)
 router.post('/download-pdf', pdfDownloadLimiter, async (req, res) => {
     try {

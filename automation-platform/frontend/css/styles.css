@@ -374,6 +374,137 @@ html {
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* Neomorphism Effects */
+.neo-card {
+    background: #f0f0f3;
+    border-radius: 20px;
+    box-shadow: 8px 8px 16px #d1d1d4, -8px -8px 16px #ffffff;
+    border: none;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.neo-card:hover {
+    box-shadow: 12px 12px 24px #d1d1d4, -12px -12px 24px #ffffff;
+    transform: translateY(-2px);
+}
+
+.neo-button {
+    background: linear-gradient(145deg, #f0f0f3, #cacaca);
+    box-shadow: 5px 5px 10px #bebebe, -5px -5px 10px #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 24px;
+    transition: all 0.3s ease;
+}
+
+.neo-button:hover {
+    box-shadow: inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff;
+}
+
+.neo-input {
+    background: #f0f0f3;
+    border: none;
+    border-radius: 12px;
+    box-shadow: inset 4px 4px 8px #d1d1d4, inset -4px -4px 8px #ffffff;
+    padding: 12px 20px;
+    transition: all 0.3s ease;
+}
+
+.neo-input:focus {
+    outline: none;
+    box-shadow: inset 6px 6px 12px #d1d1d4, inset -6px -6px 12px #ffffff;
+}
+
+/* Modern Card Styles */
+.modern-card {
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(10px);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Gradient Buttons */
+.btn-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient-primary:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.btn-gradient-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    border: none;
+    color: white;
+}
+
+.btn-gradient-success:hover {
+    background: linear-gradient(135deg, #38ef7d 0%, #11998e 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(17, 153, 142, 0.3);
+}
+
+/* Enhanced Shadows */
+.shadow-neo {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Glowing Effects */
+.glow-on-hover {
+    transition: all 0.3s ease;
+}
+
+.glow-on-hover:hover {
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.6), 0 0 40px rgba(102, 126, 234, 0.4);
+}
+
+/* 3D Card Effect */
+.card-3d {
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+}
+
+.card-3d:hover {
+    transform: rotateY(5deg) rotateX(5deg);
+}
+
+/* Floating Animation */
+@keyframes floating {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.floating {
+    animation: floating 3s ease-in-out infinite;
+}
+
+/* Shimmer Effect */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+}
+
 /* Notification Slide In */
 @keyframes slideInFromRight {
     from {

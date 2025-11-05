@@ -66,10 +66,13 @@
                                     <p class="text-muted mb-0" id="planSummary"></p>
                                 </div>
                                 <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <button class="btn btn-primary" onclick="downloadPlan()">
+                                    <button class="btn btn-gradient-primary" onclick="downloadPlan()">
                                         <i class="bi bi-file-earmark-pdf"></i> Télécharger PDF
                                     </button>
-                                    <button class="btn btn-outline-primary" onclick="sharePlan()">
+                                    <button class="btn btn-gradient-success" onclick="sendPDFByEmail()">
+                                        <i class="bi bi-envelope"></i> Envoyer par Email
+                                    </button>
+                                    <button class="btn btn-outline-primary glow-on-hover" onclick="sharePlan()">
                                         <i class="bi bi-share"></i> Partager
                                     </button>
                                 </div>
@@ -163,6 +166,11 @@
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="gantt-tab" data-bs-toggle="tab" data-bs-target="#gantt" type="button">
+                                <i class="bi bi-calendar-week"></i> Diagramme de Gantt
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
                             <button class="nav-link" id="opportunities-tab" data-bs-toggle="tab" data-bs-target="#opportunities" type="button">
                                 <i class="bi bi-lightning"></i> Opportunités
                             </button>
@@ -192,6 +200,17 @@
                             <h5 class="mb-4">Ressources recommandées</h5>
                             <div id="resourcesContent">
                                 <!-- Resources will be generated here -->
+                            </div>
+                        </div>
+
+                        <!-- Gantt Chart Tab -->
+                        <div class="tab-pane fade" id="gantt" role="tabpanel">
+                            <h5 class="mb-4">Timeline de ton Plan</h5>
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Visualise toutes tes tâches sur une ligne de temps pour mieux planifier.
+                            </div>
+                            <div id="ganttChart" class="gantt-container">
+                                <!-- Gantt chart will be rendered here -->
                             </div>
                         </div>
 
