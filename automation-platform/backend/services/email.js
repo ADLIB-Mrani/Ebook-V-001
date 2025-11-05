@@ -222,10 +222,16 @@ const generateReminderEmailHTML = (name, nextMilestone) => {
 
 const sendPDFEmail = async (email, name, pdfPath) => {
     const fs = require('fs');
+    const path = require('path');
     
     if (!process.env.SENDGRID_API_KEY) {
         console.log('SendGrid not configured - PDF email would be sent to:', email);
         return { success: true, demo: true };
+    }
+    
+    // Verify the file exists and is a PDF (additional security check)
+    if (!fs.existsSync(pdfPath) || !pdfPath.endsWith('.pdf')) {
+        throw new Error('Invalid PDF file');
     }
     
     // Read PDF file as base64

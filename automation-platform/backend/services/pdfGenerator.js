@@ -30,6 +30,12 @@ const generatePlanPDF = (plan, outputPath) => {
             if (!plan || !outputPath) {
                 throw new Error('Invalid parameters');
             }
+            
+            // Validate outputPath is a PDF file and doesn't contain path traversal
+            if (!outputPath.endsWith('.pdf') || outputPath.includes('..')) {
+                throw new Error('Invalid output path');
+            }
+            
             // Create a document
             const doc = new PDFDocument({
                 size: 'A4',

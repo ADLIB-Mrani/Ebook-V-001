@@ -159,10 +159,20 @@ router.post('/send-pdf-email', pdfDownloadLimiter, async (req, res) => {
             fs.mkdirSync(tempDir, { recursive: true });
         }
         
-        // Sanitize filename
+        // Sanitize filename to prevent path traversal
         const safeName = planData.name.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 50);
         const fileName = `plan_${safeName}_${Date.now()}.pdf`;
         const filePath = path.join(tempDir, fileName);
+        
+        // Verify path is within temp directory (prevent path traversal)
+        const normalizedPath = path.normalize(filePath);
+        const normalizedTempDir = path.normalize(tempDir);
+        if (!normalizedPath.startsWith(normalizedTempDir)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid file path'
+            });
+        }
         
         // Generate PDF
         await generatePlanPDF(planData, filePath);
@@ -219,6 +229,16 @@ router.post('/download-pdf', pdfDownloadLimiter, async (req, res) => {
         const safeName = planData.name.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 50);
         const fileName = `plan_${safeName}_${Date.now()}.pdf`;
         const filePath = path.join(tempDir, fileName);
+        
+        // Verify path is within temp directory (prevent path traversal)
+        const normalizedPath = path.normalize(filePath);
+        const normalizedTempDir = path.normalize(tempDir);
+        if (!normalizedPath.startsWith(normalizedTempDir)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid file path'
+            });
+        }
         
         // Generate PDF
         await generatePlanPDF(planData, filePath);
