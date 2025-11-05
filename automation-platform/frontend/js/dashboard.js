@@ -1,3 +1,18 @@
+// Constants for plan types and timelines
+const PLAN_TYPE_LABELS = {
+    'programming': 'Programmation',
+    'business': 'Business',
+    'freelancing': 'Freelancing',
+    'content': 'Création de contenu'
+};
+
+const TIMELINE_LABELS = {
+    '3months': '3 mois',
+    '6months': '6 mois',
+    '1year': '1 an',
+    '2years': '2 ans'
+};
+
 // Dashboard initialization
 document.addEventListener('DOMContentLoaded', function() {
     // Get user plan from localStorage
@@ -26,27 +41,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function populateUserInfo(plan) {
     document.getElementById('userName').textContent = plan.name;
-    
-    const planTypeLabels = {
-        'programming': 'Programmation',
-        'business': 'Business',
-        'freelancing': 'Freelancing',
-        'content': 'Création de contenu'
-    };
-    
-    const summary = `Plan ${planTypeLabels[plan.planType]} - ${plan.field}`;
+    const summary = `Plan ${PLAN_TYPE_LABELS[plan.planType]} - ${plan.field}`;
     document.getElementById('planSummary').textContent = summary;
 }
 
 function populateStats(plan) {
     // Duration
-    const timelineLabels = {
-        '3months': '3 mois',
-        '6months': '6 mois',
-        '1year': '1 an',
-        '2years': '2 ans'
-    };
-    document.getElementById('planDuration').textContent = timelineLabels[plan.timeline];
+    document.getElementById('planDuration').textContent = TIMELINE_LABELS[plan.timeline];
     
     // Milestone count (calculated based on plan type)
     const milestoneCount = calculateMilestoneCount(plan);
@@ -677,25 +678,11 @@ function downloadPlan() {
         doc.setFontSize(12);
         let yPos = 55;
         
-        const planTypeLabels = {
-            'programming': 'Programmation',
-            'business': 'Business',
-            'freelancing': 'Freelancing',
-            'content': 'Création de contenu'
-        };
-        
-        const timelineLabels = {
-            '3months': '3 mois',
-            '6months': '6 mois',
-            '1year': '1 an',
-            '2years': '2 ans'
-        };
-        
-        doc.text(`Type de plan: ${planTypeLabels[userPlan.planType]}`, 20, yPos);
+        doc.text(`Type de plan: ${PLAN_TYPE_LABELS[userPlan.planType]}`, 20, yPos);
         yPos += 8;
         doc.text(`Domaine: ${userPlan.field}`, 20, yPos);
         yPos += 8;
-        doc.text(`Durée: ${timelineLabels[userPlan.timeline]}`, 20, yPos);
+        doc.text(`Durée: ${TIMELINE_LABELS[userPlan.timeline]}`, 20, yPos);
         yPos += 8;
         doc.text(`Temps par semaine: ${userPlan.timePerWeek}`, 20, yPos);
         yPos += 8;
@@ -1033,28 +1020,14 @@ function sendPDFByEmail() {
     }
     
     try {
-        const planTypeLabels = {
-            'programming': 'Programmation',
-            'business': 'Business',
-            'freelancing': 'Freelancing',
-            'content': 'Création de contenu'
-        };
-        
-        const timelineLabels = {
-            '3months': '3 mois',
-            '6months': '6 mois',
-            '1year': '1 an',
-            '2years': '2 ans'
-        };
-        
         // Create email content
-        const subject = encodeURIComponent(`Mon Plan Personnalisé - ${planTypeLabels[userPlan.planType]}`);
+        const subject = encodeURIComponent(`Mon Plan Personnalisé - ${PLAN_TYPE_LABELS[userPlan.planType]}`);
         
         let body = `Bonjour ${userPlan.name},\n\n`;
         body += `Voici les détails de ton plan personnalisé:\n\n`;
-        body += `Type: ${planTypeLabels[userPlan.planType]}\n`;
+        body += `Type: ${PLAN_TYPE_LABELS[userPlan.planType]}\n`;
         body += `Domaine: ${userPlan.field}\n`;
-        body += `Durée: ${timelineLabels[userPlan.timeline]}\n`;
+        body += `Durée: ${TIMELINE_LABELS[userPlan.timeline]}\n`;
         body += `Temps par semaine: ${userPlan.timePerWeek}\n`;
         body += `Budget: ${userPlan.budget === '0' ? 'Gratuit' : userPlan.budget + '€'}\n\n`;
         body += `Pour voir ton plan complet avec le diagramme de Gantt et toutes les étapes détaillées, visite:\n`;
