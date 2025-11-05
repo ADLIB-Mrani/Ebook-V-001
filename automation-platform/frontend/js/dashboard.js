@@ -645,7 +645,7 @@ function getOpportunities(plan) {
     ];
 }
 
-async function downloadPlan() {
+function downloadPlan() {
     const userPlan = JSON.parse(localStorage.getItem('userPlan'));
     
     if (!userPlan) {
@@ -656,40 +656,135 @@ async function downloadPlan() {
     try {
         showNotification('Génération du PDF en cours...', 'info');
         
-        const response = await fetch('/api/users/download-pdf', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(userPlan)
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Set font
+        doc.setFont('helvetica');
+        
+        // Title
+        doc.setFontSize(24);
+        doc.setTextColor(102, 126, 234);
+        doc.text('Mon Plan Personnalisé', 105, 20, { align: 'center' });
+        
+        // User info
+        doc.setFontSize(16);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Bonjour ${userPlan.name} !`, 20, 40);
+        
+        // Plan details
+        doc.setFontSize(12);
+        let yPos = 55;
+        
+        const planTypeLabels = {
+            'programming': 'Programmation',
+            'business': 'Business',
+            'freelancing': 'Freelancing',
+            'content': 'Création de contenu'
+        };
+        
+        const timelineLabels = {
+            '3months': '3 mois',
+            '6months': '6 mois',
+            '1year': '1 an',
+            '2years': '2 ans'
+        };
+        
+        doc.text(`Type de plan: ${planTypeLabels[userPlan.planType]}`, 20, yPos);
+        yPos += 8;
+        doc.text(`Domaine: ${userPlan.field}`, 20, yPos);
+        yPos += 8;
+        doc.text(`Durée: ${timelineLabels[userPlan.timeline]}`, 20, yPos);
+        yPos += 8;
+        doc.text(`Temps par semaine: ${userPlan.timePerWeek}`, 20, yPos);
+        yPos += 8;
+        doc.text(`Budget mensuel: ${userPlan.budget === '0' ? 'Gratuit' : userPlan.budget + '€'}`, 20, yPos);
+        yPos += 15;
+        
+        // Roadmap phases
+        doc.setFontSize(16);
+        doc.setTextColor(102, 126, 234);
+        doc.text('Roadmap', 20, yPos);
+        yPos += 10;
+        
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        
+        const phases = getRoadmapPhases(userPlan);
+        
+        phases.forEach((phase, index) => {
+            if (yPos > 250) {
+                doc.addPage();
+                yPos = 20;
+            }
+            
+            doc.setFontSize(13);
+            doc.setTextColor(102, 126, 234);
+            doc.text(`Phase ${index + 1}: ${phase.title}`, 20, yPos);
+            yPos += 7;
+            
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(phase.duration, 20, yPos);
+            yPos += 7;
+            
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            phase.tasks.forEach(task => {
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                doc.text(`• ${task}`, 25, yPos);
+                yPos += 6;
+            });
+            yPos += 5;
         });
         
-        if (!response.ok) {
-            throw new Error('Erreur lors de la génération du PDF');
+        // Milestones
+        if (yPos > 220) {
+            doc.addPage();
+            yPos = 20;
         }
         
-        // Get the blob from response
-        const blob = await response.blob();
+        yPos += 10;
+        doc.setFontSize(16);
+        doc.setTextColor(102, 126, 234);
+        doc.text('Étapes Clés', 20, yPos);
+        yPos += 10;
         
-        // Create a download link
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = `Mon_Plan_${userPlan.name.replace(/\s+/g, '_')}.pdf`;
+        const milestones = getMilestones(userPlan);
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
         
-        document.body.appendChild(a);
-        a.click();
+        milestones.forEach((milestone, index) => {
+            if (yPos > 270) {
+                doc.addPage();
+                yPos = 20;
+            }
+            doc.text(`${index + 1}. ${milestone.title} - ${milestone.timeline}`, 20, yPos);
+            yPos += 7;
+        });
         
-        // Clean up
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        // Footer
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(9);
+            doc.setTextColor(150, 150, 150);
+            doc.text(`Page ${i} de ${pageCount}`, 105, 285, { align: 'center' });
+            doc.text('Généré par PlanGenerator', 105, 290, { align: 'center' });
+        }
+        
+        // Download the PDF
+        doc.save(`Mon_Plan_${userPlan.name.replace(/\s+/g, '_')}.pdf`);
         
         showNotification('PDF téléchargé avec succès ! 📄', 'success');
         
     } catch (error) {
-        console.error('Error downloading PDF:', error);
-        showNotification('Erreur lors du téléchargement du PDF. Veuillez réessayer.', 'error');
+        console.error('Error generating PDF:', error);
+        showNotification('Erreur lors de la génération du PDF. Veuillez réessayer.', 'error');
     }
 }
 
@@ -720,6 +815,16 @@ function sharePlan() {
             showNotification('Lien: ' + url + '\nCopiez-le manuellement depuis la barre d\'adresse.', 'info');
         }
     }
+}
+
+// Helper function to format date
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    });
 }
 
 // Helper function to show notifications using Bootstrap toast or simple div
@@ -918,8 +1023,8 @@ function generateAutoTasks(plan) {
     showNotification(`${newTasks.length} tâches ont été créées automatiquement pour ton plan !`, 'success');
 }
 
-// Send PDF via email
-async function sendPDFByEmail() {
+// Send plan details via email
+function sendPDFByEmail() {
     const userPlan = JSON.parse(localStorage.getItem('userPlan'));
     
     if (!userPlan) {
@@ -928,26 +1033,47 @@ async function sendPDFByEmail() {
     }
     
     try {
-        showNotification('Envoi du PDF par email en cours...', 'info');
+        const planTypeLabels = {
+            'programming': 'Programmation',
+            'business': 'Business',
+            'freelancing': 'Freelancing',
+            'content': 'Création de contenu'
+        };
         
-        const response = await fetch('/api/users/send-pdf-email', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(userPlan)
-        });
+        const timelineLabels = {
+            '3months': '3 mois',
+            '6months': '6 mois',
+            '1year': '1 an',
+            '2years': '2 ans'
+        };
         
-        const result = await response.json();
+        // Create email content
+        const subject = encodeURIComponent(`Mon Plan Personnalisé - ${planTypeLabels[userPlan.planType]}`);
         
-        if (!response.ok || !result.success) {
-            throw new Error(result.error || 'Erreur lors de l\'envoi de l\'email');
-        }
+        let body = `Bonjour ${userPlan.name},\n\n`;
+        body += `Voici les détails de ton plan personnalisé:\n\n`;
+        body += `Type: ${planTypeLabels[userPlan.planType]}\n`;
+        body += `Domaine: ${userPlan.field}\n`;
+        body += `Durée: ${timelineLabels[userPlan.timeline]}\n`;
+        body += `Temps par semaine: ${userPlan.timePerWeek}\n`;
+        body += `Budget: ${userPlan.budget === '0' ? 'Gratuit' : userPlan.budget + '€'}\n\n`;
+        body += `Pour voir ton plan complet avec le diagramme de Gantt et toutes les étapes détaillées, visite:\n`;
+        body += window.location.href;
+        body += `\n\nTu peux également télécharger le PDF de ton plan directement depuis le tableau de bord.\n\n`;
+        body += `Bonne chance dans ton parcours!\n\n`;
+        body += `---\n`;
+        body += `Généré par PlanGenerator`;
         
-        showNotification('PDF envoyé avec succès par email ! 📧', 'success');
+        const encodedBody = encodeURIComponent(body);
+        
+        // Open email client with pre-filled content
+        const mailtoLink = `mailto:${userPlan.email}?subject=${subject}&body=${encodedBody}`;
+        window.location.href = mailtoLink;
+        
+        showNotification('Ouvre ton client email pour envoyer le plan ! 📧', 'info');
         
     } catch (error) {
-        console.error('Error sending PDF email:', error);
-        showNotification('Erreur lors de l\'envoi de l\'email. Veuillez réessayer.', 'error');
+        console.error('Error creating email:', error);
+        showNotification('Erreur lors de la création de l\'email. Veuillez télécharger le PDF à la place.', 'error');
     }
 }
