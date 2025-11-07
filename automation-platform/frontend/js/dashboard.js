@@ -37,6 +37,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Generate Gantt chart
     generateGanttChart(userPlan);
+    
+    // Generate progress charts
+    generateProgressCharts(userPlan);
 });
 
 function populateUserInfo(plan) {
@@ -804,6 +807,16 @@ function sharePlan() {
     }
 }
 
+// Logout function
+function logout() {
+    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+        localStorage.removeItem('currentUser');
+        sessionStorage.removeItem('currentUser');
+        window.location.href = 'auth.html';
+    }
+}
+
+
 // Helper function to format date
 function formatDate(dateString) {
     const date = new Date(dateString);
@@ -1050,3 +1063,235 @@ function sendPDFByEmail() {
         showNotification('Erreur lors de la création de l\'email. Veuillez télécharger le PDF à la place.', 'error');
     }
 }
+
+// Generate progress charts
+function generateProgressCharts(plan) {
+    const tasks = JSON.parse(localStorage.getItem('userTasks') || '[]');
+    
+    // 1. Tasks Completion Pie Chart
+    const completedTasks = tasks.filter(t => t.completed).length;
+    const pendingTasks = tasks.length - completedTasks;
+    
+    const tasksCompletionCtx = document.getElementById('tasksCompletionChart');
+    if (tasksCompletionCtx) {
+        new Chart(tasksCompletionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Complétées', 'En cours'],
+                datasets: [{
+                    data: [completedTasks, pendingTasks],
+                    backgroundColor: ['#198754', '#ffc107'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    title: {
+                        display: true,
+                        text: `${completedTasks} / ${tasks.length} tâches`
+                    }
+                }
+            }
+        });
+    }
+    
+    // 2. Time Invested Bar Chart (simulated data based on plan)
+    const timeInvestedCtx = document.getElementById('timeInvestedChart');
+    if (timeInvestedCtx) {
+        // Extract hours from plan.timePerWeek (e.g., "10-15h" -> 12.5)
+        const timeMatch = plan.timePerWeek.match(/(\d+)-?(\d+)?/);
+        const avgHoursPerWeek = timeMatch ? 
+            (parseInt(timeMatch[1]) + (timeMatch[2] ? parseInt(timeMatch[2]) : parseInt(timeMatch[1]))) / 2 : 10;
+        
+        // Calculate weeks since plan creation (simulate)
+        const weeksData = [
+            { week: 'S1', hours: avgHoursPerWeek * 0.6 },
+            { week: 'S2', hours: avgHoursPerWeek * 0.8 },
+            { week: 'S3', hours: avgHoursPerWeek * 0.9 },
+            { week: 'S4', hours: avgHoursPerWeek * 1.0 }
+        ];
+        
+        new Chart(timeInvestedCtx, {
+            type: 'bar',
+            data: {
+                labels: weeksData.map(w => w.week),
+                datasets: [{
+                    label: 'Heures investies',
+                    data: weeksData.map(w => w.hours),
+                    backgroundColor: '#0d6efd',
+                    borderColor: '#0d6efd',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Heures'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // 3. Progress Curve Chart (Line Chart showing cumulative progress)
+    const progressCurveCtx = document.getElementById('progressCurveChart');
+    if (progressCurveCtx) {
+        // Generate progress data over time
+        const totalTasks = tasks.length;
+        const timelineMonths = {
+            '3months': 3,
+            '6months': 6,
+            '1year': 12,
+            '2years': 24
+        };
+        const months = timelineMonths[plan.timeline] || 6;
+        
+        // Generate progress curve (S-curve simulation)
+        const progressData = [];
+        const labels = [];
+        for (let i = 0; i <= months; i++) {
+            labels.push(`Mois ${i}`);
+            // S-curve: slow start, fast middle, slow end
+            const progress = (1 / (1 + Math.exp(-0.5 * (i - months/2)))) * 100;
+            progressData.push(Math.min(progress, 100));
+        }
+        
+        // Overlay actual completion
+        const actualProgress = (completedTasks / totalTasks) * 100;
+        const currentMonth = 2; // Simulate we're at month 2
+        
+        new Chart(progressCurveCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Progression Prévue',
+                        data: progressData,
+                        borderColor: '#6c757d',
+                        backgroundColor: 'rgba(108, 117, 125, 0.1)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        tension: 0.4,
+                        pointRadius: 3
+                    },
+                    {
+                        label: 'Progression Réelle',
+                        data: labels.map((_, i) => i <= currentMonth ? (i / currentMonth) * actualProgress : null),
+                        borderColor: '#198754',
+                        backgroundColor: 'rgba(25, 135, 84, 0.2)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#198754'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Progression (%)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Timeline'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // 4. Weekly Stats Chart (Productivity over weeks)
+    const weeklyStatsCtx = document.getElementById('weeklyStatsChart');
+    if (weeklyStatsCtx) {
+        // Generate weekly productivity data
+        const weeks = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'];
+        const productivityData = [65, 72, 80, 75, 85, 90]; // Simulated productivity scores
+        
+        new Chart(weeklyStatsCtx, {
+            type: 'line',
+            data: {
+                labels: weeks,
+                datasets: [{
+                    label: 'Productivité (%)',
+                    data: productivityData,
+                    borderColor: '#ffc107',
+                    backgroundColor: 'rgba(255, 193, 7, 0.2)',
+                    borderWidth: 3,
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#ffc107',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+

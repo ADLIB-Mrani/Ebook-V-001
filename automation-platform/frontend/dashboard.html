@@ -38,6 +38,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="form.html">Nouveau Plan</a>
                     </li>
+                    <li class="nav-item" id="userMenu">
+                        <a class="nav-link" href="#" onclick="logout()">
+                            <i class="bi bi-box-arrow-right"></i> Déconnexion
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -171,6 +176,11 @@
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="progress-tab" data-bs-toggle="tab" data-bs-target="#progress" type="button">
+                                <i class="bi bi-graph-up"></i> Progression
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
                             <button class="nav-link" id="opportunities-tab" data-bs-toggle="tab" data-bs-target="#opportunities" type="button">
                                 <i class="bi bi-lightning"></i> Opportunités
                             </button>
@@ -211,6 +221,62 @@
                             </div>
                             <div id="ganttChart" class="gantt-container">
                                 <!-- Gantt chart will be rendered here -->
+                            </div>
+                        </div>
+
+                        <!-- Progress Tab -->
+                        <div class="tab-pane fade" id="progress" role="tabpanel">
+                            <h5 class="mb-4">Ta Progression</h5>
+                            <div class="alert alert-info">
+                                <i class="bi bi-graph-up"></i> Visualise ton évolution et reste motivé !
+                            </div>
+                            
+                            <!-- Progress Overview -->
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="card shadow-sm">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-primary mb-3">
+                                                <i class="bi bi-calendar-check"></i> Tâches Complétées
+                                            </h6>
+                                            <canvas id="tasksCompletionChart" height="200"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card shadow-sm">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-success mb-3">
+                                                <i class="bi bi-clock-history"></i> Temps Investi
+                                            </h6>
+                                            <canvas id="timeInvestedChart" height="200"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Detailed Progress Chart -->
+                            <div class="card shadow-sm">
+                                <div class="card-body">
+                                    <h6 class="card-title text-info mb-3">
+                                        <i class="bi bi-graph-up-arrow"></i> Courbe de Progression
+                                    </h6>
+                                    <canvas id="progressCurveChart"></canvas>
+                                </div>
+                            </div>
+                            
+                            <!-- Weekly Stats -->
+                            <div class="row mt-4">
+                                <div class="col-md-12">
+                                    <div class="card shadow-sm">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-warning mb-3">
+                                                <i class="bi bi-bar-chart"></i> Statistiques Hebdomadaires
+                                            </h6>
+                                            <canvas id="weeklyStatsChart" height="100"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -261,6 +327,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-2jAPYQ3XkwECdoLYBPDr8OsVVqvHxJ1j5fVbMmR0OmB7iJD6Q5Zcgh7e//k3K8c3" crossorigin="anonymous"></script>
     <script src="js/dashboard.js"></script>
 </body>
 </html>
