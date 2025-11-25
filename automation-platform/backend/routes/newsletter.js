@@ -12,6 +12,15 @@ const subscriptionLimiter = rateLimit({
     legacyHeaders: false,
 });
 
+// Rate limiter for general operations - 30 requests per minute per IP
+const generalLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 30,
+    message: { success: false, error: 'Trop de requêtes. Réessaye dans 1 minute.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 // Email validation regex
 const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
@@ -125,7 +134,7 @@ router.post('/subscribe', subscriptionLimiter, async (req, res) => {
 });
 
 // Unsubscribe from newsletter
-router.get('/unsubscribe/:token', async (req, res) => {
+router.get('/unsubscribe/:token', generalLimiter, async (req, res) => {
     try {
         const { token } = req.params;
         
@@ -182,7 +191,7 @@ router.get('/unsubscribe/:token', async (req, res) => {
 });
 
 // Update subscription preferences
-router.patch('/preferences', async (req, res) => {
+router.patch('/preferences', generalLimiter, async (req, res) => {
     try {
         const { email, interests, frequency } = req.body;
         
@@ -256,7 +265,7 @@ router.patch('/preferences', async (req, res) => {
 });
 
 // Get newsletter statistics (public, limited data)
-router.get('/stats', async (req, res) => {
+router.get('/stats', generalLimiter, async (req, res) => {
     try {
         // Demo mode if no database
         if (!isDbConnected()) {

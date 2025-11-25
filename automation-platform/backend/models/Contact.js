@@ -50,8 +50,13 @@ let Contact;
 try {
     Contact = mongoose.model('Contact', contactSchema);
 } catch (error) {
-    console.log('Running without Contact model');
-    Contact = null;
+    // Only suppress errors related to mongoose connection/model issues
+    if (error.name === 'MissingSchemaError' || error.message.includes('Schema hasn\'t been registered')) {
+        console.log('Running without Contact model - mongoose not fully connected');
+        Contact = null;
+    } else {
+        throw error; // Re-throw other errors
+    }
 }
 
 module.exports = Contact;

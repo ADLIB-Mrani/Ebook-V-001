@@ -95,7 +95,7 @@ router.post('/submit', contactLimiter, async (req, res) => {
             subject: subject.trim(),
             message: message.trim(),
             category: validatedCategory,
-            ipAddress: req.ip || req.connection?.remoteAddress,
+            ipAddress: req.ip || req.socket?.remoteAddress,
             userAgent: req.get('User-Agent')?.substring(0, 500)
         });
         

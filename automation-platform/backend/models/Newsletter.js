@@ -55,8 +55,13 @@ let Newsletter;
 try {
     Newsletter = mongoose.model('Newsletter', newsletterSchema);
 } catch (error) {
-    console.log('Running without Newsletter model');
-    Newsletter = null;
+    // Only suppress errors related to mongoose connection/model issues
+    if (error.name === 'MissingSchemaError' || error.message.includes('Schema hasn\'t been registered')) {
+        console.log('Running without Newsletter model - mongoose not fully connected');
+        Newsletter = null;
+    } else {
+        throw error; // Re-throw other errors
+    }
 }
 
 module.exports = Newsletter;
