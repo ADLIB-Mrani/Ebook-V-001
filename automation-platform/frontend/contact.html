@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - PlanGenerator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .contact-hero {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        .contact-card {
+            transition: all 0.3s ease;
+        }
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+        }
+        .contact-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border-radius: 50%;
+        }
+        .char-counter {
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-rocket-takeoff"></i> PlanGenerator
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="form.html">Créer mon plan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="resources.html">Ressources</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="newsletter.html">Newsletter</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="contact.html">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="contact-hero text-white py-5">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="bi bi-chat-dots"></i> Contacte-nous
+            </h1>
+            <p class="lead">
+                Une question, une suggestion ou un partenariat ? On est là pour toi !
+            </p>
+        </div>
+    </section>
+
+    <!-- Contact Options -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <div class="card contact-card h-100 border-0 shadow-sm text-center p-4">
+                        <div class="contact-icon bg-primary bg-gradient text-white mx-auto mb-3">
+                            <i class="bi bi-envelope"></i>
+                        </div>
+                        <h5>Email</h5>
+                        <p class="text-muted small">Pour les questions générales</p>
+                        <a href="mailto:contact@plangenerator.com" class="btn btn-outline-primary btn-sm">
+                            contact@plangenerator.com
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card contact-card h-100 border-0 shadow-sm text-center p-4">
+                        <div class="contact-icon bg-info bg-gradient text-white mx-auto mb-3">
+                            <i class="bi bi-discord"></i>
+                        </div>
+                        <h5>Discord</h5>
+                        <p class="text-muted small">Rejoins notre communauté</p>
+                        <a href="#" class="btn btn-outline-info btn-sm">
+                            Rejoindre le serveur
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card contact-card h-100 border-0 shadow-sm text-center p-4">
+                        <div class="contact-icon bg-dark text-white mx-auto mb-3">
+                            <i class="bi bi-github"></i>
+                        </div>
+                        <h5>GitHub</h5>
+                        <p class="text-muted small">Signaler un bug ou contribuer</p>
+                        <a href="#" class="btn btn-outline-dark btn-sm">
+                            Voir le repo
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-lg border-0">
+                        <div class="card-header bg-white py-4">
+                            <h4 class="mb-0">
+                                <i class="bi bi-pencil-square text-primary"></i> Formulaire de contact
+                            </h4>
+                        </div>
+                        <div class="card-body p-4">
+                            <form id="contactForm">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="name" class="form-label">Nom complet *</label>
+                                        <input type="text" class="form-control" id="name" required 
+                                               maxlength="100" placeholder="Ton nom">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="email" class="form-label">Email *</label>
+                                        <input type="email" class="form-control" id="email" required 
+                                               placeholder="ton.email@exemple.com">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="category" class="form-label">Catégorie</label>
+                                        <select class="form-select" id="category">
+                                            <option value="general">Question générale</option>
+                                            <option value="support">Support technique</option>
+                                            <option value="feedback">Feedback / Suggestions</option>
+                                            <option value="partnership">Partenariat / Collaboration</option>
+                                            <option value="bug_report">Signaler un bug</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="subject" class="form-label">Sujet *</label>
+                                        <input type="text" class="form-control" id="subject" required 
+                                               maxlength="200" placeholder="Le sujet de ton message">
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="message" class="form-label">Message *</label>
+                                        <textarea class="form-control" id="message" rows="6" required 
+                                                  maxlength="5000" 
+                                                  placeholder="Décris ta demande en détail..."></textarea>
+                                        <div class="d-flex justify-content-end">
+                                            <small class="char-counter text-muted">
+                                                <span id="charCount">0</span>/5000 caractères
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="consent" required>
+                                            <label class="form-check-label small" for="consent">
+                                                J'accepte que mes données soient traitées pour répondre à ma demande 
+                                                (conformément au RGPD)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary btn-lg w-100" id="submitBtn">
+                                            <i class="bi bi-send"></i> Envoyer le message
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            
+                            <div id="successMessage" class="alert alert-success mt-4 d-none">
+                                <h5><i class="bi bi-check-circle-fill"></i> Message envoyé !</h5>
+                                <p class="mb-0" id="successText">Nous te répondrons sous 24-48h.</p>
+                            </div>
+                            <div id="errorMessage" class="alert alert-danger mt-4 d-none">
+                                <i class="bi bi-exclamation-triangle-fill"></i> 
+                                <span id="errorText">Une erreur est survenue.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2><i class="bi bi-question-circle"></i> Questions fréquentes</h2>
+            </div>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    Comment fonctionne PlanGenerator ?
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    PlanGenerator te permet de créer un plan personnalisé en quelques étapes simples. 
+                                    Tu remplis un formulaire avec tes informations, objectifs et préférences, et notre 
+                                    système génère automatiquement un plan adapté avec roadmap, ressources et opportunités.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    C'est vraiment gratuit ?
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Oui, PlanGenerator est 100% gratuit ! Tu peux créer autant de plans que tu veux, 
+                                    télécharger des PDFs, et recevoir notre newsletter sans aucun frais. Notre mission 
+                                    est d'aider les étudiants à réussir.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    Mes données sont-elles sécurisées ?
+                                </button>
+                            </h2>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Absolument. Nous prenons la protection des données très au sérieux. Tes informations 
+                                    ne sont jamais vendues à des tiers et sont utilisées uniquement pour générer ton plan 
+                                    et t'envoyer des mises à jour (si tu le souhaites). Tu peux te désinscrire à tout moment.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                    Puis-je modifier mon plan après création ?
+                                </button>
+                            </h2>
+                            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Pour l'instant, tu peux marquer les tâches comme complétées et suivre ta progression. 
+                                    Si tu souhaites un plan différent, tu peux simplement en créer un nouveau. Nous 
+                                    travaillons sur des fonctionnalités d'édition avancées.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                    Comment me désabonner de la newsletter ?
+                                </button>
+                            </h2>
+                            <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Chaque email contient un lien de désabonnement en bas. Tu peux te désinscrire en 
+                                    un clic. Nous respectons ton choix et ne t'enverrons plus d'emails après ta désinscription.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="bi bi-rocket-takeoff"></i> PlanGenerator</h5>
+                    <p class="text-muted">Génération automatique de plans personnalisés pour étudiants</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-0">
+                        Fait avec <i class="bi bi-heart-fill text-danger"></i> pour les étudiants français
+                    </p>
+                    <p class="text-muted">
+                        <a href="newsletter.html" class="text-muted">Newsletter</a> • 
+                        <a href="#" class="text-muted">Politique de confidentialité</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Character counter
+        document.getElementById('message').addEventListener('input', function() {
+            document.getElementById('charCount').textContent = this.value.length;
+        });
+        
+        // Form submission
+        document.getElementById('contactForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Reset messages
+            successMessage.classList.add('d-none');
+            errorMessage.classList.add('d-none');
+            
+            // Disable button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Envoi en cours...';
+            
+            const formData = {
+                name: document.getElementById('name').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                category: document.getElementById('category').value,
+                subject: document.getElementById('subject').value.trim(),
+                message: document.getElementById('message').value.trim()
+            };
+            
+            try {
+                const response = await fetch('/api/contact/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    let successText = data.message;
+                    if (data.ticketId) {
+                        successText += ` Référence: #${data.ticketId}`;
+                    }
+                    document.getElementById('successText').textContent = successText;
+                    successMessage.classList.remove('d-none');
+                    document.getElementById('contactForm').reset();
+                    document.getElementById('charCount').textContent = '0';
+                } else {
+                    document.getElementById('errorText').textContent = data.error || 'Une erreur est survenue.';
+                    errorMessage.classList.remove('d-none');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('errorText').textContent = 'Erreur de connexion. Réessaie plus tard.';
+                errorMessage.classList.remove('d-none');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-send"></i> Envoyer le message';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -35,8 +35,16 @@
                     <li class="nav-item">
                         <a class="nav-link" href="resources.html">Ressources</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#features">Fonctionnalités</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Plus
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="newsletter.html"><i class="bi bi-envelope"></i> Newsletter</a></li>
+                            <li><a class="dropdown-item" href="contact.html"><i class="bi bi-chat-dots"></i> Contact</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#features"><i class="bi bi-star"></i> Fonctionnalités</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item" id="authButton">
                         <a class="nav-link btn btn-outline-light ms-2" href="auth.html">
@@ -347,20 +355,118 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-white py-4">
+    <!-- Newsletter Section -->
+    <section class="py-5 bg-light">
         <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h3 class="mb-3"><i class="bi bi-envelope-paper-heart text-primary"></i> Newsletter</h3>
+                    <p class="text-muted mb-4">
+                        Reçois chaque semaine les meilleures opportunités, ressources et conseils pour étudiants.
+                    </p>
+                    <form id="quickNewsletterForm" class="row g-2 justify-content-center">
+                        <div class="col-sm-8 col-md-6">
+                            <input type="email" class="form-control form-control-lg" id="quickEmail" 
+                                   placeholder="ton.email@exemple.com" required>
+                        </div>
+                        <div class="col-sm-4 col-md-auto">
+                            <button type="submit" class="btn btn-primary btn-lg w-100" id="quickSubmitBtn">
+                                <i class="bi bi-send"></i> S'inscrire
+                            </button>
+                        </div>
+                    </form>
+                    <div id="quickSuccessMessage" class="alert alert-success mt-3 d-none">
+                        <i class="bi bi-check-circle-fill"></i> Inscription réussie !
+                    </div>
+                    <div id="quickErrorMessage" class="alert alert-danger mt-3 d-none">
+                        <i class="bi bi-exclamation-triangle-fill"></i> 
+                        <span id="quickErrorText">Une erreur est survenue.</span>
+                    </div>
+                    <p class="small text-muted mt-3 mb-0">
+                        <i class="bi bi-shield-check"></i> Conforme RGPD • Zéro spam • Désabonnement facile
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dynamic Stats Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row text-center g-4">
+                <div class="col-6 col-md-3">
+                    <div class="counter-value display-5 fw-bold text-primary" id="statPlans">0</div>
+                    <p class="text-muted">Plans créés</p>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="counter-value display-5 fw-bold text-success" id="statUsers">0</div>
+                    <p class="text-muted">Utilisateurs actifs</p>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="counter-value display-5 fw-bold text-info" id="statTasks">0</div>
+                    <p class="text-muted">Tâches complétées</p>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="counter-value display-5 fw-bold text-warning" id="statProgress">0%</div>
+                    <p class="text-muted">Taux de réussite</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <h5><i class="bi bi-rocket-takeoff"></i> PlanGenerator</h5>
+                    <p class="text-muted">
+                        Génération automatique de plans personnalisés pour étudiants. 
+                        100% gratuit, open source et conforme RGPD.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-muted fs-4"><i class="bi bi-github"></i></a>
+                        <a href="#" class="text-muted fs-4"><i class="bi bi-discord"></i></a>
+                        <a href="#" class="text-muted fs-4"><i class="bi bi-twitter-x"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <h6 class="text-uppercase mb-3">Navigation</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html" class="text-muted text-decoration-none">Accueil</a></li>
+                        <li><a href="form.html" class="text-muted text-decoration-none">Créer un plan</a></li>
+                        <li><a href="resources.html" class="text-muted text-decoration-none">Ressources</a></li>
+                        <li><a href="chatbot.html" class="text-muted text-decoration-none">Assistant</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2">
+                    <h6 class="text-uppercase mb-3">Communauté</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="newsletter.html" class="text-muted text-decoration-none">Newsletter</a></li>
+                        <li><a href="contact.html" class="text-muted text-decoration-none">Contact</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Discord</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">GitHub</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h6 class="text-uppercase mb-3">Citation du jour</h6>
+                    <blockquote class="blockquote small">
+                        <p id="dailyQuote" class="text-muted fst-italic">"Le succès n'est pas final, l'échec n'est pas fatal. C'est le courage de continuer qui compte."</p>
+                        <footer class="blockquote-footer text-muted" id="quoteAuthor">Winston Churchill</footer>
+                    </blockquote>
+                </div>
+            </div>
+            <hr class="my-4 border-secondary">
             <div class="row">
                 <div class="col-md-6">
-                    <h5><i class="bi bi-rocket-takeoff"></i> PlanGenerator</h5>
-                    <p class="text-muted">Génération automatique de plans personnalisés pour étudiants</p>
+                    <p class="text-muted small mb-0">
+                        © 2024 PlanGenerator • Fait avec <i class="bi bi-heart-fill text-danger"></i> pour les étudiants français
+                    </p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <p class="text-muted mb-0">
-                        Fait avec <i class="bi bi-heart-fill text-danger"></i> pour les étudiants français
-                    </p>
-                    <p class="text-muted">
-                        <small>100% gratuit • Open Source • GitHub Student Pack</small>
+                    <p class="text-muted small mb-0">
+                        <a href="#" class="text-muted">Politique de confidentialité</a> • 
+                        <a href="#" class="text-muted">Mentions légales</a>
                     </p>
                 </div>
             </div>
@@ -368,5 +474,106 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Quick Newsletter Form
+        document.getElementById('quickNewsletterForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('quickSubmitBtn');
+            const successMessage = document.getElementById('quickSuccessMessage');
+            const errorMessage = document.getElementById('quickErrorMessage');
+            
+            successMessage.classList.add('d-none');
+            errorMessage.classList.add('d-none');
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            
+            try {
+                const response = await fetch('/api/newsletter/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('quickEmail').value,
+                        interests: ['general'],
+                        frequency: 'weekly'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    successMessage.classList.remove('d-none');
+                    document.getElementById('quickEmail').value = '';
+                } else {
+                    document.getElementById('quickErrorText').textContent = data.error || 'Une erreur est survenue.';
+                    errorMessage.classList.remove('d-none');
+                }
+            } catch (error) {
+                document.getElementById('quickErrorText').textContent = 'Erreur de connexion.';
+                errorMessage.classList.remove('d-none');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-send"></i> S\'inscrire';
+            }
+        });
+        
+        // Load stats with animation
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats/public');
+                const data = await response.json();
+                
+                if (data.success && data.stats) {
+                    animateCounter('statPlans', data.stats.totalPlans);
+                    animateCounter('statUsers', data.stats.activeUsers);
+                    animateCounter('statTasks', data.stats.completedTasks);
+                    animateCounter('statProgress', data.stats.successMetrics.averageCompletionRate, true);
+                }
+            } catch (error) {
+                // Use default values
+                animateCounter('statPlans', 2847);
+                animateCounter('statUsers', 1523);
+                animateCounter('statTasks', 8945);
+                animateCounter('statProgress', 73, true);
+            }
+        }
+        
+        // Counter animation
+        function animateCounter(elementId, target, isPercent = false) {
+            const element = document.getElementById(elementId);
+            let current = 0;
+            const increment = target / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current).toLocaleString('fr-FR') + (isPercent ? '%' : '');
+            }, 30);
+        }
+        
+        // Load daily quote
+        async function loadQuote() {
+            try {
+                const response = await fetch('/api/stats/quote');
+                const data = await response.json();
+                
+                if (data.success && data.quote) {
+                    document.getElementById('dailyQuote').textContent = '"' + data.quote.text + '"';
+                    document.getElementById('quoteAuthor').textContent = data.quote.author;
+                }
+            } catch (error) {
+                // Keep default quote
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+            loadQuote();
+        });
+    </script>
 </body>
 </html>

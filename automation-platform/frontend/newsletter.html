@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter - PlanGenerator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .newsletter-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 400px;
+        }
+        .interest-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .interest-card.selected {
+            border-color: #667eea !important;
+            background: rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+        .interest-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .stats-counter {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .benefit-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-rocket-takeoff"></i> PlanGenerator
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="form.html">Créer mon plan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="resources.html">Ressources</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="newsletter.html">Newsletter</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="newsletter-hero text-white py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">
+                        <i class="bi bi-envelope-paper-heart"></i> Newsletter
+                    </h1>
+                    <p class="lead mb-4">
+                        Reste informé(e) des dernières opportunités, ressources et conseils 
+                        pour booster ton parcours étudiant. 100% gratuit, zéro spam.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="badge bg-light text-dark p-2">
+                            <i class="bi bi-calendar-event text-primary"></i> 1x par semaine
+                        </div>
+                        <div class="badge bg-light text-dark p-2">
+                            <i class="bi bi-shield-check text-success"></i> Désabonnement facile
+                        </div>
+                        <div class="badge bg-light text-dark p-2">
+                            <i class="bi bi-gift text-warning"></i> Contenu exclusif
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mt-4 mt-lg-0">
+                    <div class="card shadow-lg border-0 floating">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-4">
+                                <i class="bi bi-pencil-square text-primary"></i> Inscription rapide
+                            </h5>
+                            <form id="newsletterForm">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email *</label>
+                                    <input type="email" class="form-control" id="email" required 
+                                           placeholder="ton.email@exemple.com">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Prénom (optionnel)</label>
+                                    <input type="text" class="form-control" id="name" 
+                                           placeholder="Ton prénom">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Tes centres d'intérêt</label>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <div class="interest-card card p-2 text-center" data-interest="programming">
+                                                <i class="bi bi-code-slash text-primary fs-4"></i>
+                                                <small>Programmation</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="interest-card card p-2 text-center" data-interest="business">
+                                                <i class="bi bi-briefcase text-success fs-4"></i>
+                                                <small>Business</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="interest-card card p-2 text-center" data-interest="freelancing">
+                                                <i class="bi bi-laptop text-info fs-4"></i>
+                                                <small>Freelancing</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="interest-card card p-2 text-center" data-interest="content">
+                                                <i class="bi bi-camera-video text-danger fs-4"></i>
+                                                <small>Contenu</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="frequency" class="form-label">Fréquence</label>
+                                    <select class="form-select" id="frequency">
+                                        <option value="weekly" selected>Hebdomadaire (recommandé)</option>
+                                        <option value="biweekly">Bi-hebdomadaire</option>
+                                        <option value="monthly">Mensuel</option>
+                                    </select>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="consent" required>
+                                    <label class="form-check-label small" for="consent">
+                                        J'accepte de recevoir la newsletter (RGPD - désinscription possible à tout moment)
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100" id="submitBtn">
+                                    <i class="bi bi-send"></i> S'inscrire à la newsletter
+                                </button>
+                            </form>
+                            <div id="successMessage" class="alert alert-success mt-3 d-none">
+                                <i class="bi bi-check-circle-fill"></i> 
+                                <span id="successText">Inscription réussie !</span>
+                            </div>
+                            <div id="errorMessage" class="alert alert-danger mt-3 d-none">
+                                <i class="bi bi-exclamation-triangle-fill"></i> 
+                                <span id="errorText">Une erreur est survenue.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row text-center g-4">
+                <div class="col-md-4">
+                    <div class="stats-counter" id="statsSubscribers">1,247</div>
+                    <p class="text-muted">Abonnés actifs</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-counter" id="statsThisMonth">89</div>
+                    <p class="text-muted">Nouveaux ce mois</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-counter">42%</div>
+                    <p class="text-muted">Taux d'ouverture moyen</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">Ce que tu recevras</h2>
+                <p class="lead text-muted">Du contenu de qualité pour t'aider à réussir</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="d-flex">
+                        <div class="benefit-icon me-3 flex-shrink-0">
+                            <i class="bi bi-lightning"></i>
+                        </div>
+                        <div>
+                            <h5>Opportunités exclusives</h5>
+                            <p class="text-muted">Bourses, stages, hackathons, concours - les meilleures opportunités sélectionnées pour toi.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex">
+                        <div class="benefit-icon me-3 flex-shrink-0">
+                            <i class="bi bi-book"></i>
+                        </div>
+                        <div>
+                            <h5>Ressources gratuites</h5>
+                            <p class="text-muted">Cours, tutoriels, outils et ressources pour apprendre et progresser.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex">
+                        <div class="benefit-icon me-3 flex-shrink-0">
+                            <i class="bi bi-lightbulb"></i>
+                        </div>
+                        <div>
+                            <h5>Conseils pratiques</h5>
+                            <p class="text-muted">Tips et astuces d'experts pour optimiser ton parcours étudiant.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex">
+                        <div class="benefit-icon me-3 flex-shrink-0">
+                            <i class="bi bi-graph-up-arrow"></i>
+                        </div>
+                        <div>
+                            <h5>Tendances du marché</h5>
+                            <p class="text-muted">Les compétences en demande et les secteurs qui recrutent.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex">
+                        <div class="benefit-icon me-3 flex-shrink-0">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div>
+                            <h5>Success stories</h5>
+                            <p class="text-muted">Des histoires inspirantes d'étudiants qui ont réussi.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex">
+                        <div class="benefit-icon me-3 flex-shrink-0">
+                            <i class="bi bi-gift"></i>
+                        </div>
+                        <div>
+                            <h5>Bonus exclusifs</h5>
+                            <p class="text-muted">Templates, guides et contenus réservés aux abonnés.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sample Newsletter -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="text-center mb-4">
+                        <h3>Aperçu d'une newsletter type</h3>
+                    </div>
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-envelope"></i> Newsletter #42 - Cette semaine</h5>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="text-primary">🎯 Opportunités de la semaine</h6>
+                            <ul class="small mb-4">
+                                <li>Google Summer of Code 2024 - Inscriptions ouvertes</li>
+                                <li>Hackathon MLH ce weekend - 5000€ de prix</li>
+                                <li>Stage développeur chez Station F</li>
+                            </ul>
+                            
+                            <h6 class="text-success">📚 Ressources gratuites</h6>
+                            <ul class="small mb-4">
+                                <li>Cours complet React - freeCodeCamp (20h)</li>
+                                <li>Guide: Créer sa micro-entreprise en 2024</li>
+                                <li>Template Notion - Gestion de projet freelance</li>
+                            </ul>
+                            
+                            <h6 class="text-info">💡 Conseil de la semaine</h6>
+                            <p class="small text-muted">
+                                "Commence petit, mais commence maintenant. La procrastination est le plus grand 
+                                obstacle entre toi et tes objectifs. 15 minutes par jour > 0 minute."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="bi bi-rocket-takeoff"></i> PlanGenerator</h5>
+                    <p class="text-muted">Génération automatique de plans personnalisés pour étudiants</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-shield-check"></i> Conforme RGPD • Désabonnement en 1 clic
+                    </p>
+                    <p class="text-muted">
+                        <a href="contact.html" class="text-muted">Contact</a> • 
+                        <a href="#" class="text-muted">Politique de confidentialité</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Selected interests
+        let selectedInterests = [];
+        
+        // Interest card selection
+        document.querySelectorAll('.interest-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const interest = this.dataset.interest;
+                this.classList.toggle('selected');
+                
+                if (this.classList.contains('selected')) {
+                    if (!selectedInterests.includes(interest)) {
+                        selectedInterests.push(interest);
+                    }
+                } else {
+                    selectedInterests = selectedInterests.filter(i => i !== interest);
+                }
+            });
+        });
+        
+        // Form submission
+        document.getElementById('newsletterForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Reset messages
+            successMessage.classList.add('d-none');
+            errorMessage.classList.add('d-none');
+            
+            // Disable button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Inscription...';
+            
+            const formData = {
+                email: document.getElementById('email').value,
+                name: document.getElementById('name').value || undefined,
+                interests: selectedInterests.length > 0 ? selectedInterests : ['general'],
+                frequency: document.getElementById('frequency').value
+            };
+            
+            try {
+                const response = await fetch('/api/newsletter/subscribe', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('successText').textContent = data.message;
+                    successMessage.classList.remove('d-none');
+                    document.getElementById('newsletterForm').reset();
+                    selectedInterests = [];
+                    document.querySelectorAll('.interest-card').forEach(c => c.classList.remove('selected'));
+                } else {
+                    document.getElementById('errorText').textContent = data.error || 'Une erreur est survenue.';
+                    errorMessage.classList.remove('d-none');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('errorText').textContent = 'Erreur de connexion. Réessaie plus tard.';
+                errorMessage.classList.remove('d-none');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-send"></i> S\'inscrire à la newsletter';
+            }
+        });
+        
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/newsletter/stats');
+                const data = await response.json();
+                
+                if (data.success && data.stats) {
+                    document.getElementById('statsSubscribers').textContent = 
+                        data.stats.totalSubscribers.toLocaleString('fr-FR');
+                    document.getElementById('statsThisMonth').textContent = 
+                        data.stats.thisMonth.toLocaleString('fr-FR');
+                }
+            } catch (error) {
+                // Keep default values
+                console.log('Using default stats');
+            }
+        }
+        
+        // Load stats on page load
+        document.addEventListener('DOMContentLoaded', loadStats);
+    </script>
+</body>
+</html>
