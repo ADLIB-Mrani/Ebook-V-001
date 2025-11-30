@@ -279,6 +279,483 @@ const getDefaultTemplate = (planType) => {
                 'Vente cours en ligne',
                 'Speaking events'
             ]
+        },
+        datascience: {
+            title: 'Maîtriser la Data Science & IA',
+            description: 'Devenir Data Scientist ou ML Engineer',
+            duration: '8-12 mois',
+            phases: [
+                {
+                    name: 'Fondations',
+                    duration: '2 mois',
+                    tasks: [
+                        'Python & NumPy/Pandas',
+                        'Statistiques fondamentales',
+                        'SQL & bases de données',
+                        'Jupyter Notebooks'
+                    ]
+                },
+                {
+                    name: 'Machine Learning',
+                    duration: '3 mois',
+                    tasks: [
+                        'Scikit-learn',
+                        'Algorithmes ML classiques',
+                        'Feature engineering',
+                        'Kaggle competitions'
+                    ]
+                },
+                {
+                    name: 'Deep Learning',
+                    duration: '3 mois',
+                    tasks: [
+                        'TensorFlow/PyTorch',
+                        'Réseaux de neurones',
+                        'Computer Vision',
+                        'NLP fondamentaux'
+                    ]
+                },
+                {
+                    name: 'Spécialisation',
+                    duration: '2+ mois',
+                    tasks: [
+                        'MLOps & déploiement',
+                        'Projets end-to-end',
+                        'Stage/emploi data',
+                        'Certifications'
+                    ]
+                }
+            ],
+            resources: [
+                { name: 'Kaggle Learn', url: 'https://www.kaggle.com/learn', type: 'Cours gratuit' },
+                { name: 'Fast.ai', url: 'https://www.fast.ai', type: 'Deep Learning' },
+                { name: 'Google Colab', url: 'https://colab.research.google.com', type: 'GPU gratuit' },
+                { name: 'Andrew Ng ML Course', url: 'https://www.coursera.org/learn/machine-learning', type: 'MOOC' },
+                { name: 'Hugging Face', url: 'https://huggingface.co', type: 'NLP/LLM' }
+            ],
+            opportunities: [
+                'Kaggle competitions',
+                'AWS ML Scholarship',
+                'Google AI Residency',
+                'Stage data science',
+                'Freelance ML projects'
+            ]
+        },
+        cybersecurity: {
+            title: 'Devenir Expert en Cybersécurité',
+            description: 'Sécurité informatique et ethical hacking',
+            duration: '8-12 mois',
+            phases: [
+                {
+                    name: 'Fondations',
+                    duration: '2 mois',
+                    tasks: [
+                        'Linux & administration système',
+                        'Réseaux (TCP/IP, HTTP)',
+                        'Cryptographie bases',
+                        'Virtualisation'
+                    ]
+                },
+                {
+                    name: 'Offensive Security',
+                    duration: '3 mois',
+                    tasks: [
+                        'OWASP Top 10',
+                        'Pentesting web',
+                        'Kali Linux',
+                        'CTF challenges'
+                    ]
+                },
+                {
+                    name: 'Defensive Security',
+                    duration: '2 mois',
+                    tasks: [
+                        'SIEM & monitoring',
+                        'Incident response',
+                        'Forensics intro',
+                        'Compliance (RGPD)'
+                    ]
+                },
+                {
+                    name: 'Certifications',
+                    duration: '3+ mois',
+                    tasks: [
+                        'CEH / OSCP prep',
+                        'Bug bounty programs',
+                        'Stage cybersec',
+                        'Portfolio sécu'
+                    ]
+                }
+            ],
+            resources: [
+                { name: 'TryHackMe', url: 'https://tryhackme.com', type: 'Labs' },
+                { name: 'HackTheBox', url: 'https://www.hackthebox.com', type: 'Pentesting' },
+                { name: 'Root-Me', url: 'https://www.root-me.org', type: 'Challenges FR' },
+                { name: 'OWASP', url: 'https://owasp.org', type: 'Ressources' },
+                { name: 'Cybrary', url: 'https://www.cybrary.it', type: 'Cours' }
+            ],
+            opportunities: [
+                'Bug bounty HackerOne',
+                'Certifications Security+',
+                'CTF competitions',
+                'Stage cybersec',
+                'Freelance pentesting'
+            ]
+        },
+        ecommerce: {
+            title: 'Lancer Son E-commerce',
+            description: 'Dropshipping, Amazon FBA ou boutique en ligne',
+            duration: '4-8 mois',
+            phases: [
+                {
+                    name: 'Recherche Produit',
+                    duration: '1 mois',
+                    tasks: [
+                        'Niche recherche',
+                        'Analyse fournisseurs',
+                        'Étude concurrence',
+                        'Marge & pricing'
+                    ]
+                },
+                {
+                    name: 'Setup Boutique',
+                    duration: '1 mois',
+                    tasks: [
+                        'Shopify/WooCommerce',
+                        'Catalogue produits',
+                        'Paiements sécurisés',
+                        'Conditions légales'
+                    ]
+                },
+                {
+                    name: 'Marketing',
+                    duration: '2 mois',
+                    tasks: [
+                        'Facebook/Instagram Ads',
+                        'Google Shopping',
+                        'SEO e-commerce',
+                        'Email marketing'
+                    ]
+                },
+                {
+                    name: 'Optimisation',
+                    duration: '2+ mois',
+                    tasks: [
+                        'Conversion rate',
+                        'Upselling',
+                        'Automatisation',
+                        'Scaling'
+                    ]
+                }
+            ],
+            resources: [
+                { name: 'Shopify', url: 'https://www.shopify.fr', type: 'Plateforme' },
+                { name: 'Google Merchant', url: 'https://www.google.com/retail', type: 'Vente' },
+                { name: 'Klaviyo', url: 'https://www.klaviyo.com', type: 'Email' },
+                { name: 'Oberlo', url: 'https://www.shopify.com/blog/topics/dropshipping', type: 'Dropshipping' }
+            ],
+            opportunities: [
+                'Shopify Partner Program',
+                'Amazon Seller Academy',
+                'Google Shopping ads',
+                'Affiliate marketing'
+            ]
+        },
+        design: {
+            title: 'Maîtriser le Design & UX/UI',
+            description: 'Graphisme, UI/UX et création visuelle',
+            duration: '6-10 mois',
+            phases: [
+                {
+                    name: 'Fondamentaux',
+                    duration: '2 mois',
+                    tasks: [
+                        'Théorie des couleurs',
+                        'Typographie',
+                        'Composition',
+                        'Design thinking'
+                    ]
+                },
+                {
+                    name: 'Outils',
+                    duration: '2 mois',
+                    tasks: [
+                        'Figma maîtrise',
+                        'Adobe Creative Suite',
+                        'Prototypage',
+                        'Design systems'
+                    ]
+                },
+                {
+                    name: 'Portfolio',
+                    duration: '2 mois',
+                    tasks: [
+                        'Projets UI/UX',
+                        'Case studies',
+                        'Dribbble/Behance',
+                        'Personal branding'
+                    ]
+                },
+                {
+                    name: 'Carrière',
+                    duration: '2+ mois',
+                    tasks: [
+                        'Freelance design',
+                        'Stage UX/UI',
+                        'Design sprints',
+                        'Networking'
+                    ]
+                }
+            ],
+            resources: [
+                { name: 'Figma', url: 'https://www.figma.com', type: 'Outil UI/UX' },
+                { name: 'Dribbble', url: 'https://dribbble.com', type: 'Inspiration' },
+                { name: 'Laws of UX', url: 'https://lawsofux.com', type: 'Principes' },
+                { name: 'Unsplash', url: 'https://unsplash.com', type: 'Photos' }
+            ],
+            opportunities: [
+                'Adobe Creative Residency',
+                'Awwwards',
+                '99designs contests',
+                'Stage UX/UI',
+                'Freelance design'
+            ]
+        },
+        marketing: {
+            title: 'Maîtriser le Marketing Digital',
+            description: 'SEO, publicité et réseaux sociaux',
+            duration: '6-10 mois',
+            phases: [
+                {
+                    name: 'Fondations',
+                    duration: '2 mois',
+                    tasks: [
+                        'Marketing fondamentaux',
+                        'Copywriting',
+                        'Buyer persona',
+                        'Funnel marketing'
+                    ]
+                },
+                {
+                    name: 'Canaux',
+                    duration: '2 mois',
+                    tasks: [
+                        'SEO avancé',
+                        'Google Ads',
+                        'Facebook/Meta Ads',
+                        'Email marketing'
+                    ]
+                },
+                {
+                    name: 'Analytics',
+                    duration: '1 mois',
+                    tasks: [
+                        'Google Analytics 4',
+                        'Data-driven decisions',
+                        'A/B testing',
+                        'Reporting'
+                    ]
+                },
+                {
+                    name: 'Spécialisation',
+                    duration: '3+ mois',
+                    tasks: [
+                        'Growth hacking',
+                        'Marketing automation',
+                        'Certifications',
+                        'Clients/agence'
+                    ]
+                }
+            ],
+            resources: [
+                { name: 'Google Digital Garage', url: 'https://learndigital.withgoogle.com', type: 'Certif gratuit' },
+                { name: 'HubSpot Academy', url: 'https://academy.hubspot.com', type: 'Inbound' },
+                { name: 'SEMrush Academy', url: 'https://www.semrush.com/academy', type: 'SEO' },
+                { name: 'Mailchimp', url: 'https://mailchimp.com', type: 'Email' }
+            ],
+            opportunities: [
+                'Google Partners Certification',
+                'HubSpot Solutions Partner',
+                'SEMrush Affiliate',
+                'Stage marketing digital'
+            ]
+        },
+        finance: {
+            title: 'Maîtriser la Finance & Trading',
+            description: 'Investissement, bourse et crypto',
+            duration: '6-12 mois',
+            phases: [
+                {
+                    name: 'Éducation Financière',
+                    duration: '2 mois',
+                    tasks: [
+                        'Concepts de base',
+                        'Comptabilité',
+                        'Marchés financiers',
+                        'Gestion budget'
+                    ]
+                },
+                {
+                    name: 'Investissement',
+                    duration: '2 mois',
+                    tasks: [
+                        'ETFs et indices',
+                        'Actions & analyse',
+                        'Portefeuille diversifié',
+                        'PEA/Assurance vie'
+                    ]
+                },
+                {
+                    name: 'Trading',
+                    duration: '2 mois',
+                    tasks: [
+                        'Analyse technique',
+                        'Gestion du risque',
+                        'Paper trading',
+                        'Psychologie trading'
+                    ]
+                },
+                {
+                    name: 'Avancé',
+                    duration: '2+ mois',
+                    tasks: [
+                        'Crypto & DeFi',
+                        'Options & dérivés',
+                        'Immobilier',
+                        'Revenus passifs'
+                    ]
+                }
+            ],
+            resources: [
+                { name: 'Investopedia', url: 'https://www.investopedia.com', type: 'Éducation' },
+                { name: 'TradingView', url: 'https://www.tradingview.com', type: 'Charts' },
+                { name: 'Binance Academy', url: 'https://academy.binance.com', type: 'Crypto' },
+                { name: 'Finary', url: 'https://finary.com', type: 'Patrimoine' }
+            ],
+            opportunities: [
+                'CFA Scholarship',
+                'Stage finance',
+                'Quantitative finance',
+                'Trading competitions'
+            ]
+        },
+        writing: {
+            title: 'Devenir Écrivain & Éditeur',
+            description: 'E-books, copywriting et rédaction web',
+            duration: '4-8 mois',
+            phases: [
+                {
+                    name: 'Fondations',
+                    duration: '1 mois',
+                    tasks: [
+                        'Style d\'écriture',
+                        'Storytelling',
+                        'Recherche',
+                        'Organisation'
+                    ]
+                },
+                {
+                    name: 'Création',
+                    duration: '2 mois',
+                    tasks: [
+                        'Premier e-book',
+                        'Blog/Medium',
+                        'Newsletter',
+                        'Copywriting'
+                    ]
+                },
+                {
+                    name: 'Publication',
+                    duration: '1 mois',
+                    tasks: [
+                        'Amazon KDP',
+                        'Gumroad/Payhip',
+                        'Marketing livres',
+                        'Reviews'
+                    ]
+                },
+                {
+                    name: 'Scaling',
+                    duration: '2+ mois',
+                    tasks: [
+                        'Série de livres',
+                        'Ghostwriting',
+                        'Cours écriture',
+                        'Communauté'
+                    ]
+                }
+            ],
+            resources: [
+                { name: 'Amazon KDP', url: 'https://kdp.amazon.com', type: 'Publication' },
+                { name: 'Medium', url: 'https://medium.com', type: 'Articles' },
+                { name: 'Gumroad', url: 'https://gumroad.com', type: 'Vente' },
+                { name: 'Hemingway', url: 'https://hemingwayapp.com', type: 'Édition' }
+            ],
+            opportunities: [
+                'Amazon KDP Select',
+                'Medium Partner Program',
+                'Prix du Jeune Écrivain',
+                'Ghostwriting clients'
+            ]
+        },
+        teaching: {
+            title: 'Créateur de Formations',
+            description: 'Créer et vendre des cours en ligne',
+            duration: '4-8 mois',
+            phases: [
+                {
+                    name: 'Expertise',
+                    duration: '1 mois',
+                    tasks: [
+                        'Définir expertise',
+                        'Audience cible',
+                        'Programme cours',
+                        'Différenciation'
+                    ]
+                },
+                {
+                    name: 'Création Cours',
+                    duration: '2 mois',
+                    tasks: [
+                        'Script & structure',
+                        'Enregistrement vidéo',
+                        'Supports pédagogiques',
+                        'Plateforme (Udemy)'
+                    ]
+                },
+                {
+                    name: 'Lancement',
+                    duration: '1 mois',
+                    tasks: [
+                        'Prix & positionnement',
+                        'Marketing cours',
+                        'Premiers étudiants',
+                        'Feedback'
+                    ]
+                },
+                {
+                    name: 'Expansion',
+                    duration: '2+ mois',
+                    tasks: [
+                        'Coaching 1-to-1',
+                        'Communauté payante',
+                        'Plus de cours',
+                        'Marque personnelle'
+                    ]
+                }
+            ],
+            resources: [
+                { name: 'Udemy', url: 'https://www.udemy.com/teaching', type: 'Plateforme' },
+                { name: 'Teachable', url: 'https://teachable.com', type: 'École en ligne' },
+                { name: 'Loom', url: 'https://www.loom.com', type: 'Vidéo' },
+                { name: 'Calendly', url: 'https://calendly.com', type: 'RDV' }
+            ],
+            opportunities: [
+                'Udemy Instructor Program',
+                'Skillshare Teacher',
+                'YouTube Creator Academy',
+                'Coaching premium'
+            ]
         }
     };
     
