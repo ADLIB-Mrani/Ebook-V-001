@@ -1,21 +1,33 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Execution = require('../models/Execution');
+const memoryStorage = require('../services/memoryStorage');
+
+const isMongoConnected = () => mongoose.connection.readyState === 1;
 
 // Get all executions
 router.get('/', async (req, res) => {
   try {
     const { status, limit = 50 } = req.query;
     
-    const query = {};
-    if (status) {
-      query.status = status;
+    let executions;
+    if (isMongoConnected()) {
+      const query = {};
+      if (status) {
+        query.status = status;
+      }
+      executions = await Execution.find(query)
+        .sort({ startTime: -1 })
+        .limit(parseInt(limit))
+        .select('-__v');
+    } else {
+      executions = memoryStorage.getAllExecutions();
+      if (status) {
+        executions = executions.filter(e => e.status === status);
+      }
+      executions = executions.slice(0, parseInt(limit));
     }
-
-    const executions = await Execution.find(query)
-      .sort({ startTime: -1 })
-      .limit(parseInt(limit))
-      .select('-__v');
     
     res.json(executions);
   } catch (error) {
@@ -26,7 +38,12 @@ router.get('/', async (req, res) => {
 // Get a single execution
 router.get('/:id', async (req, res) => {
   try {
-    const execution = await Execution.findById(req.params.id);
+    let execution;
+    if (isMongoConnected()) {
+      execution = await Execution.findById(req.params.id);
+    } else {
+      execution = memoryStorage.getExecution(req.params.id);
+    }
     if (!execution) {
       return res.status(404).json({ error: 'Execution not found' });
     }
@@ -39,11 +56,16 @@ router.get('/:id', async (req, res) => {
 // Get execution logs
 router.get('/:id/logs', async (req, res) => {
   try {
-    const execution = await Execution.findById(req.params.id).select('logs');
+    let execution;
+    if (isMongoConnected()) {
+      execution = await Execution.findById(req.params.id).select('logs');
+    } else {
+      execution = memoryStorage.getExecution(req.params.id);
+    }
     if (!execution) {
       return res.status(404).json({ error: 'Execution not found' });
     }
-    res.json(execution.logs);
+    res.json(execution.logs || []);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

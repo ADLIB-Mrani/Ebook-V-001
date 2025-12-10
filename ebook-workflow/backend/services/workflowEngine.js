@@ -1,5 +1,6 @@
 const Execution = require('../models/Execution');
 const nodeRegistry = require('../nodes/nodeRegistry');
+const memoryStorage = require('./memoryStorage');
 
 /**
  * Workflow execution engine
@@ -14,18 +15,27 @@ class WorkflowEngine {
    * Execute a workflow
    * @param {Object} workflow - The workflow to execute
    * @param {Object} triggerData - Data from the trigger
+   * @param {Boolean} useMongoose - Whether to use Mongoose or memory storage
    * @returns {Promise<Object>} Execution result
    */
-  async execute(workflow, triggerData = {}) {
+  async execute(workflow, triggerData = {}, useMongoose = true) {
     // Create execution record
-    const execution = new Execution({
+    const executionData = {
       workflowId: workflow._id,
       workflowName: workflow.name,
       triggerType: triggerData.type || 'manual',
-      status: 'running'
-    });
+      status: 'running',
+      logs: []
+    };
 
-    await execution.save();
+    let execution;
+    if (useMongoose) {
+      execution = new Execution(executionData);
+      await execution.save();
+    } else {
+      execution = memoryStorage.saveExecution(executionData);
+    }
+    
     this.activeExecutions.set(execution._id.toString(), execution);
 
     try {
@@ -80,7 +90,11 @@ class WorkflowEngine {
         }
 
         execution.logs.push(log);
-        await execution.save();
+        if (useMongoose) {
+          await execution.save();
+        } else {
+          memoryStorage.saveExecution(execution);
+        }
       }
 
       // Get final output (from last node or pdf_generator node)
@@ -89,7 +103,11 @@ class WorkflowEngine {
       execution.status = 'completed';
       execution.endTime = new Date();
       execution.result = finalOutput;
-      await execution.save();
+      if (useMongoose) {
+        await execution.save();
+      } else {
+        memoryStorage.saveExecution(execution);
+      }
 
       this.activeExecutions.delete(execution._id.toString());
       
@@ -103,7 +121,11 @@ class WorkflowEngine {
       execution.status = 'failed';
       execution.endTime = new Date();
       execution.error = error.message;
-      await execution.save();
+      if (useMongoose) {
+        await execution.save();
+      } else {
+        memoryStorage.saveExecution(execution);
+      }
 
       this.activeExecutions.delete(execution._id.toString());
       
