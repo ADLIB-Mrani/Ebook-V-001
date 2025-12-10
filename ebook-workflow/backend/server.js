@@ -2,14 +2,31 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const app = express();
+
+// Rate limiting
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.'
+});
+
+const executionLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10, // Limit workflow executions to 10 per minute
+  message: 'Too many workflow executions, please try again later.'
+});
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Apply rate limiting to API routes
+app.use('/api', apiLimiter);
 
 // Serve static files from frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
@@ -41,6 +58,9 @@ const executionRoutes = require('./routes/executions');
 
 app.use('/api/workflows', workflowRoutes);
 app.use('/api/executions', executionRoutes);
+
+// Apply stricter rate limiting to execution endpoint
+app.post('/api/workflows/:id/execute', executionLimiter);
 
 // Health check
 app.get('/api/health', (req, res) => {
