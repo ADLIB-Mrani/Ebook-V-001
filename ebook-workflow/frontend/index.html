@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ebook Workflow Automation - N8N-like System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-diagram-3"></i> Ebook Workflow Automation
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" id="nav-workflows">
+                            <i class="bi bi-diagram-3"></i> Workflows
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="nav-executions">
+                            <i class="bi bi-play-circle"></i> Exécutions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="nav-templates">
+                            <i class="bi bi-collection"></i> Templates
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Workflows View -->
+        <div id="workflows-view" class="view-container">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h2><i class="bi bi-diagram-3"></i> Mes Workflows</h2>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-primary" id="btn-new-workflow">
+                        <i class="bi bi-plus-circle"></i> Nouveau Workflow
+                    </button>
+                </div>
+            </div>
+
+            <div class="row" id="workflows-list">
+                <div class="col-12">
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-diagram-3" style="font-size: 4rem;"></i>
+                        <p class="mt-3">Aucun workflow. Créez-en un pour commencer !</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow Builder View -->
+        <div id="builder-view" class="view-container" style="display: none;">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <button class="btn btn-secondary" id="btn-back">
+                        <i class="bi bi-arrow-left"></i> Retour
+                    </button>
+                    <input type="text" class="form-control d-inline-block ms-2" id="workflow-name" 
+                           placeholder="Nom du workflow" style="width: 300px;">
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-success" id="btn-save-workflow">
+                        <i class="bi bi-save"></i> Enregistrer
+                    </button>
+                    <button class="btn btn-primary" id="btn-execute-workflow">
+                        <i class="bi bi-play-circle"></i> Exécuter
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Node Palette -->
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-box"></i> Nodes Disponibles</h6>
+                        </div>
+                        <div class="card-body p-2" id="node-palette">
+                            <!-- Will be populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Canvas -->
+                <div class="col-md-9">
+                    <div class="card">
+                        <div class="card-body">
+                            <div id="workflow-canvas" class="workflow-canvas">
+                                <p class="text-center text-muted">
+                                    Glissez-déposez des nodes depuis la palette de gauche
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Executions View -->
+        <div id="executions-view" class="view-container" style="display: none;">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h2><i class="bi bi-play-circle"></i> Historique d'Exécutions</h2>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-secondary" id="btn-refresh-executions">
+                        <i class="bi bi-arrow-clockwise"></i> Actualiser
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Workflow</th>
+                            <th>Statut</th>
+                            <th>Démarré</th>
+                            <th>Durée</th>
+                            <th>Résultat</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="executions-list">
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">Aucune exécution</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Templates View -->
+        <div id="templates-view" class="view-container" style="display: none;">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <h2><i class="bi bi-collection"></i> Templates de Workflow</h2>
+                </div>
+            </div>
+
+            <div class="row" id="templates-list">
+                <!-- Will be populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Node Config Modal -->
+    <div class="modal fade" id="nodeConfigModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Configuration du Node</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="node-config-form">
+                    <!-- Dynamic form will be inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="btn-save-node-config">Enregistrer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/workflow-builder.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
