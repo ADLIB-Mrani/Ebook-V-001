@@ -207,6 +207,46 @@ body {
         height: 60px;
         font-size: 1.5rem;
     }
+    
+    .filter-chip {
+        font-size: 0.85rem;
+        padding: 6px 12px;
+    }
+    
+    .opportunity-card {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    .display-5 {
+        font-size: 1.75rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
+/* Tablet responsive */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .hero {
+        padding: 4rem 0 !important;
+    }
+    
+    .feature-icon {
+        width: 70px;
+        height: 70px;
+    }
 }
 
 /* Smooth Scrolling */

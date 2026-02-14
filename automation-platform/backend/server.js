@@ -37,12 +37,14 @@ const updatesRoutes = require('./routes/updates');
 const newsletterRoutes = require('./routes/newsletter');
 const contactRoutes = require('./routes/contact');
 const statsRoutes = require('./routes/stats');
+const opportunitiesRoutes = require('./routes/opportunities');
 
 app.use('/api/users', userRoutes);
 app.use('/api/updates', updatesRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/opportunities', opportunitiesRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
