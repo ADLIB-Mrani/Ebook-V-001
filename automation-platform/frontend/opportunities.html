@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opportunités - PlanGenerator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .filter-chip {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 4px;
+            border-radius: 20px;
+            background: #f0f0f3;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .filter-chip:hover {
+            background: #e0e0e5;
+            transform: translateY(-2px);
+        }
+        
+        .filter-chip.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .opportunity-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+            height: 100%;
+        }
+        
+        .opportunity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .opportunity-type-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .deadline-badge {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        
+        .search-box {
+            border-radius: 30px;
+            padding: 12px 24px;
+            border: 2px solid #e0e0e5;
+        }
+        
+        .search-box:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .featured-badge {
+            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .skeleton {
+            animation: skeleton-loading 1s linear infinite alternate;
+        }
+        
+        @keyframes skeleton-loading {
+            0% {
+                background-color: hsl(200, 20%, 80%);
+            }
+            100% {
+                background-color: hsl(200, 20%, 95%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-rocket-takeoff"></i> PlanGenerator
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="form.html">Créer mon plan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="opportunities.html">Opportunités</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="resources.html">Ressources</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient text-white py-5">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-3">🌟 Opportunités pour Étudiants</h1>
+            <p class="lead">Découvre les meilleures bourses, hackathons, formations et événements</p>
+        </div>
+    </section>
+
+    <!-- Filters Section -->
+    <section class="py-4 bg-light border-bottom">
+        <div class="container">
+            <!-- Search Bar -->
+            <div class="row mb-4">
+                <div class="col-lg-8 mx-auto">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control border-start-0 search-box" 
+                               id="searchInput" 
+                               placeholder="Rechercher par mot-clé...">
+                        <button class="btn btn-primary" id="searchBtn">
+                            <i class="bi bi-search"></i> Rechercher
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Category Filters -->
+            <div class="mb-3">
+                <h6 class="fw-bold mb-3"><i class="bi bi-grid"></i> Catégories</h6>
+                <div id="categoryFilters" class="d-flex flex-wrap">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Type Filters -->
+            <div class="mb-3">
+                <h6 class="fw-bold mb-3"><i class="bi bi-tag"></i> Types</h6>
+                <div id="typeFilters" class="d-flex flex-wrap">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Additional Filters -->
+            <div class="d-flex gap-3 flex-wrap align-items-center">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="upcomingOnlyFilter">
+                    <label class="form-check-label" for="upcomingOnlyFilter">
+                        <i class="bi bi-calendar-check"></i> Seulement à venir
+                    </label>
+                </div>
+                
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="featuredOnlyFilter">
+                    <label class="form-check-label" for="featuredOnlyFilter">
+                        <i class="bi bi-star-fill text-warning"></i> Recommandées
+                    </label>
+                </div>
+                
+                <select class="form-select" id="sortByFilter" style="width: auto;">
+                    <option value="newest">Plus récentes</option>
+                    <option value="deadline">Date limite proche</option>
+                </select>
+                
+                <button class="btn btn-outline-secondary btn-sm" id="clearFilters">
+                    <i class="bi bi-x-circle"></i> Réinitialiser
+                </button>
+                
+                <button class="btn btn-outline-primary btn-sm" id="refreshBtn">
+                    <i class="bi bi-arrow-clockwise"></i> Actualiser
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Opportunities List -->
+    <section class="py-5">
+        <div class="container">
+            <!-- Stats Bar -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                        <i class="bi bi-info-circle me-2 fs-5"></i>
+                        <div>
+                            <strong id="opportunityCount">Chargement...</strong>
+                            <span id="filterStatus"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loadingState" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Chargement...</span>
+                </div>
+                <p class="mt-3 text-muted">Chargement des opportunités...</p>
+            </div>
+            
+            <!-- Error State -->
+            <div id="errorState" class="alert alert-danger d-none" role="alert">
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>Erreur :</strong> <span id="errorMessage"></span>
+            </div>
+            
+            <!-- Empty State -->
+            <div id="emptyState" class="text-center py-5 d-none">
+                <i class="bi bi-search fs-1 text-muted"></i>
+                <h4 class="mt-3">Aucune opportunité trouvée</h4>
+                <p class="text-muted">Essaye de modifier tes filtres ou ta recherche</p>
+            </div>
+            
+            <!-- Opportunities Grid -->
+            <div id="opportunitiesGrid" class="row g-4">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">© 2024 PlanGenerator • Fait avec <i class="bi bi-heart-fill text-danger"></i> pour les étudiants français</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // State management
+        let allOpportunities = [];
+        let filters = {
+            category: 'all',
+            type: null,
+            keyword: '',
+            upcomingOnly: false,
+            featuredOnly: false,
+            sortBy: 'newest'
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCategories();
+            loadTypes();
+            loadOpportunities();
+            setupEventListeners();
+        });
+
+        // Load categories
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/opportunities/categories');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const container = document.getElementById('categoryFilters');
+                    container.innerHTML = data.categories.map(cat => `
+                        <span class="filter-chip ${cat.id === 'all' ? 'active' : ''}" 
+                              data-category="${cat.id}">
+                            ${cat.icon} ${cat.name}
+                        </span>
+                    `).join('');
+                    
+                    // Add click listeners
+                    container.querySelectorAll('.filter-chip').forEach(chip => {
+                        chip.addEventListener('click', function() {
+                            container.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                            this.classList.add('active');
+                            filters.category = this.dataset.category;
+                            loadOpportunities();
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        // Load types
+        async function loadTypes() {
+            try {
+                const response = await fetch('/api/opportunities/types');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const container = document.getElementById('typeFilters');
+                    container.innerHTML = `
+                        <span class="filter-chip active" data-type="">Tous les types</span>
+                        ${data.types.map(type => `
+                            <span class="filter-chip" data-type="${type}">${type}</span>
+                        `).join('')}
+                    `;
+                    
+                    // Add click listeners
+                    container.querySelectorAll('.filter-chip').forEach(chip => {
+                        chip.addEventListener('click', function() {
+                            container.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                            this.classList.add('active');
+                            filters.type = this.dataset.type || null;
+                            loadOpportunities();
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading types:', error);
+            }
+        }
+
+        // Load opportunities
+        async function loadOpportunities() {
+            const grid = document.getElementById('opportunitiesGrid');
+            const loading = document.getElementById('loadingState');
+            const error = document.getElementById('errorState');
+            const empty = document.getElementById('emptyState');
+            
+            // Show loading
+            grid.classList.add('d-none');
+            error.classList.add('d-none');
+            empty.classList.add('d-none');
+            loading.classList.remove('d-none');
+            
+            try {
+                // Build query string
+                const params = new URLSearchParams();
+                if (filters.category && filters.category !== 'all') params.append('category', filters.category);
+                if (filters.type) params.append('type', filters.type);
+                if (filters.keyword) params.append('keyword', filters.keyword);
+                if (filters.upcomingOnly) params.append('upcomingOnly', 'true');
+                if (filters.featuredOnly) params.append('featuredOnly', 'true');
+                params.append('sortBy', filters.sortBy);
+                
+                const response = await fetch(`/api/opportunities?${params.toString()}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    allOpportunities = data.opportunities;
+                    displayOpportunities(data.opportunities);
+                    updateStats(data.opportunities.length, data.cached);
+                } else {
+                    throw new Error(data.error || 'Failed to load opportunities');
+                }
+            } catch (err) {
+                console.error('Error loading opportunities:', err);
+                loading.classList.add('d-none');
+                error.classList.remove('d-none');
+                document.getElementById('errorMessage').textContent = err.message;
+            }
+        }
+
+        // Display opportunities
+        function displayOpportunities(opportunities) {
+            const grid = document.getElementById('opportunitiesGrid');
+            const loading = document.getElementById('loadingState');
+            const empty = document.getElementById('emptyState');
+            
+            loading.classList.add('d-none');
+            
+            if (opportunities.length === 0) {
+                grid.classList.add('d-none');
+                empty.classList.remove('d-none');
+                return;
+            }
+            
+            grid.classList.remove('d-none');
+            grid.innerHTML = opportunities.map(opp => `
+                <div class="col-md-6 col-lg-4">
+                    <div class="card opportunity-card h-100 position-relative">
+                        <span class="opportunity-type-badge bg-primary text-white">${opp.type}</span>
+                        ${opp.featured ? '<span class="featured-badge position-absolute" style="top: 50px; right: 15px;">⭐ Recommandée</span>' : ''}
+                        
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">${opp.title}</h5>
+                            <p class="card-text text-muted small">${opp.description || ''}</p>
+                            
+                            ${opp.deadline ? `
+                                <div class="mb-2">
+                                    <span class="deadline-badge">
+                                        <i class="bi bi-calendar-event"></i> 
+                                        ${formatDate(opp.deadline)}
+                                    </span>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="mb-3">
+                                ${opp.keywords.slice(0, 3).map(kw => `
+                                    <span class="badge bg-light text-dark me-1">#${kw}</span>
+                                `).join('')}
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="bi bi-building"></i> ${opp.source}
+                                </small>
+                                <a href="${opp.url}" target="_blank" class="btn btn-sm btn-primary">
+                                    En savoir plus <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update stats
+        function updateStats(count, cached) {
+            document.getElementById('opportunityCount').textContent = 
+                `${count} opportunité${count > 1 ? 's' : ''} trouvée${count > 1 ? 's' : ''}`;
+            document.getElementById('filterStatus').textContent = 
+                cached ? ' (Données en cache)' : ' (Données actualisées)';
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return 'Pas de date limite';
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = date - now;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) return 'Expiré';
+            if (diffDays === 0) return 'Aujourd\'hui';
+            if (diffDays === 1) return 'Demain';
+            if (diffDays < 7) return `Dans ${diffDays} jours`;
+            if (diffDays < 30) return `Dans ${Math.ceil(diffDays / 7)} semaines`;
+            
+            return date.toLocaleDateString('fr-FR', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search
+            document.getElementById('searchBtn').addEventListener('click', function() {
+                filters.keyword = document.getElementById('searchInput').value;
+                loadOpportunities();
+            });
+            
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    filters.keyword = this.value;
+                    loadOpportunities();
+                }
+            });
+            
+            // Checkboxes
+            document.getElementById('upcomingOnlyFilter').addEventListener('change', function() {
+                filters.upcomingOnly = this.checked;
+                loadOpportunities();
+            });
+            
+            document.getElementById('featuredOnlyFilter').addEventListener('change', function() {
+                filters.featuredOnly = this.checked;
+                loadOpportunities();
+            });
+            
+            // Sort
+            document.getElementById('sortByFilter').addEventListener('change', function() {
+                filters.sortBy = this.value;
+                loadOpportunities();
+            });
+            
+            // Clear filters
+            document.getElementById('clearFilters').addEventListener('click', function() {
+                filters = {
+                    category: 'all',
+                    type: null,
+                    keyword: '',
+                    upcomingOnly: false,
+                    featuredOnly: false,
+                    sortBy: 'newest'
+                };
+                
+                document.getElementById('searchInput').value = '';
+                document.getElementById('upcomingOnlyFilter').checked = false;
+                document.getElementById('featuredOnlyFilter').checked = false;
+                document.getElementById('sortByFilter').value = 'newest';
+                
+                // Reset category chips
+                document.querySelectorAll('#categoryFilters .filter-chip').forEach(chip => {
+                    chip.classList.remove('active');
+                    if (chip.dataset.category === 'all') chip.classList.add('active');
+                });
+                
+                // Reset type chips
+                document.querySelectorAll('#typeFilters .filter-chip').forEach(chip => {
+                    chip.classList.remove('active');
+                    if (!chip.dataset.type) chip.classList.add('active');
+                });
+                
+                loadOpportunities();
+            });
+            
+            // Refresh
+            document.getElementById('refreshBtn').addEventListener('click', async function() {
+                const btn = this;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Actualisation...';
+                
+                try {
+                    await fetch('/api/opportunities/refresh', { method: 'POST' });
+                    await loadOpportunities();
+                } catch (error) {
+                    console.error('Error refreshing:', error);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Actualiser';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

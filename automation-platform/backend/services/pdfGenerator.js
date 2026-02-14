@@ -3,9 +3,31 @@ const fs = require('fs');
 const path = require('path');
 
 // PDF Layout Constants
-const HEADER_HEIGHT = 150;
+const HEADER_HEIGHT = 180;
 const TASK_INDENT = 60;
 const SECTION_INDENT = 70;
+const PAGE_MARGIN = 50;
+
+// Decorative Circle Constants
+const CIRCLE_1_X = 100;
+const CIRCLE_1_Y = 50;
+const CIRCLE_1_RADIUS = 60;
+const CIRCLE_2_X = 80;
+const CIRCLE_2_Y = 140;
+const CIRCLE_2_RADIUS = 40;
+
+// Color Palette
+const COLORS = {
+    primary: '#667eea',
+    secondary: '#764ba2',
+    success: '#10b981',
+    info: '#3b82f6',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    text: '#1f2937',
+    textLight: '#6b7280',
+    background: '#f9fafb'
+};
 
 /**
  * Sanitize text for PDF to prevent injection
@@ -15,6 +37,22 @@ const SECTION_INDENT = 70;
 const sanitizeText = (text) => {
     if (!text) return '';
     return String(text).substring(0, 1000); // Limit length
+};
+
+/**
+ * Draw a gradient header
+ */
+const drawGradientHeader = (doc) => {
+    // Main gradient background
+    doc.rect(0, 0, doc.page.width, HEADER_HEIGHT)
+       .fill('#667eea');
+    
+    // Add decorative elements
+    doc.circle(doc.page.width - CIRCLE_1_X, CIRCLE_1_Y, CIRCLE_1_RADIUS)
+       .fill('#764ba2');
+    
+    doc.circle(CIRCLE_2_X, CIRCLE_2_Y, CIRCLE_2_RADIUS)
+       .fill('#764ba2');
 };
 
 /**
@@ -40,10 +78,17 @@ const generatePlanPDF = (plan, outputPath) => {
             const doc = new PDFDocument({
                 size: 'A4',
                 margins: {
-                    top: 50,
-                    bottom: 50,
-                    left: 50,
-                    right: 50
+                    top: PAGE_MARGIN,
+                    bottom: PAGE_MARGIN,
+                    left: PAGE_MARGIN,
+                    right: PAGE_MARGIN
+                },
+                bufferPages: true,
+                info: {
+                    Title: 'Plan Personnalisé - PlanGenerator',
+                    Author: 'PlanGenerator Platform',
+                    Subject: 'Plan de développement personnel',
+                    Keywords: 'plan, étudiant, développement, carrière'
                 }
             });
 
@@ -51,35 +96,55 @@ const generatePlanPDF = (plan, outputPath) => {
             const stream = fs.createWriteStream(outputPath);
             doc.pipe(stream);
 
-            // Add header with gradient-like background
-            doc.rect(0, 0, doc.page.width, HEADER_HEIGHT).fill('#667eea');
+            // Draw enhanced gradient header
+            drawGradientHeader(doc);
             
-            // Title
+            // Title with enhanced styling
             doc.fillColor('#ffffff')
-                .fontSize(30)
-                .text('Mon Plan Personnalisé', 50, 50, {
+                .fontSize(32)
+                .font('Helvetica-Bold')
+                .text('Mon Plan Personnalisé', PAGE_MARGIN, 50, {
                     align: 'center'
                 });
 
-            doc.fontSize(16)
-                .text('PlanGenerator - Automation Platform', 50, 95, {
+            doc.fontSize(14)
+                .font('Helvetica')
+                .text('🚀 PlanGenerator - Automation Platform', PAGE_MARGIN, 100, {
+                    align: 'center'
+                });
+            
+            // Add date
+            doc.fontSize(10)
+                .text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, PAGE_MARGIN, 130, {
                     align: 'center'
                 });
 
-            // User info section (sanitized)
-            doc.fillColor('#000000')
-                .fontSize(14)
-                .text(`Préparé pour: ${sanitizeText(plan.name)}`, 50, 180);
+            // User info section (sanitized) with card-like styling
+            let yPosition = 200;
+            
+            // Info card background
+            doc.rect(PAGE_MARGIN, yPosition, doc.page.width - 2 * PAGE_MARGIN, 140)
+               .fillAndStroke(COLORS.background, COLORS.textLight)
+               .lineWidth(1);
+            
+            yPosition += 20;
+            
+            doc.fillColor(COLORS.text)
+                .fontSize(16)
+                .font('Helvetica-Bold')
+                .text(`👤 ${sanitizeText(plan.name)}`, PAGE_MARGIN + 20, yPosition);
 
+            yPosition += 25;
             doc.fontSize(11)
-                .fillColor('#666666')
-                .text(`Email: ${sanitizeText(plan.email)}`, 50, 205);
+                .font('Helvetica')
+                .fillColor(COLORS.textLight)
+                .text(`📧 ${sanitizeText(plan.email)}`, PAGE_MARGIN + 20, yPosition);
 
             const planTypeLabels = {
-                'programming': 'Programmation',
-                'business': 'Business',
-                'freelancing': 'Freelancing',
-                'content': 'Création de contenu'
+                'programming': '💻 Programmation',
+                'business': '💼 Business',
+                'freelancing': '🚀 Freelancing',
+                'content': '🎥 Création de contenu'
             };
 
             const timelineLabels = {
@@ -89,89 +154,143 @@ const generatePlanPDF = (plan, outputPath) => {
                 '2years': '2 ans'
             };
 
-            doc.text(`Type de plan: ${planTypeLabels[plan.planType] || sanitizeText(plan.planType)}`, 50, 225);
-            doc.text(`Durée: ${timelineLabels[plan.timeline] || sanitizeText(plan.timeline)}`, 50, 245);
-            doc.text(`Domaine: ${sanitizeText(plan.field)}`, 50, 265);
+            yPosition += 25;
+            doc.text(`📋 Type de plan: ${planTypeLabels[plan.planType] || sanitizeText(plan.planType)}`, PAGE_MARGIN + 20, yPosition);
+            
+            yPosition += 20;
+            doc.text(`⏱️  Durée: ${timelineLabels[plan.timeline] || sanitizeText(plan.timeline)}`, PAGE_MARGIN + 20, yPosition);
+            
+            yPosition += 20;
+            doc.text(`🎯 Domaine: ${sanitizeText(plan.field)}`, PAGE_MARGIN + 20, yPosition);
 
-            // Add separator line
-            doc.moveTo(50, 295)
-                .lineTo(doc.page.width - 50, 295)
-                .strokeColor('#667eea')
-                .lineWidth(2)
+            // Add decorative separator line
+            yPosition += 35;
+            doc.moveTo(PAGE_MARGIN, yPosition)
+                .lineTo(doc.page.width - PAGE_MARGIN, yPosition)
+                .strokeColor(COLORS.primary)
+                .lineWidth(3)
                 .stroke();
 
-            let yPosition = 320;
+            yPosition += 25;
 
-            // Objective section
-            doc.fillColor('#667eea')
-                .fontSize(18)
-                .text('🎯 Objectif Principal', 50, yPosition);
+            // Objective section with enhanced styling
+            doc.fillColor(COLORS.primary)
+                .fontSize(20)
+                .font('Helvetica-Bold')
+                .text('🎯 Objectif Principal', PAGE_MARGIN, yPosition);
 
             yPosition += 30;
-            doc.fillColor('#000000')
-                .fontSize(11)
-                .text(sanitizeText(plan.goal) || 'Objectif non spécifié', 50, yPosition, {
-                    width: doc.page.width - 100,
+            
+            // Objective box
+            const objectiveText = sanitizeText(plan.goal) || 'Objectif non spécifié';
+            const objectiveHeight = doc.heightOfString(objectiveText, {
+                width: doc.page.width - 2 * PAGE_MARGIN - 40
+            }) + 30;
+            
+            doc.roundedRect(PAGE_MARGIN, yPosition, doc.page.width - 2 * PAGE_MARGIN, objectiveHeight, 10)
+               .fillAndStroke('#f0f9ff', COLORS.info)
+               .lineWidth(2);
+            
+            doc.fillColor(COLORS.text)
+                .fontSize(12)
+                .font('Helvetica')
+                .text(objectiveText, PAGE_MARGIN + 20, yPosition + 15, {
+                    width: doc.page.width - 2 * PAGE_MARGIN - 40,
                     align: 'justify'
                 });
 
-            yPosition += 60;
+            yPosition += objectiveHeight + 30;
 
-            // Roadmap phases
+            // Roadmap phases with enhanced visual design
             const phases = getRoadmapPhases(plan);
 
-            if (yPosition + 100 > doc.page.height - 50) {
+            if (yPosition + 100 > doc.page.height - PAGE_MARGIN) {
                 doc.addPage();
-                yPosition = 50;
+                yPosition = PAGE_MARGIN;
             }
 
-            doc.fillColor('#667eea')
-                .fontSize(18)
-                .text('🗺️ Roadmap - Phases du Parcours', 50, yPosition);
+            doc.fillColor(COLORS.primary)
+                .fontSize(20)
+                .font('Helvetica-Bold')
+                .text('🗺️ Roadmap - Phases du Parcours', PAGE_MARGIN, yPosition);
 
-            yPosition += 30;
+            yPosition += 35;
 
             phases.forEach((phase, index) => {
                 // Check if we need a new page
-                if (yPosition + 120 > doc.page.height - 50) {
+                if (yPosition + 150 > doc.page.height - PAGE_MARGIN) {
                     doc.addPage();
-                    yPosition = 50;
+                    yPosition = PAGE_MARGIN;
                 }
 
-                // Phase header
+                // Phase card with colored left border
                 const phaseColors = {
-                    'primary': '#0d6efd',
-                    'info': '#0dcaf0',
-                    'success': '#198754',
-                    'warning': '#ffc107'
+                    'primary': COLORS.info,
+                    'info': COLORS.primary,
+                    'success': COLORS.success,
+                    'warning': COLORS.warning
                 };
+                
+                const phaseColor = phaseColors[phase.color] || COLORS.info;
+                
+                // Calculate card height
+                const tasksHeight = phase.tasks.length * 20;
+                const cardHeight = tasksHeight + 70;
 
-                doc.fillColor(phaseColors[phase.color] || '#0d6efd')
-                    .fontSize(14)
-                    .text(`Phase ${index + 1}: ${phase.title}`, 50, yPosition);
+                // Card background
+                doc.rect(PAGE_MARGIN, yPosition, doc.page.width - 2 * PAGE_MARGIN, cardHeight)
+                   .fill('#ffffff');
+                
+                // Colored left border
+                doc.rect(PAGE_MARGIN, yPosition, 5, cardHeight)
+                   .fill(phaseColor);
+                
+                // Phase number badge
+                doc.circle(PAGE_MARGIN + 30, yPosition + 20, 18)
+                   .fill(phaseColor);
+                
+                doc.fillColor('#ffffff')
+                   .fontSize(14)
+                   .font('Helvetica-Bold')
+                   .text(`${index + 1}`, PAGE_MARGIN + 24, yPosition + 13);
 
-                yPosition += 20;
+                // Phase header
+                doc.fillColor(COLORS.text)
+                    .fontSize(16)
+                    .font('Helvetica-Bold')
+                    .text(phase.title, PAGE_MARGIN + 60, yPosition + 13);
 
-                doc.fillColor('#666666')
+                yPosition += 40;
+
+                doc.fillColor(COLORS.textLight)
                     .fontSize(10)
-                    .text(`Durée: ${phase.duration}`, 50, yPosition);
+                    .font('Helvetica')
+                    .text(`⏱️  ${phase.duration}`, PAGE_MARGIN + 60, yPosition);
 
-                yPosition += 20;
+                yPosition += 25;
 
-                // Tasks
-                doc.fillColor('#000000')
-                    .fontSize(10);
+                // Tasks with checkboxes
+                doc.fillColor(COLORS.text)
+                    .fontSize(11)
+                    .font('Helvetica');
 
-                phase.tasks.forEach(task => {
-                    if (yPosition + 20 > doc.page.height - 50) {
+                phase.tasks.forEach((task, taskIndex) => {
+                    if (yPosition + 25 > doc.page.height - PAGE_MARGIN) {
                         doc.addPage();
-                        yPosition = 50;
+                        yPosition = PAGE_MARGIN;
                     }
-                    doc.text(`  • ${task}`, TASK_INDENT, yPosition);
-                    yPosition += 18;
+                    
+                    // Checkbox
+                    doc.rect(TASK_INDENT + 10, yPosition - 2, 10, 10)
+                       .stroke(COLORS.textLight);
+                    
+                    doc.text(task, TASK_INDENT + 30, yPosition - 2, {
+                        width: doc.page.width - TASK_INDENT - 80
+                    });
+                    yPosition += 20;
                 });
 
-                yPosition += 10;
+                yPosition += 20;
             });
 
             // Resources section
