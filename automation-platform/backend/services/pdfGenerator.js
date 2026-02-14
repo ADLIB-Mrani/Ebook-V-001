@@ -8,6 +8,14 @@ const TASK_INDENT = 60;
 const SECTION_INDENT = 70;
 const PAGE_MARGIN = 50;
 
+// Decorative Circle Constants
+const CIRCLE_1_X = 100;
+const CIRCLE_1_Y = 50;
+const CIRCLE_1_RADIUS = 60;
+const CIRCLE_2_X = 80;
+const CIRCLE_2_Y = 140;
+const CIRCLE_2_RADIUS = 40;
+
 // Color Palette
 const COLORS = {
     primary: '#667eea',
@@ -40,10 +48,10 @@ const drawGradientHeader = (doc) => {
        .fill('#667eea');
     
     // Add decorative elements
-    doc.circle(doc.page.width - 100, 50, 60)
+    doc.circle(doc.page.width - CIRCLE_1_X, CIRCLE_1_Y, CIRCLE_1_RADIUS)
        .fill('#764ba2');
     
-    doc.circle(80, 140, 40)
+    doc.circle(CIRCLE_2_X, CIRCLE_2_Y, CIRCLE_2_RADIUS)
        .fill('#764ba2');
 };
 
