@@ -666,11 +666,10 @@ router.get('/', async (req, res) => {
             cached: false
         });
     } catch (error) {
-        console.error('Error fetching market analysis:', error);
+        console.error('Error fetching market analysis:', error.message);
         res.status(500).json({
             success: false,
-            error: 'Échec de la récupération de l\'analyse de marché',
-            message: error.message
+            error: 'Échec de la récupération de l\'analyse de marché'
         });
     }
 });
@@ -683,6 +682,21 @@ router.get('/tools', async (req, res) => {
     try {
         const cacheKey = 'market_analysis_tools';
         const { difficulte, categorie } = req.query;
+
+        // Validate query parameters
+        const allowedDifficultes = ['facile', 'moyen', 'avance'];
+        if (difficulte && !allowedDifficultes.includes(difficulte)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Paramètre difficulte invalide. Valeurs acceptées: facile, moyen, avance'
+            });
+        }
+        if (categorie && !/^[a-zA-ZÀ-ÿ0-9\s-]+$/.test(categorie)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Paramètre categorie invalide'
+            });
+        }
 
         const cachedData = cache.get(cacheKey);
         let tools;
@@ -709,11 +723,10 @@ router.get('/tools', async (req, res) => {
             cached: !!cachedData
         });
     } catch (error) {
-        console.error('Error fetching automation tools:', error);
+        console.error('Error fetching automation tools:', error.message);
         res.status(500).json({
             success: false,
-            error: 'Échec de la récupération des outils',
-            message: error.message
+            error: 'Échec de la récupération des outils'
         });
     }
 });
@@ -726,6 +739,15 @@ router.get('/automations', async (req, res) => {
     try {
         const cacheKey = 'market_analysis_automations';
         const { difficulte } = req.query;
+
+        // Validate query parameter
+        const allowedDifficultes = ['facile', 'moyen', 'avance'];
+        if (difficulte && !allowedDifficultes.includes(difficulte)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Paramètre difficulte invalide. Valeurs acceptées: facile, moyen, avance'
+            });
+        }
 
         const cachedData = cache.get(cacheKey);
         let workflows;
@@ -749,11 +771,10 @@ router.get('/automations', async (req, res) => {
             cached: !!cachedData
         });
     } catch (error) {
-        console.error('Error fetching automation workflows:', error);
+        console.error('Error fetching automation workflows:', error.message);
         res.status(500).json({
             success: false,
-            error: 'Échec de la récupération des workflows',
-            message: error.message
+            error: 'Échec de la récupération des workflows'
         });
     }
 });
