@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan Personnalisé & Automatisation - PlanGenerator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .filter-chip {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 4px;
+            border-radius: 20px;
+            background: #f0f0f3;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .filter-chip:hover {
+            background: #e0e0e5;
+            transform: translateY(-2px);
+        }
+
+        .filter-chip.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .tool-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+            height: 100%;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .workflow-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #11998e;
+            height: 100%;
+        }
+
+        .workflow-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .trend-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #f59e0b;
+            height: 100%;
+        }
+
+        .trend-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .stat-highlight {
+            background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-highlight:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(102,126,234,0.15);
+        }
+
+        .stat-highlight .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .free-badge {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .difficulty-facile {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .difficulty-moyen {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .difficulty-avance {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .cost-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .nav-tabs .nav-link {
+            color: #6c757d;
+            font-weight: 500;
+            padding: 12px 24px;
+            border: none;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #667eea;
+            border-bottom-color: rgba(102,126,234,0.3);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: transparent;
+        }
+
+        .skeleton {
+            animation: skeleton-loading 1s linear infinite alternate;
+            border-radius: 4px;
+        }
+
+        @keyframes skeleton-loading {
+            0% { background-color: hsl(200, 20%, 80%); }
+            100% { background-color: hsl(200, 20%, 95%); }
+        }
+
+        .skeleton-card {
+            height: 280px;
+            border-radius: 12px;
+        }
+
+        .step-list .step-item {
+            position: relative;
+            padding-left: 36px;
+            padding-bottom: 16px;
+        }
+
+        .step-list .step-item::before {
+            content: counter(step-counter);
+            counter-increment: step-counter;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step-list {
+            counter-reset: step-counter;
+            list-style: none;
+            padding: 0;
+        }
+
+        .card-appear {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: cardAppear 0.5s ease-out forwards;
+        }
+
+        @keyframes cardAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tool-features li {
+            padding: 4px 0;
+            font-size: 0.9rem;
+        }
+
+        .tool-features li i {
+            color: #11998e;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-rocket-takeoff"></i> PlanGenerator
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Accueil</a></li>
+                    <li class="nav-item"><a class="nav-link" href="form.html">Créer mon plan</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="plan-personnalise.html">Plan Personnalisé</a></li>
+                    <li class="nav-item"><a class="nav-link" href="opportunities.html">Opportunités</a></li>
+                    <li class="nav-item"><a class="nav-link" href="tasks.html">Mes Tâches</a></li>
+                    <li class="nav-item"><a class="nav-link" href="chatbot.html">Assistant</a></li>
+                    <li class="nav-item"><a class="nav-link" href="resources.html">Ressources</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Plus</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="newsletter.html"><i class="bi bi-envelope"></i> Newsletter</a></li>
+                            <li><a class="dropdown-item" href="contact.html"><i class="bi bi-chat-dots"></i> Contact</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#features"><i class="bi bi-star"></i> Fonctionnalités</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero bg-gradient text-white py-5">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="bi bi-gear-wide-connected icon-pulse"></i> Plan Personnalisé &amp; Automatisation
+            </h1>
+            <p class="lead mb-4 mx-auto" style="max-width: 700px;">
+                Analyse du marché, outils d'automatisation gratuits et workflows étape par étape
+                pour lancer et développer ton activité en ligne efficacement.
+            </p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="#tabs-section" class="btn btn-light btn-lg glow-on-hover">
+                    <i class="bi bi-arrow-down-circle"></i> Explorer
+                </a>
+                <a href="form.html" class="btn btn-outline-light btn-lg glow-on-hover">
+                    <i class="bi bi-plus-circle"></i> Créer mon plan
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tab Navigation -->
+    <section id="tabs-section" class="py-5">
+        <div class="container">
+            <ul class="nav nav-tabs justify-content-center mb-4" id="mainTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="market-tab" data-bs-toggle="tab"
+                            data-bs-target="#market-panel" type="button" role="tab"
+                            aria-controls="market-panel" aria-selected="true">
+                        <i class="bi bi-graph-up-arrow"></i> Analyse du Marché
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tools-tab" data-bs-toggle="tab"
+                            data-bs-target="#tools-panel" type="button" role="tab"
+                            aria-controls="tools-panel" aria-selected="false">
+                        <i class="bi bi-tools"></i> Outils d'Automatisation
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="workflows-tab" data-bs-toggle="tab"
+                            data-bs-target="#workflows-panel" type="button" role="tab"
+                            aria-controls="workflows-panel" aria-selected="false">
+                        <i class="bi bi-diagram-3"></i> Workflows &amp; Templates
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="mainTabContent">
+
+                <!-- Tab 1: Analyse du Marché -->
+                <div class="tab-pane fade show active" id="market-panel" role="tabpanel" aria-labelledby="market-tab">
+
+                    <!-- Statistics Cards -->
+                    <div class="row g-4 mb-5" id="marketStats">
+                        <div class="col-6 col-md-3">
+                            <div class="stat-highlight">
+                                <div class="stat-value" id="statFreelancers">0</div>
+                                <p class="text-muted mb-0">Freelancers en France</p>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stat-highlight">
+                                <div class="stat-value" id="statGrowth">0%</div>
+                                <p class="text-muted mb-0">Croissance annuelle</p>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stat-highlight">
+                                <div class="stat-value" id="statRevenue">0€</div>
+                                <p class="text-muted mb-0">Revenu moyen / mois</p>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stat-highlight">
+                                <div class="stat-value" id="statTools">0</div>
+                                <p class="text-muted mb-0">Outils gratuits</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Market Trends -->
+                    <h3 class="fw-bold mb-4"><i class="bi bi-trending-up"></i> Tendances du Marché</h3>
+                    <div id="marketTrendsLoading" class="row g-4 mb-5">
+                        <div class="col-md-4"><div class="skeleton skeleton-card"></div></div>
+                        <div class="col-md-4"><div class="skeleton skeleton-card"></div></div>
+                        <div class="col-md-4"><div class="skeleton skeleton-card"></div></div>
+                    </div>
+                    <div id="marketTrendsGrid" class="row g-4 mb-5 d-none"></div>
+                    <div id="marketTrendsError" class="alert alert-warning d-none">
+                        <i class="bi bi-exclamation-triangle"></i> Impossible de charger les tendances du marché.
+                    </div>
+
+                    <!-- Skills Demand -->
+                    <h3 class="fw-bold mb-4"><i class="bi bi-bar-chart-line"></i> Demande de Compétences</h3>
+                    <div class="card border-0 shadow-sm mb-5">
+                        <div class="card-body p-4">
+                            <div id="skillsContainer">
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="fw-semibold">Automatisation & No-Code</span>
+                                        <span class="text-muted">92%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 92%;" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="fw-semibold">Marketing Digital</span>
+                                        <span class="text-muted">87%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 87%;" aria-valuenow="87" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="fw-semibold">Création de Contenu</span>
+                                        <span class="text-muted">81%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: 81%;" aria-valuenow="81" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="fw-semibold">Développement Web</span>
+                                        <span class="text-muted">78%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 78%;" aria-valuenow="78" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="fw-semibold">E-commerce & Dropshipping</span>
+                                        <span class="text-muted">74%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-danger" role="progressbar" style="width: 74%;" aria-valuenow="74" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="fw-semibold">IA & Machine Learning</span>
+                                        <span class="text-muted">69%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar" role="progressbar" style="width: 69%; background: linear-gradient(135deg, #667eea, #764ba2);" aria-valuenow="69" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cost Comparison Table -->
+                    <h3 class="fw-bold mb-4"><i class="bi bi-table"></i> Comparaison des Coûts</h3>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-hover cost-table">
+                            <thead>
+                                <tr>
+                                    <th>Outil</th>
+                                    <th>Plan Gratuit</th>
+                                    <th>Plan Pro</th>
+                                    <th>Idéal pour</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Notion</strong></td>
+                                    <td><span class="free-badge">Gratuit</span></td>
+                                    <td>8€/mois</td>
+                                    <td>Organisation, gestion de projet</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Canva</strong></td>
+                                    <td><span class="free-badge">Gratuit</span></td>
+                                    <td>11,99€/mois</td>
+                                    <td>Design, réseaux sociaux</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Mailchimp</strong></td>
+                                    <td><span class="free-badge">Gratuit (500 contacts)</span></td>
+                                    <td>13€/mois</td>
+                                    <td>Email marketing</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Zapier</strong></td>
+                                    <td><span class="free-badge">Gratuit (100 tâches)</span></td>
+                                    <td>19,99€/mois</td>
+                                    <td>Automatisation workflows</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>WordPress</strong></td>
+                                    <td><span class="free-badge">Gratuit</span></td>
+                                    <td>4€/mois (hébergement)</td>
+                                    <td>Sites web, blogs</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Google Analytics</strong></td>
+                                    <td><span class="free-badge">Gratuit</span></td>
+                                    <td>—</td>
+                                    <td>Analyse de trafic</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Outils d'Automatisation -->
+                <div class="tab-pane fade" id="tools-panel" role="tabpanel" aria-labelledby="tools-tab">
+
+                    <!-- Filters -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-funnel"></i> Filtrer par difficulté</h6>
+                        <div id="toolsDifficultyFilters" class="d-flex flex-wrap mb-3">
+                            <span class="filter-chip active" data-difficulty="all">Tous</span>
+                            <span class="filter-chip" data-difficulty="Facile">🟢 Facile</span>
+                            <span class="filter-chip" data-difficulty="Moyen">🟡 Moyen</span>
+                        </div>
+                        <h6 class="fw-bold mb-3"><i class="bi bi-tag"></i> Filtrer par catégorie</h6>
+                        <div id="toolsCategoryFilters" class="d-flex flex-wrap"></div>
+                    </div>
+
+                    <!-- Loading -->
+                    <div id="toolsLoading" class="row g-4">
+                        <div class="col-md-6 col-lg-4"><div class="skeleton skeleton-card"></div></div>
+                        <div class="col-md-6 col-lg-4"><div class="skeleton skeleton-card"></div></div>
+                        <div class="col-md-6 col-lg-4"><div class="skeleton skeleton-card"></div></div>
+                    </div>
+
+                    <!-- Error -->
+                    <div id="toolsError" class="alert alert-danger d-none">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Erreur :</strong> <span id="toolsErrorMessage">Impossible de charger les outils.</span>
+                    </div>
+
+                    <!-- Tools Grid -->
+                    <div id="toolsGrid" class="row g-4 d-none"></div>
+
+                    <!-- Comparison Table -->
+                    <div id="toolsComparison" class="mt-5 d-none">
+                        <h3 class="fw-bold mb-4"><i class="bi bi-layout-text-sidebar-reverse"></i> Tableau Comparatif</h3>
+                        <div class="table-responsive">
+                            <table class="table table-hover cost-table" id="toolsComparisonTable">
+                                <thead>
+                                    <tr>
+                                        <th>Outil</th>
+                                        <th>Coût</th>
+                                        <th>Difficulté</th>
+                                        <th>Catégorie</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Workflows & Templates -->
+                <div class="tab-pane fade" id="workflows-panel" role="tabpanel" aria-labelledby="workflows-tab">
+
+                    <!-- Filters -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-funnel"></i> Filtrer par difficulté</h6>
+                        <div id="workflowsDifficultyFilters" class="d-flex flex-wrap">
+                            <span class="filter-chip active" data-difficulty="all">Tous</span>
+                            <span class="filter-chip" data-difficulty="Facile">🟢 Facile</span>
+                            <span class="filter-chip" data-difficulty="Moyen">🟡 Moyen</span>
+                        </div>
+                    </div>
+
+                    <!-- Loading -->
+                    <div id="workflowsLoading" class="row g-4">
+                        <div class="col-md-6"><div class="skeleton skeleton-card"></div></div>
+                        <div class="col-md-6"><div class="skeleton skeleton-card"></div></div>
+                    </div>
+
+                    <!-- Error -->
+                    <div id="workflowsError" class="alert alert-danger d-none">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Erreur :</strong> <span id="workflowsErrorMessage">Impossible de charger les workflows.</span>
+                    </div>
+
+                    <!-- Workflows Grid -->
+                    <div id="workflowsGrid" class="row g-4 d-none"></div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="bg-gradient text-white py-5">
+        <div class="container text-center">
+            <h2 class="display-5 fw-bold mb-3">Prêt à automatiser ta réussite ?</h2>
+            <p class="lead mb-4">Crée ton plan personnalisé gratuitement et passe à l'action dès aujourd'hui.</p>
+            <a href="form.html" class="btn btn-light btn-lg px-5 glow-on-hover">
+                <i class="bi bi-rocket-takeoff"></i> Créer mon plan maintenant
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <h5><i class="bi bi-rocket-takeoff"></i> PlanGenerator</h5>
+                    <p class="text-muted">
+                        Génération automatique de plans personnalisés pour étudiants.
+                        100% gratuit, open source et conforme RGPD.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-muted fs-4"><i class="bi bi-github"></i></a>
+                        <a href="#" class="text-muted fs-4"><i class="bi bi-discord"></i></a>
+                        <a href="#" class="text-muted fs-4"><i class="bi bi-twitter-x"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <h6 class="text-uppercase mb-3">Navigation</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html" class="text-muted text-decoration-none">Accueil</a></li>
+                        <li><a href="form.html" class="text-muted text-decoration-none">Créer un plan</a></li>
+                        <li><a href="resources.html" class="text-muted text-decoration-none">Ressources</a></li>
+                        <li><a href="chatbot.html" class="text-muted text-decoration-none">Assistant</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2">
+                    <h6 class="text-uppercase mb-3">Communauté</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="newsletter.html" class="text-muted text-decoration-none">Newsletter</a></li>
+                        <li><a href="contact.html" class="text-muted text-decoration-none">Contact</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Discord</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">GitHub</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h6 class="text-uppercase mb-3">Citation du jour</h6>
+                    <blockquote class="blockquote small">
+                        <p class="text-muted fst-italic">"L'automatisation n'est pas le remplacement de l'humain, c'est la libération de son potentiel."</p>
+                        <footer class="blockquote-footer text-muted">Anonyme</footer>
+                    </blockquote>
+                </div>
+            </div>
+            <hr class="my-4 border-secondary">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="text-muted small mb-0">
+                        © 2024 PlanGenerator • Fait avec <i class="bi bi-heart-fill text-danger"></i> pour les étudiants français
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted small mb-0">
+                        <a href="#" class="text-muted">Politique de confidentialité</a> •
+                        <a href="#" class="text-muted">Mentions légales</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // State
+        let allTools = [];
+        let allWorkflows = [];
+        let toolFilters = { difficulty: 'all', category: 'all' };
+        let workflowFilters = { difficulty: 'all' };
+
+        // Fallback data
+        const fallbackMarketData = {
+            success: true,
+            trends: [
+                {
+                    title: 'Essor du No-Code',
+                    description: 'Les plateformes no-code permettent de créer des applications sans coder. Marché en croissance de 28% par an.',
+                    icon: 'bi-lightning-charge',
+                    color: 'primary'
+                },
+                {
+                    title: 'IA Générative',
+                    description: "L'intelligence artificielle transforme la création de contenu, le marketing et le service client.",
+                    icon: 'bi-robot',
+                    color: 'success'
+                },
+                {
+                    title: 'Économie des Créateurs',
+                    description: "Plus de 50 millions de créateurs dans le monde monétisent leur expertise en ligne.",
+                    icon: 'bi-camera-video',
+                    color: 'info'
+                },
+                {
+                    title: 'Micro-SaaS',
+                    description: 'Les petits logiciels spécialisés génèrent des revenus récurrents avec peu de ressources.',
+                    icon: 'bi-cloud-arrow-up',
+                    color: 'warning'
+                },
+                {
+                    title: 'Freelancing en Hausse',
+                    description: "Le nombre de freelancers en France augmente de 15% par an, porté par le télétravail.",
+                    icon: 'bi-laptop',
+                    color: 'danger'
+                },
+                {
+                    title: 'Automatisation Marketing',
+                    description: "Les entreprises automatisent 60% de leurs tâches marketing pour gagner en efficacité.",
+                    icon: 'bi-megaphone',
+                    color: 'secondary'
+                }
+            ],
+            stats: {
+                freelancers: 1100000,
+                growth: 15,
+                averageRevenue: 3200,
+                freeTools: 25
+            }
+        };
+
+        const fallbackToolsData = {
+            success: true,
+            tools: [
+                {
+                    name: 'Notion',
+                    description: "Espace de travail tout-en-un pour organiser projets, notes et bases de données.",
+                    cost: 'Gratuit',
+                    difficulty: 'Facile',
+                    category: 'Productivité',
+                    features: ['Bases de données', 'Templates', 'Collaboration', 'API disponible'],
+                    guide: "1. Créer un compte sur notion.so\n2. Explorer les templates\n3. Créer un workspace pour ton projet\n4. Organiser avec des bases de données",
+                    url: 'https://www.notion.so'
+                },
+                {
+                    name: 'Canva',
+                    description: 'Outil de design graphique pour créer visuels, présentations et contenus réseaux sociaux.',
+                    cost: 'Gratuit',
+                    difficulty: 'Facile',
+                    category: 'Design',
+                    features: ['Templates professionnels', 'Éditeur drag & drop', 'Bibliothèque média', 'Export multi-format'],
+                    guide: "1. S'inscrire sur canva.com\n2. Choisir un format (post, story, etc.)\n3. Personnaliser un template\n4. Télécharger ou partager",
+                    url: 'https://www.canva.com'
+                },
+                {
+                    name: 'Mailchimp',
+                    description: "Plateforme d'email marketing pour créer des newsletters et automatiser les campagnes.",
+                    cost: 'Gratuit (500 contacts)',
+                    difficulty: 'Moyen',
+                    category: 'Marketing',
+                    features: ['Éditeur email', 'Automatisations', 'Analytics', 'Landing pages'],
+                    guide: "1. Créer un compte Mailchimp\n2. Importer ta liste de contacts\n3. Créer un template d'email\n4. Configurer une automatisation",
+                    url: 'https://mailchimp.com'
+                },
+                {
+                    name: 'Zapier',
+                    description: 'Connecte tes applications entre elles et automatise les tâches répétitives sans code.',
+                    cost: 'Gratuit (100 tâches/mois)',
+                    difficulty: 'Moyen',
+                    category: 'Automatisation',
+                    features: ['5000+ intégrations', 'Zaps multi-étapes', 'Filtres & conditions', 'Webhooks'],
+                    guide: "1. Créer un compte sur zapier.com\n2. Choisir un trigger (déclencheur)\n3. Configurer une action\n4. Tester et activer le Zap",
+                    url: 'https://zapier.com'
+                },
+                {
+                    name: 'Google Analytics',
+                    description: 'Analyse le trafic de ton site web et comprends le comportement de tes visiteurs.',
+                    cost: 'Gratuit',
+                    difficulty: 'Moyen',
+                    category: 'Analytics',
+                    features: ['Trafic en temps réel', 'Rapports audience', 'Suivi conversions', 'Intégration Google Ads'],
+                    guide: "1. Créer un compte Google Analytics\n2. Ajouter le code de suivi à ton site\n3. Configurer les objectifs\n4. Analyser les rapports",
+                    url: 'https://analytics.google.com'
+                },
+                {
+                    name: 'WordPress',
+                    description: 'CMS open source pour créer sites web, blogs et boutiques en ligne.',
+                    cost: 'Gratuit',
+                    difficulty: 'Facile',
+                    category: 'Site Web',
+                    features: ['Thèmes gratuits', 'Plugins (60000+)', 'SEO friendly', 'E-commerce (WooCommerce)'],
+                    guide: "1. Choisir un hébergeur (OVH, o2switch)\n2. Installer WordPress\n3. Choisir et personnaliser un thème\n4. Ajouter du contenu et des plugins",
+                    url: 'https://wordpress.org'
+                }
+            ]
+        };
+
+        const fallbackWorkflowsData = {
+            success: true,
+            automations: [
+                {
+                    name: 'Lancement Newsletter Automatisée',
+                    description: "Crée et automatise une newsletter hebdomadaire pour engager ton audience.",
+                    difficulty: 'Facile',
+                    estimatedTime: '2-3 heures',
+                    steps: [
+                        "Créer un compte Mailchimp et configurer le profil",
+                        "Créer un formulaire d'inscription avec landing page",
+                        "Rédiger 3 emails de bienvenue automatiques",
+                        "Planifier l'envoi hebdomadaire",
+                        "Intégrer le formulaire sur ton site/réseaux"
+                    ],
+                    tools: ['Mailchimp', 'Canva', 'WordPress']
+                },
+                {
+                    name: 'Publication Réseaux Sociaux Auto',
+                    description: 'Automatise la création et la publication de contenu sur tes réseaux sociaux.',
+                    difficulty: 'Facile',
+                    estimatedTime: '1-2 heures',
+                    steps: [
+                        'Créer un calendrier éditorial sur Notion',
+                        'Préparer des visuels avec Canva (batch de 7 jours)',
+                        'Configurer Buffer ou Hootsuite pour la planification',
+                        'Automatiser avec Zapier : Notion → Buffer',
+                        'Analyser les résultats et ajuster'
+                    ],
+                    tools: ['Notion', 'Canva', 'Buffer', 'Zapier']
+                },
+                {
+                    name: 'Tunnel de Vente Complet',
+                    description: "Mets en place un tunnel de vente automatisé : capture → nurturing → conversion.",
+                    difficulty: 'Moyen',
+                    estimatedTime: '5-8 heures',
+                    steps: [
+                        'Créer un lead magnet (ebook, checklist, template)',
+                        'Construire une landing page avec WordPress ou Carrd',
+                        "Configurer l'email marketing (séquence de 5 emails)",
+                        'Créer une page de vente',
+                        "Connecter les outils avec Zapier",
+                        "Tester tout le parcours et optimiser"
+                    ],
+                    tools: ['WordPress', 'Mailchimp', 'Canva', 'Zapier', 'Stripe']
+                },
+                {
+                    name: 'Veille Automatisée & Curation',
+                    description: 'Automatise ta veille sectorielle et partage du contenu pertinent sans effort.',
+                    difficulty: 'Facile',
+                    estimatedTime: '1 heure',
+                    steps: [
+                        'Configurer Google Alerts sur tes mots-clés',
+                        'Créer un tableau Notion pour centraliser les articles',
+                        'Connecter RSS → Notion via Zapier',
+                        'Planifier un résumé hebdomadaire automatique'
+                    ],
+                    tools: ['Google Alerts', 'Notion', 'Zapier', 'Feedly']
+                }
+            ]
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMarketAnalysis();
+            loadTools();
+            loadWorkflows();
+            setupFilters();
+            animateStats(fallbackMarketData.stats);
+        });
+
+        // ── Market Analysis ──
+
+        async function loadMarketAnalysis() {
+            const grid = document.getElementById('marketTrendsGrid');
+            const loading = document.getElementById('marketTrendsLoading');
+            const error = document.getElementById('marketTrendsError');
+
+            try {
+                const response = await fetch('/api/market-analysis');
+                const data = await response.json();
+
+                if (data.success) {
+                    renderTrends(data.trends || fallbackMarketData.trends);
+                    if (data.stats) animateStats(data.stats);
+                } else {
+                    throw new Error('API returned failure');
+                }
+            } catch (err) {
+                console.warn('Using fallback market data:', err.message);
+                renderTrends(fallbackMarketData.trends);
+            }
+
+            function renderTrends(trends) {
+                loading.classList.add('d-none');
+
+                if (!trends || trends.length === 0) {
+                    error.classList.remove('d-none');
+                    return;
+                }
+
+                grid.classList.remove('d-none');
+                grid.innerHTML = trends.map(function(trend, i) {
+                    var iconClass = trend.icon || 'bi-arrow-up-right';
+                    var colorClass = trend.color || 'primary';
+                    return '<div class="col-md-6 col-lg-4 card-appear" style="animation-delay: ' + (i * 0.1) + 's;">' +
+                        '<div class="card trend-card h-100 border-0 shadow-sm">' +
+                            '<div class="card-body p-4">' +
+                                '<div class="d-flex align-items-center mb-3">' +
+                                    '<div class="feature-icon bg-' + colorClass + ' bg-gradient text-white rounded-circle me-3" style="width:48px;height:48px;font-size:1.2rem;">' +
+                                        '<i class="bi ' + iconClass + '"></i>' +
+                                    '</div>' +
+                                    '<h5 class="card-title mb-0"></h5>' +
+                                '</div>' +
+                                '<p class="card-text text-muted"></p>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+
+                // Set text safely with textContent
+                var titles = grid.querySelectorAll('.card-title');
+                var descs = grid.querySelectorAll('.card-text');
+                trends.forEach(function(trend, i) {
+                    if (titles[i]) titles[i].textContent = trend.title;
+                    if (descs[i]) descs[i].textContent = trend.description;
+                });
+            }
+        }
+
+        function animateStats(stats) {
+            animateCounter('statFreelancers', stats.freelancers || 1100000, false, '');
+            animateCounter('statGrowth', stats.growth || 15, false, '%');
+            animateCounter('statRevenue', stats.averageRevenue || 3200, false, '€');
+            animateCounter('statTools', stats.freeTools || 25, false, '');
+        }
+
+        function animateCounter(elementId, target, isPercent, suffix) {
+            var element = document.getElementById(elementId);
+            if (!element) return;
+            var current = 0;
+            var increment = target / 50;
+            var timer = setInterval(function() {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current).toLocaleString('fr-FR') + (suffix || '');
+            }, 30);
+        }
+
+        // ── Tools ──
+
+        async function loadTools() {
+            var grid = document.getElementById('toolsGrid');
+            var loading = document.getElementById('toolsLoading');
+            var error = document.getElementById('toolsError');
+
+            try {
+                var response = await fetch('/api/market-analysis/tools');
+                var data = await response.json();
+
+                if (data.success && data.tools) {
+                    allTools = data.tools;
+                } else {
+                    throw new Error('API returned failure');
+                }
+            } catch (err) {
+                console.warn('Using fallback tools data:', err.message);
+                allTools = fallbackToolsData.tools;
+            }
+
+            loading.classList.add('d-none');
+            populateToolCategories();
+            renderTools(allTools);
+        }
+
+        function populateToolCategories() {
+            var categories = [];
+            allTools.forEach(function(tool) {
+                if (tool.category && categories.indexOf(tool.category) === -1) {
+                    categories.push(tool.category);
+                }
+            });
+
+            var container = document.getElementById('toolsCategoryFilters');
+            var html = '<span class="filter-chip active" data-category="all">Toutes</span>';
+            categories.forEach(function(cat) {
+                html += '<span class="filter-chip" data-category="' + cat + '">' + cat + '</span>';
+            });
+            container.innerHTML = html;
+
+            container.querySelectorAll('.filter-chip').forEach(function(chip) {
+                chip.addEventListener('click', function() {
+                    container.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+                    this.classList.add('active');
+                    toolFilters.category = this.dataset.category;
+                    applyToolFilters();
+                });
+            });
+        }
+
+        function renderTools(tools) {
+            var grid = document.getElementById('toolsGrid');
+            var error = document.getElementById('toolsError');
+            var comparison = document.getElementById('toolsComparison');
+
+            if (!tools || tools.length === 0) {
+                grid.classList.add('d-none');
+                error.classList.remove('d-none');
+                document.getElementById('toolsErrorMessage').textContent = 'Aucun outil trouvé pour ces filtres.';
+                comparison.classList.add('d-none');
+                return;
+            }
+
+            error.classList.add('d-none');
+            grid.classList.remove('d-none');
+            comparison.classList.remove('d-none');
+
+            grid.innerHTML = tools.map(function(tool, i) {
+                var diffClass = tool.difficulty === 'Facile' ? 'difficulty-facile' :
+                                tool.difficulty === 'Moyen' ? 'difficulty-moyen' : 'difficulty-avance';
+                var isFree = tool.cost && tool.cost.toLowerCase().indexOf('gratuit') !== -1;
+                var featuresHtml = (tool.features || []).map(function(f) {
+                    return '<li><i class="bi bi-check-circle-fill me-2"></i><span class="feature-text"></span></li>';
+                }).join('');
+                var guideSteps = (tool.guide || '').split('\n').filter(function(s) { return s.trim(); });
+                var guideHtml = guideSteps.map(function() {
+                    return '<li class="step-item"><span class="guide-step-text"></span></li>';
+                }).join('');
+
+                return '<div class="col-md-6 col-lg-4 card-appear" style="animation-delay: ' + (i * 0.1) + 's;">' +
+                    '<div class="card tool-card h-100 border-0 shadow-sm">' +
+                        '<div class="card-body p-4">' +
+                            '<div class="d-flex justify-content-between align-items-start mb-2">' +
+                                '<h5 class="card-title tool-name mb-0"></h5>' +
+                                '<span class="badge ' + diffClass + '">' + tool.difficulty + '</span>' +
+                            '</div>' +
+                            '<p class="card-text text-muted small tool-desc"></p>' +
+                            (isFree ? '<span class="free-badge mb-3 d-inline-block"><i class="bi bi-check-circle"></i> ' + tool.cost + '</span>' :
+                                      '<span class="badge bg-light text-dark mb-3">' + tool.cost + '</span>') +
+                            (tool.category ? '<span class="badge bg-light text-dark ms-2 mb-3">' + tool.category + '</span>' : '') +
+                            '<ul class="list-unstyled tool-features mb-3" data-tool-index="' + i + '">' + featuresHtml + '</ul>' +
+                            '<div class="accordion accordion-flush" id="guideAccordion' + i + '">' +
+                                '<div class="accordion-item border-0">' +
+                                    '<h2 class="accordion-header">' +
+                                        '<button class="accordion-button collapsed p-0 bg-transparent shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#guideCollapse' + i + '">' +
+                                            '<small class="text-primary fw-semibold"><i class="bi bi-book"></i> Guide de démarrage</small>' +
+                                        '</button>' +
+                                    '</h2>' +
+                                    '<div id="guideCollapse' + i + '" class="accordion-collapse collapse">' +
+                                        '<div class="accordion-body p-0 pt-2">' +
+                                            '<ol class="step-list small" data-guide-index="' + i + '">' + guideHtml + '</ol>' +
+                                        '</div>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="card-footer bg-transparent border-0 p-4 pt-0">' +
+                            '<a class="btn btn-sm btn-gradient-primary w-100 tool-link" target="_blank" rel="noopener noreferrer">' +
+                                '<i class="bi bi-box-arrow-up-right"></i> Découvrir' +
+                            '</a>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+
+            // Populate text content safely
+            var nameEls = grid.querySelectorAll('.tool-name');
+            var descEls = grid.querySelectorAll('.tool-desc');
+            var linkEls = grid.querySelectorAll('.tool-link');
+            tools.forEach(function(tool, i) {
+                if (nameEls[i]) nameEls[i].textContent = tool.name;
+                if (descEls[i]) descEls[i].textContent = tool.description;
+                if (linkEls[i]) linkEls[i].href = tool.url || '#';
+            });
+
+            // Populate features text safely
+            tools.forEach(function(tool, i) {
+                var featureList = grid.querySelector('[data-tool-index="' + i + '"]');
+                if (featureList && tool.features) {
+                    var spans = featureList.querySelectorAll('.feature-text');
+                    tool.features.forEach(function(f, j) {
+                        if (spans[j]) spans[j].textContent = f;
+                    });
+                }
+                var guideList = grid.querySelector('[data-guide-index="' + i + '"]');
+                if (guideList && tool.guide) {
+                    var guideSpans = guideList.querySelectorAll('.guide-step-text');
+                    var steps = tool.guide.split('\n').filter(function(s) { return s.trim(); });
+                    steps.forEach(function(s, j) {
+                        if (guideSpans[j]) guideSpans[j].textContent = s.replace(/^\d+\.\s*/, '');
+                    });
+                }
+            });
+
+            // Comparison table
+            var tbody = document.querySelector('#toolsComparisonTable tbody');
+            tbody.innerHTML = tools.map(function(tool) {
+                var diffClass = tool.difficulty === 'Facile' ? 'difficulty-facile' :
+                                tool.difficulty === 'Moyen' ? 'difficulty-moyen' : 'difficulty-avance';
+                return '<tr>' +
+                    '<td class="fw-semibold tool-compare-name"></td>' +
+                    '<td class="tool-compare-cost"></td>' +
+                    '<td><span class="badge ' + diffClass + '">' + tool.difficulty + '</span></td>' +
+                    '<td class="tool-compare-cat"></td>' +
+                '</tr>';
+            }).join('');
+            var nameRows = tbody.querySelectorAll('.tool-compare-name');
+            var costRows = tbody.querySelectorAll('.tool-compare-cost');
+            var catRows = tbody.querySelectorAll('.tool-compare-cat');
+            tools.forEach(function(tool, i) {
+                if (nameRows[i]) nameRows[i].textContent = tool.name;
+                if (costRows[i]) costRows[i].textContent = tool.cost;
+                if (catRows[i]) catRows[i].textContent = tool.category || '—';
+            });
+        }
+
+        function applyToolFilters() {
+            var filtered = allTools.filter(function(tool) {
+                var matchDiff = toolFilters.difficulty === 'all' || tool.difficulty === toolFilters.difficulty;
+                var matchCat = toolFilters.category === 'all' || tool.category === toolFilters.category;
+                return matchDiff && matchCat;
+            });
+            renderTools(filtered);
+        }
+
+        // ── Workflows ──
+
+        async function loadWorkflows() {
+            var grid = document.getElementById('workflowsGrid');
+            var loading = document.getElementById('workflowsLoading');
+            var error = document.getElementById('workflowsError');
+
+            try {
+                var response = await fetch('/api/market-analysis/automations');
+                var data = await response.json();
+
+                if (data.success && data.automations) {
+                    allWorkflows = data.automations;
+                } else {
+                    throw new Error('API returned failure');
+                }
+            } catch (err) {
+                console.warn('Using fallback workflows data:', err.message);
+                allWorkflows = fallbackWorkflowsData.automations;
+            }
+
+            loading.classList.add('d-none');
+            renderWorkflows(allWorkflows);
+        }
+
+        function renderWorkflows(workflows) {
+            var grid = document.getElementById('workflowsGrid');
+            var error = document.getElementById('workflowsError');
+
+            if (!workflows || workflows.length === 0) {
+                grid.classList.add('d-none');
+                error.classList.remove('d-none');
+                document.getElementById('workflowsErrorMessage').textContent = 'Aucun workflow trouvé pour ces filtres.';
+                return;
+            }
+
+            error.classList.add('d-none');
+            grid.classList.remove('d-none');
+
+            grid.innerHTML = workflows.map(function(wf, i) {
+                var diffClass = wf.difficulty === 'Facile' ? 'difficulty-facile' :
+                                wf.difficulty === 'Moyen' ? 'difficulty-moyen' : 'difficulty-avance';
+                var stepsHtml = (wf.steps || []).map(function() {
+                    return '<li class="step-item"><span class="wf-step-text"></span></li>';
+                }).join('');
+                var toolBadges = (wf.tools || []).map(function(t) {
+                    return '<span class="badge bg-light text-dark me-1 mb-1 wf-tool-badge"></span>';
+                }).join('');
+
+                return '<div class="col-md-6 card-appear" style="animation-delay: ' + (i * 0.1) + 's;">' +
+                    '<div class="card workflow-card h-100 border-0 shadow-sm">' +
+                        '<div class="card-body p-4">' +
+                            '<div class="d-flex justify-content-between align-items-start mb-2">' +
+                                '<h5 class="card-title wf-name mb-0"></h5>' +
+                                '<span class="badge ' + diffClass + '">' + wf.difficulty + '</span>' +
+                            '</div>' +
+                            '<p class="card-text text-muted small wf-desc"></p>' +
+                            '<div class="d-flex align-items-center gap-3 mb-3">' +
+                                '<span class="badge bg-primary bg-opacity-10 text-primary">' +
+                                    '<i class="bi bi-clock"></i> ' + (wf.estimatedTime || 'Variable') +
+                                '</span>' +
+                                '<span class="badge bg-success bg-opacity-10 text-success">' +
+                                    '<i class="bi bi-list-ol"></i> ' + (wf.steps ? wf.steps.length : 0) + ' étapes' +
+                                '</span>' +
+                            '</div>' +
+                            '<div class="mb-3">' +
+                                '<small class="text-muted fw-semibold d-block mb-2"><i class="bi bi-wrench"></i> Outils nécessaires</small>' +
+                                '<div data-wf-tools="' + i + '">' + toolBadges + '</div>' +
+                            '</div>' +
+                            '<div class="accordion accordion-flush" id="wfAccordion' + i + '">' +
+                                '<div class="accordion-item border-0">' +
+                                    '<h2 class="accordion-header">' +
+                                        '<button class="accordion-button collapsed p-0 bg-transparent shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#wfCollapse' + i + '">' +
+                                            '<small class="text-primary fw-semibold"><i class="bi bi-list-check"></i> Voir les étapes</small>' +
+                                        '</button>' +
+                                    '</h2>' +
+                                    '<div id="wfCollapse' + i + '" class="accordion-collapse collapse">' +
+                                        '<div class="accordion-body p-0 pt-3">' +
+                                            '<ol class="step-list small" data-wf-steps="' + i + '">' + stepsHtml + '</ol>' +
+                                        '</div>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+
+            // Populate text content safely
+            var nameEls = grid.querySelectorAll('.wf-name');
+            var descEls = grid.querySelectorAll('.wf-desc');
+            workflows.forEach(function(wf, i) {
+                if (nameEls[i]) nameEls[i].textContent = wf.name;
+                if (descEls[i]) descEls[i].textContent = wf.description;
+
+                // Populate steps
+                var stepList = grid.querySelector('[data-wf-steps="' + i + '"]');
+                if (stepList && wf.steps) {
+                    var spans = stepList.querySelectorAll('.wf-step-text');
+                    wf.steps.forEach(function(s, j) {
+                        if (spans[j]) spans[j].textContent = s;
+                    });
+                }
+
+                // Populate tool badges
+                var toolsContainer = grid.querySelector('[data-wf-tools="' + i + '"]');
+                if (toolsContainer && wf.tools) {
+                    var badges = toolsContainer.querySelectorAll('.wf-tool-badge');
+                    wf.tools.forEach(function(t, j) {
+                        if (badges[j]) badges[j].textContent = t;
+                    });
+                }
+            });
+        }
+
+        function applyWorkflowFilters() {
+            var filtered = allWorkflows.filter(function(wf) {
+                return workflowFilters.difficulty === 'all' || wf.difficulty === workflowFilters.difficulty;
+            });
+            renderWorkflows(filtered);
+        }
+
+        // ── Filters Setup ──
+
+        function setupFilters() {
+            // Tools difficulty filter
+            document.getElementById('toolsDifficultyFilters').querySelectorAll('.filter-chip').forEach(function(chip) {
+                chip.addEventListener('click', function() {
+                    this.parentElement.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+                    this.classList.add('active');
+                    toolFilters.difficulty = this.dataset.difficulty;
+                    applyToolFilters();
+                });
+            });
+
+            // Workflows difficulty filter
+            document.getElementById('workflowsDifficultyFilters').querySelectorAll('.filter-chip').forEach(function(chip) {
+                chip.addEventListener('click', function() {
+                    this.parentElement.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+                    this.classList.add('active');
+                    workflowFilters.difficulty = this.dataset.difficulty;
+                    applyWorkflowFilters();
+                });
+            });
+        }
+    </script>
+</body>
+</html>
