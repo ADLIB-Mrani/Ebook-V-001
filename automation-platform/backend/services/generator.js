@@ -1,20 +1,28 @@
 const fs = require('fs');
 const path = require('path');
 
+const ALLOWED_PLAN_TYPES = new Set(['programming', 'datascience', 'cybersecurity', 'business', 'ecommerce', 'freelancing', 'content', 'design', 'marketing', 'finance', 'writing', 'teaching']);
+
 // Load plan templates
 const loadPlanTemplate = (planType) => {
-    const templatePath = path.join(__dirname, '../../config/plans', `${planType}.json`);
+    const safePlanType = ALLOWED_PLAN_TYPES.has(planType) ? planType : 'programming';
+    const baseDir = path.resolve(__dirname, '../../config/plans');
+    const templatePath = path.resolve(baseDir, `${safePlanType}.json`);
+
+    if (!templatePath.startsWith(baseDir)) {
+        return getDefaultTemplate('programming');
+    }
     
     try {
         if (fs.existsSync(templatePath)) {
             return JSON.parse(fs.readFileSync(templatePath, 'utf8'));
         }
     } catch (error) {
-        console.error(`Error loading template for ${planType}:`, error);
+        console.error('Error loading plan template:', error.message);
     }
     
     // Return default template if file doesn't exist
-    return getDefaultTemplate(planType);
+    return getDefaultTemplate(safePlanType);
 };
 
 // Default template generator
@@ -763,10 +771,14 @@ const getDefaultTemplate = (planType) => {
 };
 
 // Generate personalized plan based on user data
+const { generateAiInsights } = require('./aiProvider');
+
 const generatePlan = async (userData) => {
     const template = loadPlanTemplate(userData.planType);
     
     // Customize plan based on user's specific data
+    const aiInsightsResult = await generateAiInsights(userData);
+
     const customizedPlan = {
         ...template,
         userId: userData.userId,
@@ -789,6 +801,10 @@ const generatePlan = async (userData) => {
             gantt: generateGanttData(template.phases, userData.timeline)
         },
         recommendations: generateRecommendations(userData),
+        ai: {
+            provider: aiInsightsResult.provider,
+            insights: aiInsightsResult.insights
+        },
         generatedAt: new Date().toISOString()
     };
     

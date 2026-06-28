@@ -1,41 +1,22 @@
-// Form Navigation
 let currentStep = 1;
 const totalSteps = 4;
+const API_BASE = '/api';
 
 function nextStep(step) {
-    // Validate current step
-    if (!validateStep(currentStep)) {
-        return;
-    }
-    
-    // Hide current step
+    if (!validateStep(currentStep)) return;
+
     document.getElementById(`step${currentStep}`).classList.add('d-none');
-    
-    // Show next step
     document.getElementById(`step${step}`).classList.remove('d-none');
-    
-    // Update progress bar
     updateProgressBar(step);
-    
     currentStep = step;
-    
-    // Scroll to top
     window.scrollTo(0, 0);
 }
 
 function prevStep(step) {
-    // Hide current step
     document.getElementById(`step${currentStep}`).classList.add('d-none');
-    
-    // Show previous step
     document.getElementById(`step${step}`).classList.remove('d-none');
-    
-    // Update progress bar
     updateProgressBar(step);
-    
     currentStep = step;
-    
-    // Scroll to top
     window.scrollTo(0, 0);
 }
 
@@ -50,7 +31,7 @@ function updateProgressBar(step) {
 function validateStep(step) {
     const stepElement = document.getElementById(`step${step}`);
     const inputs = stepElement.querySelectorAll('input[required], select[required], textarea[required]');
-    
+
     let isValid = true;
     inputs.forEach(input => {
         if (!input.value) {
@@ -60,8 +41,7 @@ function validateStep(step) {
             input.classList.remove('is-invalid');
         }
     });
-    
-    // Special validation for radio buttons in step 2
+
     if (step === 2) {
         const planType = document.querySelector('input[name="planType"]:checked');
         if (!planType) {
@@ -69,84 +49,87 @@ function validateStep(step) {
             isValid = false;
         }
     }
-    
+
     return isValid;
 }
 
-// Form Submission
+const collectFormData = () => ({
+    name: document.getElementById('name').value,
+    email: document.getElementById('email').value,
+    age: document.getElementById('age').value,
+    education: document.getElementById('education').value,
+    field: document.getElementById('field').value,
+    planType: document.querySelector('input[name="planType"]:checked').value,
+    goal: document.getElementById('goal').value,
+    timeline: document.getElementById('timeline').value,
+    experience: document.getElementById('experience').value,
+    skills: document.getElementById('skills').value,
+    timePerWeek: document.getElementById('timePerWeek').value,
+    budget: document.getElementById('budget').value,
+    constraints: document.getElementById('constraints').value,
+    notifications: {
+        opportunities: document.getElementById('notifOpportunities').checked,
+        resources: document.getElementById('notifResources').checked,
+        reminders: document.getElementById('notifReminders').checked
+    },
+    frequency: document.getElementById('frequency').value,
+    interests: document.getElementById('interests').value,
+    createdAt: new Date().toISOString(),
+    userId: generateUserId()
+});
+
 document.getElementById('planForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
-    if (!validateStep(4)) {
-        return;
-    }
-    
-    // Collect form data
-    const formData = {
-        // Personal Info
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
-        age: document.getElementById('age').value,
-        education: document.getElementById('education').value,
-        field: document.getElementById('field').value,
-        
-        // Goals
-        planType: document.querySelector('input[name="planType"]:checked').value,
-        goal: document.getElementById('goal').value,
-        timeline: document.getElementById('timeline').value,
-        
-        // Current Situation
-        experience: document.getElementById('experience').value,
-        skills: document.getElementById('skills').value,
-        timePerWeek: document.getElementById('timePerWeek').value,
-        budget: document.getElementById('budget').value,
-        constraints: document.getElementById('constraints').value,
-        
-        // Preferences
-        notifications: {
-            opportunities: document.getElementById('notifOpportunities').checked,
-            resources: document.getElementById('notifResources').checked,
-            reminders: document.getElementById('notifReminders').checked
-        },
-        frequency: document.getElementById('frequency').value,
-        interests: document.getElementById('interests').value,
-        
-        // Metadata
-        createdAt: new Date().toISOString(),
-        userId: generateUserId()
-    };
-    
-    // Show loading modal (if bootstrap is available)
+    if (!validateStep(4)) return;
+
+    const formData = collectFormData();
+
     try {
         const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
         loadingModal.show();
-    } catch (e) {
-        // Bootstrap not loaded, continue anyway
-        console.log('Bootstrap modal not available');
-    }
-    
-    // Simulate plan generation (replace with actual API call)
-    setTimeout(() => {
-        // Save to localStorage for demo
+
+        const response = await fetch(`${API_BASE}/users/create`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        const payload = await response.json();
+
+        if (!response.ok || !payload.success) {
+            throw new Error(payload.message || 'Erreur de génération du plan');
+        }
+
+        const userPayload = payload.data?.user || formData;
+        localStorage.setItem('userPlan', JSON.stringify(userPayload));
+
+        window.location.href = `dashboard.html?id=${encodeURIComponent(formData.userId)}`;
+    } catch (error) {
+        console.error('Plan generation error:', error);
+
         localStorage.setItem('userPlan', JSON.stringify(formData));
-        
-        // Redirect to dashboard
-        window.location.href = `dashboard.html?id=${formData.userId}`;
-    }, 3000);
+        alert('Le serveur est indisponible, passage en mode local.');
+        window.location.href = `dashboard.html?id=${encodeURIComponent(formData.userId)}`;
+    }
 });
 
 function generateUserId() {
-    return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    if (window.crypto?.randomUUID) {
+        return `user_${window.crypto.randomUUID()}`;
+    }
+
+    const array = new Uint8Array(12);
+    window.crypto.getRandomValues(array);
+    const randomPart = Array.from(array).map((n) => n.toString(16).padStart(2, '0')).join('');
+    return `user_${Date.now()}_${randomPart}`;
 }
 
-// Remove invalid class on input
 document.querySelectorAll('input, select, textarea').forEach(element => {
     element.addEventListener('input', function() {
         this.classList.remove('is-invalid');
     });
 });
 
-// Initialize
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Form initialized');
 });

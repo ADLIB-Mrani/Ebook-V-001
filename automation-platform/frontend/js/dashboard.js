@@ -22,31 +22,60 @@ const TIMELINE_LABELS = {
 };
 
 // Dashboard initialization
-document.addEventListener('DOMContentLoaded', function() {
-    // Get user plan from localStorage
-    const userPlan = JSON.parse(localStorage.getItem('userPlan'));
-    
+let ACTIVE_USER_PLAN = null;
+const API_BASE = '/api';
+
+function isValidEmailAddress(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim());
+}
+
+function getActivePlan() {
+    if (ACTIVE_USER_PLAN) return ACTIVE_USER_PLAN;
+
+    const cached = JSON.parse(localStorage.getItem('userPlan') || 'null');
+    if (cached) ACTIVE_USER_PLAN = cached;
+    return cached;
+}
+
+async function loadUserPlan() {
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get('id');
+
+    if (!userId) return getActivePlan();
+
+    try {
+        const response = await fetch(`${API_BASE}/users/${encodeURIComponent(userId)}`);
+        const payload = await response.json();
+
+        if (response.ok && payload.success && payload.data?.user) {
+            ACTIVE_USER_PLAN = payload.data.user;
+            localStorage.setItem('userPlan', JSON.stringify(ACTIVE_USER_PLAN));
+            return ACTIVE_USER_PLAN;
+        }
+    } catch (error) {
+        console.warn('Unable to load user plan from API:', error.message);
+    }
+
+    return getActivePlan();
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
+    const userPlan = await loadUserPlan();
+
     if (!userPlan) {
-        // Redirect to form if no plan exists
         window.location.href = 'form.html';
         return;
     }
-    
-    // Populate dashboard
+
+    ACTIVE_USER_PLAN = userPlan;
     populateUserInfo(userPlan);
     populateStats(userPlan);
     generateRoadmap(userPlan);
     generateMilestones(userPlan);
     generateResources(userPlan);
     generateOpportunities(userPlan);
-    
-    // Auto-generate tasks if not already created
     generateAutoTasks(userPlan);
-    
-    // Generate Gantt chart
     generateGanttChart(userPlan);
-    
-    // Generate progress charts
     generateProgressCharts(userPlan);
 });
 
@@ -1349,7 +1378,7 @@ function getOpportunities(plan) {
 }
 
 function downloadPlan() {
-    const userPlan = JSON.parse(localStorage.getItem('userPlan'));
+    const userPlan = getActivePlan();
     
     if (!userPlan) {
         showNotification('Erreur: Plan non trouvé', 'error');
@@ -1724,7 +1753,7 @@ function generateAutoTasks(plan) {
 
 // Send plan details via email
 function sendPDFByEmail() {
-    const userPlan = JSON.parse(localStorage.getItem('userPlan'));
+    const userPlan = getActivePlan();
     
     if (!userPlan) {
         showNotification('Erreur: Plan non trouvé', 'error');
@@ -1752,8 +1781,13 @@ function sendPDFByEmail() {
         const encodedBody = encodeURIComponent(body);
         
         // Open email client with pre-filled content
-        const mailtoLink = `mailto:${userPlan.email}?subject=${subject}&body=${encodedBody}`;
-        window.location.href = mailtoLink;
+        if (!isValidEmailAddress(userPlan.email)) {
+            throw new Error('Adresse email invalide');
+        }
+
+        const recipient = encodeURIComponent(userPlan.email.trim());
+        const mailtoLink = `mailto:${recipient}?subject=${subject}&body=${encodedBody}`;
+        window.location.assign(mailtoLink);
         
         showNotification('Ouvre ton client email pour envoyer le plan ! 📧', 'info');
         

@@ -1,276 +1,222 @@
 const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const { generatePlan } = require('../services/generator');
 const { sendWelcomeEmail } = require('../services/email');
 const { generatePlanPDF } = require('../services/pdfGenerator');
+const { sanitizeUserInput, validateUserInput } = require('../utils/validators');
+const { success, failure } = require('../utils/apiResponse');
+const { saveUser, getUserById } = require('../services/inMemoryStore');
 const path = require('path');
 const fs = require('fs');
 
-// Rate limiter for PDF downloads - 10 requests per 15 minutes per IP
-const pdfDownloadLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 10, // Limit each IP to 10 requests per windowMs
-    message: 'Trop de requêtes de téléchargement PDF. Réessaye dans 15 minutes.',
+const isDbReady = () => mongoose.connection.readyState === 1 && !!User;
+
+const getUserLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 30,
+    message: { success: false, message: 'Trop de requêtes utilisateur.' },
     standardHeaders: true,
-    legacyHeaders: false,
+    legacyHeaders: false
 });
 
-// Create new user and generate plan
+const pdfDownloadLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: 'Trop de requêtes de téléchargement PDF. Réessaye dans 15 minutes.',
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
 router.post('/create', async (req, res) => {
     try {
-        const userData = req.body;
-        
-        // Generate personalized plan
+        const userData = sanitizeUserInput(req.body || {});
+        const validation = validateUserInput(userData);
+
+        if (!validation.valid) {
+            return failure(res, 'Données invalides', 400, { errors: validation.errors });
+        }
+
         const plan = await generatePlan(userData);
-        
-        // Create user object
+
         const user = {
             ...userData,
             plan,
             createdAt: new Date(),
             lastUpdated: new Date()
         };
-        
-        // Save to database if connected
-        if (User) {
+
+        if (isDbReady()) {
             const newUser = new User(user);
             await newUser.save();
+        } else {
+            saveUser(user);
         }
-        
-        // Send welcome email
+
         try {
             await sendWelcomeEmail(userData.email, userData.name, plan);
         } catch (emailError) {
-            console.error('Email error:', emailError);
-            // Continue even if email fails
+            console.error('Email error:', emailError.message);
         }
-        
-        res.json({
-            success: true,
+
+        return success(res, {
             userId: user.userId,
-            plan: plan,
-            message: 'Plan created successfully'
-        });
-        
+            plan,
+            user
+        }, 'Plan créé avec succès', 201, { demo: !isDbReady() });
     } catch (error) {
         console.error('Error creating user:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+        return failure(res, 'Erreur lors de la création du plan', 500);
     }
 });
 
-// Get user plan
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', getUserLimiter, async (req, res) => {
     try {
         const { userId } = req.params;
-        
-        let user;
-        if (User) {
-            user = await User.findOne({ userId });
+        let user = null;
+
+        if (isDbReady()) {
+            user = await User.findOne({ userId }).lean();
+        } else {
+            user = getUserById(userId);
         }
-        
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: 'User not found'
-            });
-        }
-        
-        res.json({
-            success: true,
-            user
-        });
-        
+
+        if (!user) return failure(res, 'Utilisateur introuvable', 404);
+
+        return success(res, { user }, 'Utilisateur récupéré', 200, { demo: !isDbReady() });
     } catch (error) {
         console.error('Error fetching user:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+        return failure(res, 'Erreur lors de la récupération utilisateur', 500);
     }
 });
 
-// Update user progress
 router.patch('/:userId/progress', async (req, res) => {
     try {
         const { userId } = req.params;
         const { taskId, completed } = req.body;
-        
-        if (User) {
+
+        if (!taskId || typeof completed !== 'boolean') {
+            return failure(res, 'taskId ou completed invalide', 400);
+        }
+
+        if (isDbReady()) {
             const user = await User.findOne({ userId });
-            
-            if (!user) {
-                return res.status(404).json({
-                    success: false,
-                    error: 'User not found'
-                });
-            }
-            
-            // Update task completion
-            const task = user.plan.tasks.find(t => t.id === taskId);
-            if (task) {
-                task.completed = completed;
-                task.completedAt = completed ? new Date() : null;
-            }
-            
+            if (!user) return failure(res, 'Utilisateur introuvable', 404);
+
+            const tasks = Array.isArray(user.plan?.tasks) ? user.plan.tasks : [];
+            const task = tasks.find((t) => t.id === taskId);
+
+            if (!task) return failure(res, 'Tâche introuvable', 404);
+
+            task.completed = completed;
+            task.completedAt = completed ? new Date() : null;
             user.lastUpdated = new Date();
             await user.save();
-            
-            res.json({
-                success: true,
-                message: 'Progress updated'
-            });
-        } else {
-            res.json({
-                success: true,
-                message: 'Running in demo mode'
-            });
+
+            return success(res, {}, 'Progression mise à jour');
         }
-        
+
+        const localUser = getUserById(userId);
+        if (!localUser) return failure(res, 'Utilisateur introuvable', 404);
+
+        const tasks = Array.isArray(localUser.plan?.tasks) ? localUser.plan.tasks : [];
+        const task = tasks.find((t) => t.id === taskId);
+        if (!task) return failure(res, 'Tâche introuvable', 404);
+
+        task.completed = completed;
+        task.completedAt = completed ? new Date() : null;
+        localUser.lastUpdated = new Date();
+        saveUser(localUser);
+
+        return success(res, {}, 'Progression mise à jour (mode démo)', 200, { demo: true });
     } catch (error) {
         console.error('Error updating progress:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+        return failure(res, 'Erreur lors de la mise à jour', 500);
     }
 });
 
-// Send PDF via email
 router.post('/send-pdf-email', pdfDownloadLimiter, async (req, res) => {
     try {
         const planData = req.body;
-        
-        // Validate input
+
         if (!planData || !planData.name || !planData.email) {
-            return res.status(400).json({
-                success: false,
-                error: 'Invalid plan data or email'
-            });
+            return failure(res, 'Données plan/email invalides', 400);
         }
-        
-        // Create temp directory if it doesn't exist
+
         const tempDir = path.join(__dirname, '../../temp');
-        if (!fs.existsSync(tempDir)) {
-            fs.mkdirSync(tempDir, { recursive: true });
-        }
-        
-        // Sanitize filename to prevent path traversal
+        if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
+
         const safeName = planData.name.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 50);
         const fileName = `plan_${safeName}_${Date.now()}.pdf`;
         const filePath = path.join(tempDir, fileName);
-        
-        // Verify path is within temp directory (prevent path traversal)
+
         const normalizedPath = path.normalize(filePath);
         const normalizedTempDir = path.normalize(tempDir);
         if (!normalizedPath.startsWith(normalizedTempDir)) {
-            return res.status(400).json({
-                success: false,
-                error: 'Invalid file path'
-            });
+            return failure(res, 'Chemin de fichier invalide', 400);
         }
-        
-        // Generate PDF
+
         await generatePlanPDF(planData, filePath);
-        
-        // Send email with PDF attachment
         const { sendPDFEmail } = require('../services/email');
         await sendPDFEmail(planData.email, planData.name, filePath);
-        
-        // Delete temp file after sending
+
         setTimeout(() => {
             try {
-                if (fs.existsSync(filePath)) {
-                    fs.unlinkSync(filePath);
-                }
+                if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
             } catch (deleteErr) {
-                console.error('Error deleting temp file:', deleteErr);
+                console.error('Error deleting temp file:', deleteErr.message);
             }
         }, 5000);
-        
-        res.json({
-            success: true,
-            message: 'PDF sent successfully via email'
-        });
-        
+
+        return success(res, {}, 'PDF envoyé par email avec succès');
     } catch (error) {
         console.error('Error sending PDF email:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+        return failure(res, 'Erreur lors de l\'envoi PDF', 500);
     }
 });
 
-// Download user plan as PDF (with rate limiting)
 router.post('/download-pdf', pdfDownloadLimiter, async (req, res) => {
     try {
         const planData = req.body;
-        
-        // Validate and sanitize input
+
         if (!planData || !planData.name) {
-            return res.status(400).json({
-                success: false,
-                error: 'Invalid plan data'
-            });
+            return failure(res, 'Données plan invalides', 400);
         }
-        
-        // Create temp directory if it doesn't exist
+
         const tempDir = path.join(__dirname, '../../temp');
-        if (!fs.existsSync(tempDir)) {
-            fs.mkdirSync(tempDir, { recursive: true });
-        }
-        
-        // Sanitize filename to prevent path traversal
+        if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
+
         const safeName = planData.name.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 50);
         const fileName = `plan_${safeName}_${Date.now()}.pdf`;
         const filePath = path.join(tempDir, fileName);
-        
-        // Verify path is within temp directory (prevent path traversal)
+
         const normalizedPath = path.normalize(filePath);
         const normalizedTempDir = path.normalize(tempDir);
         if (!normalizedPath.startsWith(normalizedTempDir)) {
-            return res.status(400).json({
-                success: false,
-                error: 'Invalid file path'
-            });
+            return failure(res, 'Chemin de fichier invalide', 400);
         }
-        
-        // Generate PDF
+
         await generatePlanPDF(planData, filePath);
-        
-        // Send file for download
+
         res.download(filePath, fileName, (err) => {
             if (err) {
-                console.error('Error sending file:', err);
-                res.status(500).json({
-                    success: false,
-                    error: 'Error sending PDF'
-                });
+                console.error('Error sending file:', err.message);
+                if (!res.headersSent) failure(res, 'Erreur envoi du PDF', 500);
             }
-            
-            // Delete file after sending
+
             setTimeout(() => {
                 try {
-                    if (fs.existsSync(filePath)) {
-                        fs.unlinkSync(filePath);
-                    }
+                    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
                 } catch (deleteErr) {
-                    console.error('Error deleting temp file:', deleteErr);
+                    console.error('Error deleting temp file:', deleteErr.message);
                 }
             }, 5000);
         });
-        
     } catch (error) {
         console.error('Error generating PDF:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+        return failure(res, 'Erreur génération PDF', 500);
     }
 });
 

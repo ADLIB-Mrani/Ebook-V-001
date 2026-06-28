@@ -6,9 +6,19 @@ const {
     getOpportunityTypes 
 } = require('../services/firecrawlScraper');
 const NodeCache = require('node-cache');
+const rateLimit = require('express-rate-limit');
+const { authenticateToken, requireRole } = require('../middleware/auth');
 
 // Cache for 15 minutes
 const cache = new NodeCache({ stdTTL: 900 });
+
+const refreshLimiter = rateLimit({
+    windowMs: 10 * 60 * 1000,
+    max: 5,
+    message: { success: false, message: 'Trop de refresh, réessaye plus tard.' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
 
 /**
  * GET /api/opportunities
@@ -108,7 +118,7 @@ router.get('/types', (req, res) => {
  * POST /api/opportunities/refresh
  * Force refresh cache
  */
-router.post('/refresh', async (req, res) => {
+router.post('/refresh', refreshLimiter, authenticateToken, requireRole('admin'), async (req, res) => {
     try {
         // Clear cache
         cache.flushAll();

@@ -37,6 +37,7 @@ Créer une plateforme web où les utilisateurs remplissent un formulaire sur leu
   - Motivation et conseils
 - ✅ Questions rapides pré-configurées
 - ✅ Interface conversationnelle moderne
+- ✅ Génération de recommandations IA côté backend avec fallback local (Hugging Face gratuit/freemium)
 
 ### 📚 Bibliothèque de Ressources
 - ✅ 25+ ressources gratuites et freemium
@@ -217,6 +218,12 @@ netlify deploy
 2. Vérifier domaine ou email
 3. Générer API Key
 4. Ajouter dans .env : `SENDGRID_API_KEY=...`
+
+### Hugging Face (IA gratuite/freemium)
+1. Créer un compte sur https://huggingface.co
+2. Créer un token d'accès Inference API
+3. Ajouter dans .env : `HUGGINGFACE_API_KEY=...`
+4. Sans clé, la plateforme passe automatiquement en fallback local
 
 ### Vercel (Hébergement)
 1. Connecter repo GitHub
