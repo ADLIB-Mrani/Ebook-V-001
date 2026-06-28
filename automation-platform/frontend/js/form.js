@@ -114,7 +114,14 @@ document.getElementById('planForm').addEventListener('submit', async function(e)
 });
 
 function generateUserId() {
-    return 'user_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11);
+    if (window.crypto?.randomUUID) {
+        return `user_${window.crypto.randomUUID()}`;
+    }
+
+    const array = new Uint8Array(12);
+    window.crypto.getRandomValues(array);
+    const randomPart = Array.from(array).map((n) => n.toString(16).padStart(2, '0')).join('');
+    return `user_${Date.now()}_${randomPart}`;
 }
 
 document.querySelectorAll('input, select, textarea').forEach(element => {

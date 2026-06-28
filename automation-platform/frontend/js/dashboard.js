@@ -25,6 +25,10 @@ const TIMELINE_LABELS = {
 let ACTIVE_USER_PLAN = null;
 const API_BASE = '/api';
 
+function isValidEmailAddress(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim());
+}
+
 function getActivePlan() {
     if (ACTIVE_USER_PLAN) return ACTIVE_USER_PLAN;
 
@@ -1777,8 +1781,13 @@ function sendPDFByEmail() {
         const encodedBody = encodeURIComponent(body);
         
         // Open email client with pre-filled content
-        const mailtoLink = `mailto:${userPlan.email}?subject=${subject}&body=${encodedBody}`;
-        window.location.href = mailtoLink;
+        if (!isValidEmailAddress(userPlan.email)) {
+            throw new Error('Adresse email invalide');
+        }
+
+        const recipient = encodeURIComponent(userPlan.email.trim());
+        const mailtoLink = `mailto:${recipient}?subject=${subject}&body=${encodedBody}`;
+        window.location.assign(mailtoLink);
         
         showNotification('Ouvre ton client email pour envoyer le plan ! 📧', 'info');
         

@@ -19,6 +19,16 @@ const authLimiter = rateLimit({
     legacyHeaders: false
 });
 
+
+
+const meLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 60,
+    message: { success: false, message: 'Trop de requêtes session.' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
 const isDbConnected = () => mongoose.connection.readyState === 1 && AuthUser;
 
 const createToken = (user) => jwt.sign(
@@ -97,7 +107,7 @@ router.post('/login', authLimiter, async (req, res) => {
     }
 });
 
-router.get('/me', authenticateToken, async (req, res) => {
+router.get('/me', meLimiter, authenticateToken, async (req, res) => {
     return success(res, {
         user: {
             id: req.user.id,

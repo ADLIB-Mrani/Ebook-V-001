@@ -14,6 +14,14 @@ const fs = require('fs');
 
 const isDbReady = () => mongoose.connection.readyState === 1 && !!User;
 
+const getUserLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 30,
+    message: { success: false, message: 'Trop de requêtes utilisateur.' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
 const pdfDownloadLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 10,
@@ -64,7 +72,7 @@ router.post('/create', async (req, res) => {
     }
 });
 
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', getUserLimiter, async (req, res) => {
     try {
         const { userId } = req.params;
         let user = null;
