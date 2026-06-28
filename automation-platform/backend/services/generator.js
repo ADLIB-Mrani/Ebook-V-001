@@ -763,10 +763,14 @@ const getDefaultTemplate = (planType) => {
 };
 
 // Generate personalized plan based on user data
+const { generateAiInsights } = require('./aiProvider');
+
 const generatePlan = async (userData) => {
     const template = loadPlanTemplate(userData.planType);
     
     // Customize plan based on user's specific data
+    const aiInsightsResult = await generateAiInsights(userData);
+
     const customizedPlan = {
         ...template,
         userId: userData.userId,
@@ -789,6 +793,10 @@ const generatePlan = async (userData) => {
             gantt: generateGanttData(template.phases, userData.timeline)
         },
         recommendations: generateRecommendations(userData),
+        ai: {
+            provider: aiInsightsResult.provider,
+            insights: aiInsightsResult.insights
+        },
         generatedAt: new Date().toISOString()
     };
     

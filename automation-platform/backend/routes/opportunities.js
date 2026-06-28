@@ -6,6 +6,7 @@ const {
     getOpportunityTypes 
 } = require('../services/firecrawlScraper');
 const NodeCache = require('node-cache');
+const { authenticateToken, requireRole } = require('../middleware/auth');
 
 // Cache for 15 minutes
 const cache = new NodeCache({ stdTTL: 900 });
@@ -108,7 +109,7 @@ router.get('/types', (req, res) => {
  * POST /api/opportunities/refresh
  * Force refresh cache
  */
-router.post('/refresh', async (req, res) => {
+router.post('/refresh', authenticateToken, requireRole('admin'), async (req, res) => {
     try {
         // Clear cache
         cache.flushAll();

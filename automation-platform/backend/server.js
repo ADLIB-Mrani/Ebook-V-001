@@ -6,7 +6,13 @@ require('dotenv').config();
 
 const app = express();
 
-// Security headers middleware
+const parseAllowedOrigins = () => {
+    const raw = process.env.CORS_ORIGINS || process.env.FRONTEND_URL || 'http://localhost:3000';
+    return raw.split(',').map(item => item.trim()).filter(Boolean);
+};
+
+const allowedOrigins = parseAllowedOrigins();
+
 app.use((req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
@@ -16,15 +22,19 @@ app.use((req, res, next) => {
     next();
 });
 
-// Middleware
-app.use(cors());
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+        return callback(new Error('CORS origin not allowed'));
+    },
+    credentials: true
+}));
+
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-// Serve static files from frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// MongoDB Connection
 const connectDB = async () => {
     try {
         if (process.env.MONGODB_URI) {
@@ -34,14 +44,14 @@ const connectDB = async () => {
             console.log('MongoDB URI not configured - running in demo mode');
         }
     } catch (error) {
-        console.error('MongoDB connection error:', error);
+        console.error('MongoDB connection error:', error.message);
         console.log('Running in demo mode without database');
     }
 };
 
 connectDB();
 
-// Routes
+const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const updatesRoutes = require('./routes/updates');
 const newsletterRoutes = require('./routes/newsletter');
@@ -50,6 +60,7 @@ const statsRoutes = require('./routes/stats');
 const opportunitiesRoutes = require('./routes/opportunities');
 const marketAnalysisRoutes = require('./routes/market-analysis');
 
+app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/updates', updatesRoutes);
 app.use('/api/newsletter', newsletterRoutes);
@@ -58,31 +69,34 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/opportunities', opportunitiesRoutes);
 app.use('/api/market-analysis', marketAnalysisRoutes);
 
-// Health check
 app.get('/api/health', (req, res) => {
-    res.json({ 
-        status: 'ok', 
+    res.json({
+        status: 'ok',
         message: 'Automation Platform API is running',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        corsOrigins: allowedOrigins
     });
 });
 
-// Serve frontend for all other routes
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
     const isProduction = process.env.NODE_ENV === 'production';
-    res.status(500).json({ 
-        error: 'Something went wrong!',
+
+    if (err.message === 'CORS origin not allowed') {
+        return res.status(403).json({ success: false, message: 'Origin not allowed' });
+    }
+
+    return res.status(500).json({
+        success: false,
         message: isProduction ? 'Internal server error' : err.message
     });
 });
 
-// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
