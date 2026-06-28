@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const { generatePlan } = require('../services/generator');
 const { sendWelcomeEmail } = require('../services/email');
@@ -10,6 +11,8 @@ const { success, failure } = require('../utils/apiResponse');
 const { saveUser, getUserById } = require('../services/inMemoryStore');
 const path = require('path');
 const fs = require('fs');
+
+const isDbReady = () => mongoose.connection.readyState === 1 && !!User;
 
 const pdfDownloadLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -37,7 +40,7 @@ router.post('/create', async (req, res) => {
             lastUpdated: new Date()
         };
 
-        if (User) {
+        if (isDbReady()) {
             const newUser = new User(user);
             await newUser.save();
         } else {
@@ -54,7 +57,7 @@ router.post('/create', async (req, res) => {
             userId: user.userId,
             plan,
             user
-        }, 'Plan créé avec succès', 201, { demo: !User });
+        }, 'Plan créé avec succès', 201, { demo: !isDbReady() });
     } catch (error) {
         console.error('Error creating user:', error);
         return failure(res, 'Erreur lors de la création du plan', 500);
@@ -66,7 +69,7 @@ router.get('/:userId', async (req, res) => {
         const { userId } = req.params;
         let user = null;
 
-        if (User) {
+        if (isDbReady()) {
             user = await User.findOne({ userId }).lean();
         } else {
             user = getUserById(userId);
@@ -74,7 +77,7 @@ router.get('/:userId', async (req, res) => {
 
         if (!user) return failure(res, 'Utilisateur introuvable', 404);
 
-        return success(res, { user }, 'Utilisateur récupéré', 200, { demo: !User });
+        return success(res, { user }, 'Utilisateur récupéré', 200, { demo: !isDbReady() });
     } catch (error) {
         console.error('Error fetching user:', error);
         return failure(res, 'Erreur lors de la récupération utilisateur', 500);
@@ -90,7 +93,7 @@ router.patch('/:userId/progress', async (req, res) => {
             return failure(res, 'taskId ou completed invalide', 400);
         }
 
-        if (User) {
+        if (isDbReady()) {
             const user = await User.findOne({ userId });
             if (!user) return failure(res, 'Utilisateur introuvable', 404);
 
