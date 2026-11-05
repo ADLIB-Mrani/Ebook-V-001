@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b1221">
+  <meta name="description" content="Trajectoire : un parcours personnalisé et un carnet d'actions évolutif, gratuit et privé.">
+  <title>Trajectoire — transforme un objectif en actions</title>
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./engine.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Aller au contenu</a>
+  <div class="shell">
+    <aside class="sidebar" aria-label="Navigation principale">
+      <div class="brand"><div class="brandmark">✦</div><div><strong>trajectoire<span class="dot">.</span></strong><small>Ton prochain chapitre</small></div></div>
+      <div class="sidebar-group">ESPACE PERSONNEL</div>
+      <nav class="nav" aria-label="Sections de l'application">
+        <button class="nav-btn current" data-view="overview" aria-current="page"><span>◫</span> Vue d'ensemble</button>
+        <button class="nav-btn" data-view="roadmap"><span>▦</span> Mon parcours</button>
+        <button class="nav-btn" data-view="resources"><span>◇</span> Ressources</button>
+        <button class="nav-btn" data-view="book"><span>▤</span> Mon ebook</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="side-info"><span class="status-pulse"></span> Gratuit. Sans compte. Sans publicité.</div>
+        <p>Tes données restent dans ce navigateur. Exporte une sauvegarde pour les conserver.</p>
+      </div>
+    </aside>
+    <div class="content">
+      <header class="topbar">
+        <div class="eyebrow">PLANIFICATEUR PERSONNALISÉ <span class="top-divider">/</span> V2 BÊTA</div>
+        <div class="top-actions">
+          <span class="date-chip" id="today"></span>
+          <button id="new-goal" class="button button-ghost" type="button">+ Nouvel objectif</button>
+        </div>
+      </header>
+      <main id="main" tabindex="-1">
+        <section id="setup" class="setup-view" aria-labelledby="intro-title">
+          <div class="hero-grid">
+            <div>
+              <span class="microbadge">✦ UN PLAN ADAPTÉ À TA RÉALITÉ</span>
+              <h1 id="intro-title">Les grandes ambitions commencent par <em>la prochaine action.</em></h1>
+              <p class="lead">Décris ton objectif et ta situation. Trajectoire construit un parcours réaliste, avec des tâches, des ressources gratuites et un carnet qui évolue avec tes progrès.</p>
+              <div class="value-row"><span>✓ Sans abonnement</span><span>✓ Données privées</span><span>✓ Résultats mesurables</span></div>
+            </div>
+            <div class="hero-art" aria-hidden="true">
+              <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+              <div class="art-card art-one"><span>OBJECTIF</span><strong>Ta prochaine étape</strong><div class="line-sm"></div><div class="line-sm short"></div></div>
+              <div class="art-card art-two"><span>PROGRESSION</span><strong>01 → 02 → 03</strong><div class="art-progress"><i></i></div></div>
+              <div class="art-star">✧</div>
+            </div>
+          </div>
+          <form id="profile-form" class="form-card">
+            <div class="form-top"><div><span class="section-kicker">01 / CRÉER MON PARCOURS</span><h2>Parlons de ton projet</h2><p>Pas besoin de partager ton nom ou ton adresse e-mail.</p></div><div class="form-icon">↗</div></div>
+            <div class="field field-wide"><label for="goal">Quel est ton objectif ? <span aria-hidden="true">*</span></label><textarea id="goal" name="goal" required minlength="8" maxlength="220" rows="2" placeholder="Ex. : devenir développeur web en 6 mois, lancer une entreprise en 3 mois, développer mes revenus…"></textarea><small>Décris un résultat concret. La durée se règle juste en dessous.</small></div>
+            <div class="form-grid">
+              <div class="field"><label for="track">Domaine</label><select id="track" name="track"><option value="auto">Détection automatique</option><option value="web">Développement web</option><option value="business">Créer une entreprise</option><option value="income">Développer des revenus</option><option value="general">Autre objectif</option></select></div>
+              <div class="field"><label for="months">Délai souhaité</label><select id="months" name="months"><option value="1">1 mois</option><option value="2">2 mois</option><option value="3">3 mois</option><option value="4">4 mois</option><option value="6" selected>6 mois</option><option value="9">9 mois</option><option value="12">12 mois</option><option value="18">18 mois</option><option value="24">24 mois</option></select></div>
+              <div class="field"><label for="age">Âge</label><input id="age" name="age" type="number" min="13" max="100" value="20" required></div>\n              <div class="field"><label for="situation">Situation actuelle</label><select id="situation" name="situation"><option value="etudiant">Étudiant·e</option><option value="salarie">Salarié·e / alternance</option><option value="recherche">En recherche d’emploi</option><option value="independant">Indépendant·e</option><option value="autre">Autre situation</option></select></div>
+              <div class="field"><label for="level">Niveau actuel</label><select id="level" name="level"><option value="debutant">Débutant·e</option><option value="intermediaire">Intermédiaire</option><option value="avance">Avancé·e</option></select></div>
+              <div class="field"><label for="hoursPerWeek">Temps disponible / semaine (h)</label><input id="hoursPerWeek" name="hoursPerWeek" type="number" min="1" max="60" value="8" required></div>
+              <div class="field"><label for="budget">Budget disponible (€)</label><input id="budget" name="budget" type="number" min="0" max="1000000" value="0" required></div>
+              <div class="field"><label for="country">Pays</label><input id="country" name="country" maxlength="80" value="France"></div>
+              <div class="field"><label for="skills">Compétences déjà acquises</label><input id="skills" name="skills" maxlength="450" placeholder="Ex. : HTML, Excel, marketing…"></div>
+              <div class="field field-wide"><label for="constraints">Contraintes à respecter</label><textarea id="constraints" name="constraints" maxlength="450" rows="2" placeholder="Ex. : cours le matin, peu de temps le week-end, connexion limitée…"></textarea></div>
+            </div>
+            <div class="form-footer"><p>Un plan indicatif, révisable et sans promesse de résultat garanti.</p><button type="submit" class="button button-primary">Construire mon parcours <span>↗</span></button></div>
+          </form>
+        </section>
+
+        <section id="workspace" hidden>
+          <div class="welcome-header">
+            <div><span class="section-kicker">TA FEUILLE DE ROUTE</span><h1 id="dash-title">Un objectif. Un plan.</h1><p id="dash-subtitle"></p></div>
+            <div class="welcome-actions"><button id="backup-btn" type="button" class="button button-outline">↓ Sauvegarder</button><label class="button button-outline upload-label" for="import-file">↑ Importer<input id="import-file" type="file" accept="application/json,.json" hidden></label></div>
+          </div>
+          <section id="view-overview" class="panel-view" aria-label="Vue d'ensemble">
+            <div class="metrics">
+              <article class="metric"><span>PROGRESSION GLOBALE</span><strong id="metric-progress">0 %</strong><div class="progress-track"><i id="progress-fill"></i></div></article>
+              <article class="metric"><span>ACTIONS TERMINÉES</span><strong id="metric-done">0 / 0</strong><small>Chaque preuve compte.</small></article>
+              <article class="metric"><span>ENGAGEMENT ESTIMÉ</span><strong id="metric-hours">—</strong><small>Heures réparties dans le parcours</small></article>
+              <article class="metric"><span>VERSION DU CARNET</span><strong id="metric-revision">v1</strong><small id="revision-date"></small></article>
+            </div>
+            <div class="dashboard-grid">
+              <section class="surface main-surface"><div class="section-heading"><div><span class="section-kicker">TON IMPULSION</span><h2>Les prochaines actions</h2></div><button class="link-button" type="button" data-goto="roadmap">Voir le parcours →</button></div><div id="next-actions"></div></section>
+              <section class="surface side-surface"><span class="section-kicker">POINTS DE REPÈRE</span><h2>Objectif & réalité</h2><div id="plan-insights"></div></section>
+            </div>
+            <section class="surface spaced"><div class="section-heading"><div><span class="section-kicker">À VENIR</span><h2>Les grands jalons</h2></div></div><div id="milestones" class="milestones"></div></section>
+            <section class="surface spaced no-print" aria-labelledby="review-title">
+              <div class="section-heading"><div><span class="section-kicker">BILAN & ADAPTATION</span><h2 id="review-title">Réviser mon rythme</h2><p>Ton temps a changé ? Réorganise les échéances restantes sans perdre les tâches terminées.</p></div></div>
+              <form id="review-form" class="review-form">
+                <div class="field"><label for="review-hours">Nouvelle disponibilité (h/semaine)</label><input id="review-hours" name="hours" type="number" min="1" max="60" required></div>
+                <div class="field"><label for="review-obstacle">Obstacle ou apprentissage récent</label><input id="review-obstacle" name="obstacle" type="text" maxlength="400" placeholder="Ex. : examens cette semaine ; réduire la charge…"></div>
+                <button class="button button-primary" type="submit">Adapter les échéances ↗</button>
+              </form><p class="review-hint">Les tâches déjà réalisées restent validées. Les dates futures sont estimatives ; tes notes restent locales.</p>
+            </section>
+          </section>
+          <section id="view-roadmap" class="panel-view" hidden aria-label="Parcours détaillé">
+            <div class="section-heading page-heading"><div><span class="section-kicker">PLAN D'ACTION</span><h2>Semaine après semaine</h2><p>Chaque action possède une preuve concrète à produire.</p></div><div class="filter-field"><label for="week-filter">Afficher</label><select id="week-filter"><option value="next">Les 4 prochaines semaines</option><option value="all">Toutes les semaines</option><option value="incomplete">Non terminées</option></select></div></div>
+            <div id="roadmap-list"></div>
+          </section>
+          <section id="view-resources" class="panel-view" hidden aria-label="Ressources">
+            <div class="section-heading page-heading"><div><span class="section-kicker">BOÎTE À OUTILS</span><h2>Une sélection pour avancer</h2><p>Des liens vers des ressources publiques. Les disponibilités et contenus peuvent changer.</p></div></div>
+            <div id="resource-list" class="resource-grid"></div>
+            <p class="source-note" id="catalog-note"></p>
+          </section>
+          <section id="view-book" class="panel-view" hidden aria-label="Carnet ebook">
+            <div class="section-heading page-heading no-print"><div><span class="section-kicker">TON LIVRE VIVANT</span><h2>Un ebook qui suit tes progrès</h2><p>Le contenu est régénéré lors de chaque action. La veille externe automatique n'est pas encore incluse.</p></div><div class="book-actions"><button id="md-btn" type="button" class="button button-outline">↓ Télécharger .md</button><button id="print-btn" type="button" class="button button-primary">Imprimer / PDF ↗</button></div></div>
+            <article id="book-preview" class="book-sheet"></article>
+          </section>
+        </section>
+      </main>
+      <footer class="footer">TRAJECTOIRE V2 <span>•</span> Un parcours, pas une promesse. <span>•</span> Prototype open source sans frais obligatoires.</footer>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

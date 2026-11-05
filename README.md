@@ -1,3 +1,7 @@
+> **🧭 Nouvelle application : [Trajectoire V2](trajectoire-v2/README.md)** — parcours personnalisés, suivi, ressources gratuites et ebook évolutif. Lancer [l'application](trajectoire-v2/index.html). La V1 reste disponible dans `automation-platform/`.
+
+---
+
 # SAE-ACCESS - Guide Complet de Génération de Revenus pour Étudiants
 
 ## 📚 À Propos
