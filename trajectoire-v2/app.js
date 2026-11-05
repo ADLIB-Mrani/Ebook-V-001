@@ -125,10 +125,11 @@
     if (!plan) return;
     const items = Array.isArray(plan.sources) ? plan.sources : [];
     $('source-list').innerHTML = items.length ? items.map(src => {
-      const status = src.status === 'notes-utilisateur' ? 'Notes fournies par l’utilisateur' : 'Lien ajouté sans lecture automatique';
+      const status = src.status === 'extrait-importé-non-verifie' ? 'Extrait importé, non vérifié' :
+        src.status === 'notes-utilisateur' ? 'Notes fournies par l’utilisateur' : 'Lien ajouté sans lecture automatique';
       const action = plan.weeks.flatMap(w => w.tasks).find(t => t.id === src.linkedTaskId);
       return '<article class="source-card"><div><span class="section-kicker">' + fmt(src.type.toUpperCase()) + ' · ' + fmt(status) +
-        '</span><h3>' + fmt(src.title) + '</h3><p>' + fmt(src.note || 'Aucune note enregistrée. Le contenu de la page n’a pas été récupéré.') +
+        '</span><h3>' + fmt(src.title) + '</h3><p>' + fmt(src.note || 'Aucune note personnelle enregistrée.') + (src.excerpt ? '<p><strong>Extrait importé :</strong> ' + fmt(src.excerpt) + '</p>' : '<p>Contenu externe non importé.</p>') +
         '</p><small>' + (action ? 'Associée à : ' + fmt(action.title) : 'En attente d’association à une tâche') +
         '</small><p><a href="' + fmt(safeUrl(src.url)) +
         '" target="_blank" rel="noopener noreferrer">Consulter le lien ↗</a></p></div><button class="button button-outline" type="button" data-source-remove="' +
@@ -181,7 +182,7 @@
       ${Array.isArray(plan.sources) && plan.sources.length ? '<section><h3>Sources fournies</h3><ul>' +
         plan.sources.map(s => '<li><a href="' + fmt(safeUrl(s.url)) + '">' + fmt(s.title) +
         '</a> — ' + fmt(s.status === 'notes-utilisateur' ? 'notes fournies' : 'contenu non analysé') +
-        (s.note ? ' — ' + fmt(s.note) : '') + '</li>').join('') + '</ul></section>' : ''}
+        (s.note ? ' — ' + fmt(s.note) : '') + (s.excerpt ? ' — extrait non vérifié : ' + fmt(s.excerpt) : '') + '</li>').join('') + '</ul></section>' : ''}
       <section><h3>06. Ressources pour avancer</h3><ul>${plan.resources.map(r =>
         '<li><a href="' + fmt(safeUrl(r.url)) + '">' + fmt(r.title) + '</a> — ' + fmt(r.why) + '</li>').join('')}</ul></section>
       <p><small>${fmt(plan.note)} Catalogue mis à jour éditorialement le ${fmt(plan.catalogVersion)}. Le document reflète tes actions enregistrées, pas des informations Web en direct.</small></p>`;
@@ -280,6 +281,18 @@
       persist(); renderAll(); renderSuggestions();
       notify('Source reliée à une action ; ebook mis à jour.');
     } catch (error) { notify(error.message || 'Association impossible.'); }
+  });
+  $('import-analysis').addEventListener('change', async event => {
+    const file=event.target.files[0];
+    if(!file||!plan)return;
+    if(file.size>1000000){notify('Fichier trop volumineux : limite 1 Mo.');event.target.value='';return;}
+    try {
+      const payload=JSON.parse(await file.text());
+      plan=S.importExtraction(plan,payload);
+      persist();renderAll();
+      notify('Extraits importés, signalés non vérifiés. Ebook mis à jour.');
+    } catch(error){notify(error.message||'Extraction non reconnue.');}
+    finally{event.target.value='';}
   });
   $('manifest-btn').addEventListener('click', () => {
     if (!plan) return;
