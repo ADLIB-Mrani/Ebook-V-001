@@ -188,6 +188,7 @@
     return {
       goal, track: classify(goal, input.track), months, hoursPerWeek,
       age: Math.round(clamp(input.age, 13, 100, 20)),
+      situation: ['etudiant','salarie','recherche','independant','autre'].includes(input.situation) ? input.situation : 'autre',
       level: ['debutant', 'intermediaire', 'avance'].includes(input.level) ? input.level : 'debutant',
       budget: Math.round(clamp(input.budget, 0, 1000000, 0)),
       skills: short(input.skills, 450), constraints: short(input.constraints, 450),
@@ -257,6 +258,7 @@
     if (profile.skills) alerts.push('Les compétences déclarées orientent certains exercices, mais elles ne sont pas encore évaluées par un test de niveau.');
     if (profile.track === 'income') alerts.push('Aucun montant de revenus n’est garanti : distingue chiffre d’affaires, bénéfice, charges et temps de travail.');
     if (profile.age < 18) alerts.push('Tu es mineur : vérifie les règles applicables avant tout contrat, activité indépendante ou revenu.');
+    if (profile.situation === 'salarie' && ['business','income'].includes(profile.track)) alerts.push('Vérifie les clauses de ton contrat et tes obligations professionnelles avant toute activité complémentaire.');
     if (profile.country.toLowerCase() !== 'france' && ['business','income'].includes(profile.track)) alerts.push('Les ressources juridiques proposées concernent principalement la France ; vérifie les règles de ton pays.');
     if (profile.constraints) alerts.push('Contrainte à prendre en compte dans chaque séance : ' + profile.constraints);
     if (profile.budget === 0) alerts.push('Sélection de ressources sans achat obligatoire ; certaines plateformes affichent aussi des offres payantes.');
@@ -265,7 +267,13 @@
       schema: 2, id: 'plan-' + isoDate(start) + '-' + profile.track,
       revision: 1, createdAt: now, updatedAt: now, catalogVersion: CATALOG_VERSION,
       profile, track: track.label, totalHours, weeks, milestones, alerts,
-      resources: resources[profile.track].map(r => ({...r})),
+      resources: [
+        ...resources[profile.track].filter(r => profile.situation === 'etudiant' || r.title !== 'GitHub Student Developer Pack').map(r => ({...r})),
+        ...(profile.situation === 'etudiant' && profile.track !== 'income' ? [{
+          title: 'GitHub Student Developer Pack', url: 'https://education.github.com/pack',
+          type: 'Avantages étudiants', why: 'Avantages à activer selon éligibilité et quotas', free: true
+        }] : [])
+      ],
       note: 'Plan heuristique et éditorial : ne garantit pas l’atteinte de l’objectif. Ressources non recherchées ni contrôlées en temps réel.'
     };
   }
@@ -325,7 +333,7 @@
       '', '## Profil et conditions',
       '- Objectif : ' + safe(p.goal), '- Domaine : ' + plan.track,
       '- Durée : ' + p.months + ' mois ; disponibilité : ' + p.hoursPerWeek + ' h/semaine',
-      '- Niveau : ' + p.level + ' ; budget : ' + p.budget + ' €',
+      '- Niveau : ' + p.level + ' ; situation : ' + p.situation + ' ; budget : ' + p.budget + ' €',
       '- Compétences existantes : ' + safe(p.skills || 'Non renseignées'),
       '- Contraintes : ' + safe(p.constraints || 'Aucune renseignée'),
       '', '## Progression', c.done + ' / ' + c.total + ' actions (' + c.percent + ' %)',
