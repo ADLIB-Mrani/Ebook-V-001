@@ -10,6 +10,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./styles.css">
   <script src="./engine.js" defer></script>
+  <script src="./sources.js" defer></script>
   <script src="./app.js" defer></script>
 </head>
 <body>
@@ -21,6 +22,7 @@
       <nav class="nav" aria-label="Sections de l'application">
         <button class="nav-btn current" data-view="overview" aria-current="page"><span>◫</span> Vue d'ensemble</button>
         <button class="nav-btn" data-view="roadmap"><span>▦</span> Mon parcours</button>
+        <button class="nav-btn" data-view="sources"><span>⌘</span> Studio de sources</button>
         <button class="nav-btn" data-view="resources"><span>◇</span> Ressources</button>
         <button class="nav-btn" data-view="book"><span>▤</span> Mon ebook</button>
       </nav>
@@ -100,6 +102,27 @@
           <section id="view-roadmap" class="panel-view" hidden aria-label="Parcours détaillé">
             <div class="section-heading page-heading"><div><span class="section-kicker">PLAN D'ACTION</span><h2>Semaine après semaine</h2><p>Chaque action possède une preuve concrète à produire.</p></div><div class="filter-field"><label for="week-filter">Afficher</label><select id="week-filter"><option value="next">Les 4 prochaines semaines</option><option value="all">Toutes les semaines</option><option value="incomplete">Non terminées</option></select></div></div>
             <div id="roadmap-list"></div>
+          </section>
+          <section id="view-sources" class="panel-view" hidden aria-label="Studio de sources">
+            <div class="section-heading page-heading"><div><span class="section-kicker">REGROUPEMENT · MODE SÛR</span><h2>Transformer les ressources en actions</h2><p>Ajoute une documentation, un tutoriel ou une vidéo YouTube et tes propres notes de lecture. L'analyse automatique des contenus externes n'est pas encore activée.</p></div></div>
+            <div class="source-caution"><strong>Mode prévisualisation uniquement.</strong> Aucune page ni transcription n'est téléchargée ici, aucune commande ne sera exécutée. Les propositions utilisent les titres et notes que tu fournis, pas une IA distante.</div>
+            <section class="surface source-editor">
+              <div class="section-heading"><div><span class="section-kicker">01 / AJOUTER UNE SOURCE</span><h2>Ton corpus personnel</h2></div></div>
+              <form id="source-form" class="source-form">
+                <div class="field field-wide"><label for="source-url">URL HTTPS de la source</label><input id="source-url" name="url" inputType="url" type="url" required maxlength="800" placeholder="https://developer.mozilla.org/fr/docs/Web/JavaScript"></div>
+                <div class="field field-wide"><label for="source-title">Titre de la source</label><input id="source-title" name="title" maxlength="150" placeholder="Ex. : guide JavaScript / vidéo d'initiation"></div>
+                <div class="field field-wide"><label for="source-note">Tes notes ou un extrait que tu peux réutiliser</label><textarea id="source-note" name="note" rows="4" maxlength="1600" placeholder="Décris ce que tu as réellement appris dans cette ressource, les concepts importants et les tâches utiles…"></textarea><small>Trajectoire ne prétend pas avoir lu la ressource à ta place. Les notes restent dans ton navigateur.</small></div>
+                <button class="button button-primary" type="submit">+ Ajouter au corpus</button>
+              </form>
+            </section>
+            <section class="surface spaced">
+              <div class="section-heading"><div><span class="section-kicker">02 / MES SOURCES</span><h2>Références du projet</h2></div><button id="manifest-btn" type="button" class="button button-outline">↓ Export pour Regroupement</button></div>
+              <div id="source-list" class="source-list"></div>
+            </section>
+            <section class="surface spaced">
+              <div class="section-heading"><div><span class="section-kicker">03 / RECOMMANDATIONS</span><h2>Associer les sources aux actions</h2><p>Correspondances heuristiques à examiner manuellement. Une association n'implique pas que la source soit exacte ou fiable.</p></div><button id="analyze-sources" type="button" class="button button-outline">Proposer des associations ↗</button></div>
+              <div id="source-suggestions"></div>
+            </section>
           </section>
           <section id="view-resources" class="panel-view" hidden aria-label="Ressources">
             <div class="section-heading page-heading"><div><span class="section-kicker">BOÎTE À OUTILS</span><h2>Une sélection pour avancer</h2><p>Des liens vers des ressources publiques. Les disponibilités et contenus peuvent changer.</p></div></div>
