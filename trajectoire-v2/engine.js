@@ -353,7 +353,7 @@
       lines.push('', '## Sources personnelles (à vérifier)');
       for (const src of plan.sources) {
         lines.push('- ' + safe(src.title) + ' — ' + src.url +
-          ' ; statut : ' + safe(src.status) + ' ; notes utilisateur : ' + safe(src.note || 'Aucune'));
+          ' ; statut : ' + safe(src.status) + ' ; notes utilisateur : ' + safe(src.note || 'Aucune') + (src.excerpt ? ' ; extrait externe non vérifié : ' + safe(src.excerpt) : ''));
       }
     }
     lines.push('', '## Ressources sélectionnées');
