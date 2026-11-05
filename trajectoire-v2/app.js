@@ -2,6 +2,7 @@
 (() => {
   'use strict';
   const E = window.TrajectoireEngine;
+  const S = window.TrajectoireSources;
   const STORAGE_KEY = 'trajectoire.v2.plan';
   const $ = id => document.getElementById(id);
   let plan = null;
@@ -53,7 +54,7 @@
       $('goal').focus();
       return;
     }
-    activeView = ['overview', 'roadmap', 'resources', 'book'].includes(view) ? view : 'overview';
+    activeView = ['overview', 'roadmap', 'sources', 'resources', 'book'].includes(view) ? view : 'overview';
     document.querySelectorAll('.nav-btn').forEach(btn => {
       const selected = btn.dataset.view === activeView;
       btn.classList.toggle('current', selected);
@@ -62,6 +63,7 @@
     });
     document.querySelectorAll('.panel-view').forEach(el => { el.hidden = el.id !== 'view-' + activeView; });
     if (activeView === 'book') renderBook();
+    if (activeView === 'sources') renderSources();
     if (activeView === 'roadmap') renderRoadmap();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -119,6 +121,33 @@
         ${w.tasks.map(t => taskCard(t,w)).join('')}
       </article>`).join('') : '<div class="surface">Il n’y a pas d’action à afficher avec ce filtre.</div>';
   }
+  function renderSources() {
+    if (!plan) return;
+    const items = Array.isArray(plan.sources) ? plan.sources : [];
+    $('source-list').innerHTML = items.length ? items.map(src => {
+      const status = src.status === 'notes-utilisateur' ? 'Notes fournies par l’utilisateur' : 'Lien ajouté sans lecture automatique';
+      const action = plan.weeks.flatMap(w => w.tasks).find(t => t.id === src.linkedTaskId);
+      return '<article class="source-card"><div><span class="section-kicker">' + fmt(src.type.toUpperCase()) + ' · ' + fmt(status) +
+        '</span><h3>' + fmt(src.title) + '</h3><p>' + fmt(src.note || 'Aucune note enregistrée. Le contenu de la page n’a pas été récupéré.') +
+        '</p><small>' + (action ? 'Associée à : ' + fmt(action.title) : 'En attente d’association à une tâche') +
+        '</small><p><a href="' + fmt(safeUrl(src.url)) +
+        '" target="_blank" rel="noopener noreferrer">Consulter le lien ↗</a></p></div><button class="button button-outline" type="button" data-source-remove="' +
+        fmt(src.id) + '">Supprimer</button></article>';
+    }).join('') : '<p>Aucune source enregistrée. Ajoute un lien et des notes pour démarrer.</p>';
+    $('source-suggestions').innerHTML = '<p class="source-info">Clique sur « Proposer des associations » pour voir des correspondances éventuelles.</p>';
+  }
+  function renderSuggestions() {
+    const data = S.suggestions(plan);
+    $('source-suggestions').innerHTML = data.length ? data.map(item =>
+      '<article class="source-card"><div><strong>' + fmt(item.sourceTitle) + '</strong><p>' +
+      fmt(item.reason) + '. Action proposée : ' + fmt(item.suggestedTaskTitle) +
+      (item.week ? ' (semaine ' + fmt(item.week) + ')' : '') +
+      '</p><small>Vérifie le contenu réel et la pertinence de cette association.</small></div>' +
+      (item.suggestedTaskId ? '<button class="button button-outline" type="button" data-source-attach="' +
+      fmt(item.sourceId) + '" data-target-task="' + fmt(item.suggestedTaskId) +
+      '">Valider l’association</button>' : '') + '</article>'
+    ).join('') : '<p>Aucune suggestion disponible. Ajoute des sources ou toutes les associations sont déjà validées.</p>';
+  }
   function renderResources() {
     $('resource-list').innerHTML = plan.resources.map(r => `
       <article class="resource-card"><span class="resource-type">${fmt(r.type)} · ACCÈS GRATUIT À VÉRIFIER</span>
@@ -149,6 +178,10 @@
         ' h/semaine · ' + fmt(c.obstacle || 'Aucun obstacle renseigné') + '</p>').join('') + '</section>' : ''}
       <section><h3>05. Jalons à atteindre</h3><ul>${plan.milestones.map(m =>
         '<li>Semaine ' + fmt(m.week) + ' : ' + fmt(m.title) + '</li>').join('')}</ul></section>
+      ${Array.isArray(plan.sources) && plan.sources.length ? '<section><h3>Sources fournies</h3><ul>' +
+        plan.sources.map(s => '<li><a href="' + fmt(safeUrl(s.url)) + '">' + fmt(s.title) +
+        '</a> — ' + fmt(s.status === 'notes-utilisateur' ? 'notes fournies' : 'contenu non analysé') +
+        (s.note ? ' — ' + fmt(s.note) : '') + '</li>').join('') + '</ul></section>' : ''}
       <section><h3>06. Ressources pour avancer</h3><ul>${plan.resources.map(r =>
         '<li><a href="' + fmt(safeUrl(r.url)) + '">' + fmt(r.title) + '</a> — ' + fmt(r.why) + '</li>').join('')}</ul></section>
       <p><small>${fmt(plan.note)} Catalogue mis à jour éditorialement le ${fmt(plan.catalogVersion)}. Le document reflète tes actions enregistrées, pas des informations Web en direct.</small></p>`;
@@ -157,6 +190,7 @@
     renderSummary();
     renderResources();
     renderRoadmap();
+    renderSources();
     if (activeView === 'book') renderBook();
     selectView(activeView);
   }
@@ -215,6 +249,42 @@
       renderAll();
       notify('Échéances adaptées. Ton ebook est passé en version ' + plan.revision + '.');
     } catch (error) { notify(error.message || 'Révision impossible.'); }
+  });
+  $('source-form').addEventListener('submit', event => {
+    event.preventDefault();
+    if (!plan) return;
+    const form = Object.fromEntries(new FormData(event.currentTarget).entries());
+    try {
+      plan = S.add(plan, form);
+      persist(); renderAll(); event.currentTarget.reset();
+      notify('Source enregistrée sans extraction automatique.');
+    } catch (error) { notify(error.message || 'Erreur de source.'); }
+  });
+  $('source-list').addEventListener('click', event => {
+    const btn = event.target.closest('[data-source-remove]');
+    if (!btn || !plan) return;
+    if (!window.confirm('Supprimer cette source et ses associations ?')) return;
+    try { plan = S.remove(plan, btn.dataset.sourceRemove); persist(); renderAll(); }
+    catch (error) { notify(error.message); }
+  });
+  $('analyze-sources').addEventListener('click', () => {
+    if (!plan) return;
+    renderSuggestions();
+    notify('Correspondances proposées à partir des titres et de tes notes.');
+  });
+  $('source-suggestions').addEventListener('click', event => {
+    const btn = event.target.closest('[data-source-attach]');
+    if (!btn || !plan) return;
+    try {
+      plan = S.attach(plan, btn.dataset.sourceAttach, btn.dataset.targetTask);
+      persist(); renderAll(); renderSuggestions();
+      notify('Source reliée à une action ; ebook mis à jour.');
+    } catch (error) { notify(error.message || 'Association impossible.'); }
+  });
+  $('manifest-btn').addEventListener('click', () => {
+    if (!plan) return;
+    saveFile(S.exportManifest(plan), 'trajectoire-regroupement-sources.json','application/json;charset=utf-8');
+    notify('Manifeste exporté en mode simulation, sans exécution.');
   });
   $('week-filter').addEventListener('change', renderRoadmap);
   $('backup-btn').addEventListener('click', () => {
