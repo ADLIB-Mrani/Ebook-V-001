@@ -25,7 +25,8 @@ jobs:
         run: |
           node --check trajectoire-v2/engine.js
           node --check trajectoire-v2/app.js
+          node --check trajectoire-v2/sources.js
           node --check trajectoire-v2/sw.js
           node -e "JSON.parse(require('fs').readFileSync('trajectoire-v2/manifest.webmanifest','utf8'))"
       - name: Unit tests without paid dependencies
-        run: node --test trajectoire-v2/engine.test.cjs
+        run: node --test trajectoire-v2/engine.test.cjs trajectoire-v2/sources.test.cjs
