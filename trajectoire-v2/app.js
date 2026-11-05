@@ -249,4 +249,9 @@
   $('today').textContent = new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
   restore();
   showWorkspace();
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {
+      // La plateforme reste utilisable sans installation hors ligne.
+    });
+  }
 })();
