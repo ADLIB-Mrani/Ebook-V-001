@@ -1,0 +1,29 @@
+name: Trajectoire V2 quality
+on:
+  pull_request:
+    paths:
+      - 'trajectoire-v2/**'
+      - '.github/workflows/trajectoire-v2.yml'
+  push:
+    branches:
+      - 'feat/trajectoire-v2-zero-cost'
+    paths:
+      - 'trajectoire-v2/**'
+      - '.github/workflows/trajectoire-v2.yml'
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          node --check trajectoire-v2/engine.js
+          node --check trajectoire-v2/app.js
+      - name: Unit tests without paid dependencies
+        run: node --test trajectoire-v2/engine.test.cjs
