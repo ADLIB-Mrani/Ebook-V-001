@@ -43,3 +43,15 @@ test('suggestion uniquement et association avec validation volontaire',()=>{
   assert.equal(p.sources.length,0);
   assert.ok(!p.weeks.flatMap(w=>w.tasks).some(t=>(t.sourceIds||[]).includes(sug.sourceId)));
 });
+
+test('import extraction revalide le schéma et n’exécute rien',()=>{
+  const p=Sources.add(sample(),{url:'https://developer.mozilla.org/fr/docs/',title:'MDN'},date);
+  const data={schema:'regroupement-extraction-v1',dry_run:true,executed:false,resources:[
+    {url:p.sources[0].url,status:'extrait-non-verifie',excerpt:'La documentation présente les fonctions JavaScript.'}
+  ]};
+  const imported=Sources.importExtraction(p,data,date);
+  assert.equal(imported.sources[0].status,'extrait-importé-non-verifie');
+  assert.ok(imported.sources[0].excerpt.includes('fonctions JavaScript'));
+  assert.throws(()=>Sources.importExtraction(p,{...data,executed:true}),/sécurisée/);
+  assert.equal(p.sources[0].status,'lien-non-analyse');
+});
