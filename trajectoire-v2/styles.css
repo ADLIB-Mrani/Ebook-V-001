@@ -2,3 +2,10 @@
 .review-form{display:grid;grid-template-columns:minmax(140px,.6fr) minmax(180px,1.4fr) auto;align-items:end;gap:15px}
 .review-form .field input{min-height:46px}.review-hint{color:var(--muted);font-size:11px;margin:17px 0 0}
 @media(max-width:900px){.review-form{grid-template-columns:1fr}.review-form .button{width:100%}}
+
+/* Source studio, explicitly local-only and human-reviewed */
+.source-caution{padding:18px 20px;border:1px solid #536b6a;background:#173338;color:#bfded8;border-radius:12px;font-size:12px;line-height:1.6;margin-bottom:20px}
+.source-caution strong{color:#d4f8c0}.source-editor{margin-top:18px}.source-form{display:grid;grid-template-columns:1fr;gap:16px}.source-form .field-wide{margin:0}.source-form .button{justify-self:start;margin-top:8px}
+.source-list{display:grid;gap:12px}.source-card{display:flex;align-items:center;justify-content:space-between;gap:25px;padding:17px;border:1px solid #314057;background:#18273d;border-radius:13px;margin-bottom:10px}
+.source-card h3{font-size:16px;margin:7px 0}.source-card p,.source-info{color:#aebdd0;font-size:12px;margin:8px 0;white-space:pre-wrap;overflow-wrap:anywhere}.source-card small{font-size:11px;color:#88a5b0}.source-card a{color:var(--lime);font-size:12px;font-weight:700;overflow-wrap:anywhere}.source-card .button{flex:none}.source-info{padding:10px}
+@media(max-width:760px){.source-card{display:block}.source-card .button{margin-top:12px}.source-editor{padding:18px}}
