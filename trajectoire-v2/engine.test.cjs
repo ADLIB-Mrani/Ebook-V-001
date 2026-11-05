@@ -60,3 +60,18 @@ test('pas de garantie de revenus et prudence pour les mineurs', () => {
   assert.ok(p.alerts.some(a => a.includes('mineur')));
   assert.equal(p.profile.track,'income');
 });
+
+test('bilan adaptatif : échéances révisées, acquis et historique conservés', () => {
+  const p = E.buildPlan(base,date);
+  const t = p.weeks[0].tasks[0].id;
+  const progressed = E.toggle(p,t,true, '2026-11-06T12:00:00Z');
+  const next = E.review(progressed, 3, 'Semaine d’examens', '2026-11-07T12:00:00Z');
+  assert.equal(next.profile.hoursPerWeek,3);
+  assert.equal(next.revision,3);
+  assert.equal(next.checkins.length,1);
+  assert.equal(next.checkins[0].obstacle,'Semaine d’examens');
+  assert.equal(E.completion(next).done,1);
+  assert.ok(next.weeks[0].dueDate >= '2026-11-07');
+  assert.ok(E.markdown(next).includes('Bilans de progression'));
+  assert.throws(() => E.review(p, 0, ''),/entre 1 et 60/);
+});
