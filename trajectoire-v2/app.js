@@ -88,6 +88,7 @@
     $('metric-done').textContent = c.done + ' / ' + c.total;
     $('metric-hours').textContent = plan.totalHours + ' h';
     $('metric-revision').textContent = 'v' + plan.revision;
+    $('review-hours').value = plan.profile.hoursPerWeek;
     $('revision-date').textContent = 'Mise à jour ' + new Date(plan.updatedAt).toLocaleDateString('fr-FR');
     const actions = E.nextActions(plan, 3);
     $('next-actions').innerHTML = actions.length ? actions.map(t => {
@@ -142,7 +143,11 @@
         ${plan.weeks.map(w => '<h4>Semaine ' + fmt(w.number) + ' · ' + fmt(w.phase) + ' · ' + fmt(w.dueDate) + '</h4>' +
           w.tasks.map(t => '<div class="book-task"><span>' + (t.completed ? '☑' : '☐') + '</span><div><strong>' +
             fmt(t.title) + '</strong> — ' + fmt(t.description) + '<br><small>Preuve : ' + fmt(t.evidence) + '</small></div></div>').join('')).join('')}
-      </section><section><h3>05. Jalons à atteindre</h3><ul>${plan.milestones.map(m =>
+      </section>
+      ${Array.isArray(plan.checkins) && plan.checkins.length ? '<section><h3>Bilans de progression</h3>' +
+        plan.checkins.map(c => '<p><strong>' + fmt(c.date) + '</strong> · ' + fmt(c.hoursPerWeek) +
+        ' h/semaine · ' + fmt(c.obstacle || 'Aucun obstacle renseigné') + '</p>').join('') + '</section>' : ''}
+      <section><h3>05. Jalons à atteindre</h3><ul>${plan.milestones.map(m =>
         '<li>Semaine ' + fmt(m.week) + ' : ' + fmt(m.title) + '</li>').join('')}</ul></section>
       <section><h3>06. Ressources pour avancer</h3><ul>${plan.resources.map(r =>
         '<li><a href="' + fmt(safeUrl(r.url)) + '">' + fmt(r.title) + '</a> — ' + fmt(r.why) + '</li>').join('')}</ul></section>
@@ -181,6 +186,7 @@
   $('new-goal').addEventListener('click', () => {
     if (plan && !window.confirm('Créer un autre parcours ? Pense à sauvegarder ton plan actuel en JSON.')) return;
     plan = null;
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
     $('workspace').hidden = true;
     $('setup').hidden = false;
     $('goal').focus();
@@ -196,6 +202,19 @@
       renderAll();
       notify(target.checked ? 'Une preuve de plus. Ebook actualisé !' : 'Action réouverte. Le carnet est actualisé.');
     } catch (error) { notify(error.message || 'Erreur de mise à jour.'); }
+  });
+  $('review-form').addEventListener('submit', event => {
+    event.preventDefault();
+    if (!plan) return;
+    const hours = $('review-hours').value;
+    const obstacle = $('review-obstacle').value;
+    try {
+      plan = E.review(plan, hours, obstacle);
+      persist();
+      $('review-obstacle').value = '';
+      renderAll();
+      notify('Échéances adaptées. Ton ebook est passé en version ' + plan.revision + '.');
+    } catch (error) { notify(error.message || 'Révision impossible.'); }
   });
   $('week-filter').addEventListener('change', renderRoadmap);
   $('backup-btn').addEventListener('click', () => {
