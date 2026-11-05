@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const E = require('./engine.js');
-const base = { goal: 'Devenir développeur web en 6 mois', months: 6, hoursPerWeek: 8, age: 20, level: 'debutant', budget: 0 };
+const base = { goal: 'Devenir développeur web en 6 mois', months: 6, hoursPerWeek: 8, age: 20, level: 'debutant', situation: 'etudiant', budget: 0 };
 const date = '2026-11-05T12:00:00.000Z';
 
 test('détection de domaines même avec de vrais objectifs exprimés librement', () => {
@@ -18,7 +18,7 @@ test('création d’un plan de 6 mois, jalons, ressources, échéances', () => {
   assert.equal(p.milestones.length, 4);
   assert.equal(p.weeks[0].number, 1);
   assert.equal(p.weeks.at(-1).number, 26);
-  assert.equal(p.resources.length, 5);
+  assert.equal(p.resources.length, 6);
   assert.ok(p.weeks.every(w => w.tasks.length >= 1));
   assert.ok(p.weeks.every(w => w.tasks.every(t => t.evidence && t.id)));
   assert.equal(E.completion(p).percent, 0);
@@ -74,4 +74,12 @@ test('bilan adaptatif : échéances révisées, acquis et historique conservés'
   assert.ok(next.weeks[0].dueDate >= '2026-11-07');
   assert.ok(E.markdown(next).includes('Bilans de progression'));
   assert.throws(() => E.review(p, 0, ''),/entre 1 et 60/);
+});
+
+test('ressources étudiantes uniquement pour les étudiants', () => {
+  const student = E.buildPlan(base,date);
+  const employee = E.buildPlan({...base, situation: 'salarie'}, date);
+  assert.ok(student.resources.some(r => r.title === 'GitHub Student Developer Pack'));
+  assert.ok(!employee.resources.some(r => r.title === 'GitHub Student Developer Pack'));
+  assert.equal(employee.profile.situation, 'salarie');
 });
