@@ -1,0 +1,19 @@
+{
+  "name": "Trajectoire — ton parcours personnalisé",
+  "short_name": "Trajectoire",
+  "description": "Plans d'action, suivi et ebook local sans frais",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1221",
+  "theme_color": "#0b1221",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
