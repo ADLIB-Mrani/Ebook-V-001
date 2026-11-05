@@ -135,7 +135,7 @@
       <header class="cover"><span>TRAJECTOIRE · MON CARNET PERSONNALISÉ</span>
         <h2>${fmt(p.goal)}</h2><p>Édition n° ${fmt(plan.revision)} · ${fmt(plan.updatedAt.slice(0,10))} · ${fmt(plan.track)}</p>
         <p>Un programme de ${fmt(p.months)} mois, conçu pour ${fmt(p.hoursPerWeek)} h par semaine.</p></header>
-      <section><h3>01. Mon point de départ</h3><p><strong>Niveau :</strong> ${fmt(p.level)} · <strong>Âge :</strong> ${fmt(p.age)} · <strong>Budget :</strong> ${fmt(p.budget)} €</p>
+      <section><h3>01. Mon point de départ</h3><p><strong>Niveau :</strong> ${fmt(p.level)} · <strong>Situation :</strong> ${fmt(p.situation || "autre")} · <strong>Âge :</strong> ${fmt(p.age)} · <strong>Budget :</strong> ${fmt(p.budget)} €</p>
         <p><strong>Compétences :</strong> ${fmt(p.skills || 'Non renseignées')}<br><strong>Contraintes :</strong> ${fmt(p.constraints || 'Non renseignées')}</p></section>
       <section><h3>02. Ma progression</h3><p><strong>${c.done} actions sur ${c.total}</strong> terminées, soit ${c.percent} % de la feuille de route.</p></section>
       <section><h3>03. Points de vigilance</h3>${plan.alerts.map(a => '<p class="book-note">' + fmt(a) + '</p>').join('') || '<p>Réévalue régulièrement ton temps disponible et la difficulté des actions.</p>'}</section>
