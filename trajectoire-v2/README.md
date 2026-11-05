@@ -9,6 +9,9 @@ Une V2 isolée du projet `automation-platform/` existant, pour tester un produit
 - Étapes hebdomadaires, livrables vérifiables, échéances, jalons et alerte de faisabilité indicative.
 - Suivi par tâche avec sauvegarde **dans le navigateur**, progression, prochaines actions et bilans pour réorganiser les échéances sans effacer les tâches validées.
 - Catalogue de ressources éditoriales réelles et liens externes ; elles ne sont **pas validées en temps réel**.
+- **Studio de sources Regroupement** : sources HTTPS (tutoriels, documentations, YouTube), notes utilisateur, rapprochement heuristique avec les tâches, validation manuelle, export de corpus.
+- **Script Python facultatif** d'extraction Web ou de transcriptions YouTube sur demande explicite et domaines autorisés, sans OpenAI API ; import des résultats dans le carnet (statut non vérifié).
+- **Maquettes Figma éditables** : [Trajectoire V2 UX/UI + Regroupement](https://www.figma.com/design/aNXPdz5Rx7O7X5kEPt6rZ4).
 - Ebook HTML mis à jour à chaque changement de tâche, **imprimable en PDF** depuis le navigateur et exportable en Markdown.
 - Sauvegarde et import JSON (à conserver en lieu sûr).
 - Interface responsive, navigation au clavier, affichage imprimable, **PWA installable et utilisable hors ligne après une première visite réussie**, sans dépendances JS ni clé API.
@@ -77,3 +80,8 @@ Avant une publication grand public, ajouter tests de sécurité, politique de co
 ## Cadre éthique
 
 Une cible comme « gagner 5 000 € par mois » reste un objectif, **jamais un revenu prédit ou garanti**. Les actions proposées privilégient les tests réels, la légalisation de l'activité et des preuves mesurables. Les utilisateurs mineurs reçoivent un rappel des restrictions possibles.
+
+
+## Intégration Regroupement
+
+Le guide étape par étape est dans [REGROUPEMENT.md](REGROUPEMENT.md). La PWA ne récupère jamais de données sur des URL distantes sans action explicite. Le script local `tools/regroupement_bridge.py` permet une extraction optionnelle ; aucune exécution de commandes ni utilisation payante d'OpenAI n'est activée.
