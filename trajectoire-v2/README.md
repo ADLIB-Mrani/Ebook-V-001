@@ -7,11 +7,11 @@ Une V2 isolée du projet `automation-platform/` existant, pour tester un produit
 - Formulaire français : objectif libre, type détecté ou explicite, durée, âge, niveau, compétences, temps disponible, budget, pays, contraintes.
 - Moteur déterministe pour **web, création d'entreprise, revenus**, ou un parcours générique pour les autres objectifs.
 - Étapes hebdomadaires, livrables vérifiables, échéances, jalons et alerte de faisabilité indicative.
-- Suivi par tâche avec sauvegarde **dans le navigateur**, progression et recommandations des prochaines actions.
+- Suivi par tâche avec sauvegarde **dans le navigateur**, progression, prochaines actions et bilans pour réorganiser les échéances sans effacer les tâches validées.
 - Catalogue de ressources éditoriales réelles et liens externes ; elles ne sont **pas validées en temps réel**.
 - Ebook HTML mis à jour à chaque changement de tâche, **imprimable en PDF** depuis le navigateur et exportable en Markdown.
 - Sauvegarde et import JSON (à conserver en lieu sûr).
-- Interface responsive, navigation au clavier, affichage imprimable, sans dépendances JS ni clé API.
+- Interface responsive, navigation au clavier, affichage imprimable, **PWA installable et utilisable hors ligne après une première visite réussie**, sans dépendances JS ni clé API.
 
 ### Lancer
 
@@ -65,7 +65,7 @@ Ce n'est **pas** un diagnostic pédagogique personnalisé au sens scientifique, 
 2. Créer un registre versionné de ressources : origine, licence, date de vérification, disponibilité, statut, revue humaine.
 3. Ajouter un moteur de recherche documenté qui distingue suggestions, informations vérifiées et liens non vérifiés.
 4. Vérifier les compétences via mini-évaluations avant de supprimer des étapes.
-5. Réviser le programme en fonction du temps réellement investi et des obstacles rencontrés.
+5. Ajouter un vrai diagnostic de compétences et une adaptation de la difficulté, au-delà des bilans de disponibilité déjà intégrés.
 6. Transformer le livre vivant en PDF/Epub plus riche, avec changelog et sources par édition.
 
 ## Sécurité et protection des données
