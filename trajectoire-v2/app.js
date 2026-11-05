@@ -129,8 +129,8 @@
         src.status === 'notes-utilisateur' ? 'Notes fournies par l’utilisateur' : 'Lien ajouté sans lecture automatique';
       const action = plan.weeks.flatMap(w => w.tasks).find(t => t.id === src.linkedTaskId);
       return '<article class="source-card"><div><span class="section-kicker">' + fmt(src.type.toUpperCase()) + ' · ' + fmt(status) +
-        '</span><h3>' + fmt(src.title) + '</h3><p>' + fmt(src.note || 'Aucune note personnelle enregistrée.') + (src.excerpt ? '<p><strong>Extrait importé :</strong> ' + fmt(src.excerpt) + '</p>' : '<p>Contenu externe non importé.</p>') +
-        '</p><small>' + (action ? 'Associée à : ' + fmt(action.title) : 'En attente d’association à une tâche') +
+        '</span><h3>' + fmt(src.title) + '</h3><p>' + fmt(src.note || 'Aucune note personnelle enregistrée.') + '</p>' + (src.excerpt ? '<p><strong>Extrait importé :</strong> ' + fmt(src.excerpt) + '</p>' : '<p>Contenu externe non importé.</p>') +
+        '<small>' + (action ? 'Associée à : ' + fmt(action.title) : 'En attente d’association à une tâche') +
         '</small><p><a href="' + fmt(safeUrl(src.url)) +
         '" target="_blank" rel="noopener noreferrer">Consulter le lien ↗</a></p></div><button class="button button-outline" type="button" data-source-remove="' +
         fmt(src.id) + '">Supprimer</button></article>';
