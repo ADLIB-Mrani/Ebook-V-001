@@ -78,8 +78,30 @@
       if(!t.sourceIds.includes(sourceId))t.sourceIds.push(sourceId);
     },date);
   }
+  function importExtraction(plan,payload,date=new Date()){
+    validPlan(plan);
+    if(!payload||payload.schema!=='regroupement-extraction-v1'||payload.dry_run!==true||payload.executed!==false||
+       !Array.isArray(payload.resources)||payload.resources.length>20)throw new Error('Analyse Regroupement non reconnue ou non sécurisée.');
+    const matches=[];
+    for(const item of payload.resources){
+      if(!item||typeof item.url!=='string')continue;
+      let url;try{url=normalizeUrl(item.url);}catch{continue;}
+      const src=(plan.sources||[]).find(s=>s.url===url);
+      if(src && item.status==='extrait-non-verifie' && typeof item.excerpt==='string'){
+        matches.push({id:src.id,excerpt:bounded(item.excerpt,1600)});
+      }
+    }
+    if(!matches.length)throw new Error('Aucune extraction valide ne correspond à tes sources.');
+    const next=mutate(plan,p=>{
+      p.sources.forEach(s=>{
+        const m=matches.find(x=>x.id===s.id);
+        if(m){s.excerpt=m.excerpt;s.status='extrait-importé-non-verifie';s.checkedAt=new Date(date).toISOString();}
+      });
+    },date);
+    return next;
+  }
   function exportManifest(plan){validPlan(plan);return JSON.stringify({schema:'regroupement-trajectoire-v1',objective:plan.profile.goal,
     dry_run:true,auto_execute:false,warning:'Les liens ne sont pas analysés automatiquement depuis Trajectoire.',
     sources:(plan.sources||[]).map(s=>({url:s.url,type:s.type,title:s.title,notes:s.note,status:s.status}))},null,2);}
-  return {normalizeUrl,detect,add,remove,suggestions,attach,exportManifest};
+  return {normalizeUrl,detect,add,remove,suggestions,attach,importExtraction,exportManifest};
 });
