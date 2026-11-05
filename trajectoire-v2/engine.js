@@ -210,20 +210,33 @@
     if (Number.isNaN(referenceDate.valueOf())) throw new Error('Date invalide.');
     const track = tracks[profile.track];
     const weeksCount = Math.max(4, Math.round(profile.months * 52 / 12));
-    const phaseWeeks = allocateWeeks(weeksCount, track.phases);
+    const phases = track.phases.map(x => ({ ...x }));
+    if (profile.level === 'avance') {
+      const weights = [0.10, 0.18, 0.45, 0.27];
+      phases.forEach((p,i) => { p.ratio = weights[i]; });
+    } else if (profile.level === 'intermediaire') {
+      const weights = [0.15, 0.25, 0.35, 0.25];
+      phases.forEach((p,i) => { p.ratio = weights[i]; });
+    }
+    const phaseWeeks = allocateWeeks(weeksCount, phases);
     const start = new Date(Date.UTC(referenceDate.getUTCFullYear(), referenceDate.getUTCMonth(), referenceDate.getUTCDate(), 12));
     const weekTasks = Math.max(1, Math.min(3, Math.floor(profile.hoursPerWeek / 3) || 1));
     const weeks = [];
     const milestones = [];
     let weekNumber = 0;
-    track.phases.forEach((phase, phaseIndex) => {
+    phases.forEach((phase, phaseIndex) => {
       const count = phaseWeeks[phaseIndex];
       for (let i = 0; i < count; i++) {
         weekNumber++;
         const due = new Date(start.valueOf() + (weekNumber * 7 - 1) * 86400000);
         const tasks = [];
         for (let k = 0; k < weekTasks; k++) {
-          const index = ((i * weekTasks) + k + (profile.level === 'avance' ? 2 : profile.level === 'intermediaire' ? 1 : 0)) % phase.actions.length;
+          const declaredSkills = profile.skills.toLowerCase();
+          let skillShift = 0;
+          if (profile.track === 'web' && phaseIndex === 0 && /html|css|git/.test(declaredSkills)) skillShift = 2;
+          if (profile.track === 'web' && phaseIndex === 1 && /javascript|typescript|react|node/.test(declaredSkills)) skillShift = 2;
+          const levelShift = profile.level === 'avance' ? 2 : profile.level === 'intermediaire' ? 1 : 0;
+          const index = ((i * weekTasks) + k + Math.max(skillShift,levelShift)) % phase.actions.length;
           const action = phase.actions[index];
           tasks.push({
             id: 'w' + weekNumber + '-t' + k,
@@ -241,6 +254,7 @@
     if (totalHours < track.benchmarkHours && profile.level === 'debutant') {
       alerts.push('Ton temps disponible (' + totalHours + ' h) est inférieur au repère indicatif de ' + track.benchmarkHours + ' h pour ce type d’objectif. Réduis le périmètre, augmente tes heures ou allonge la durée.');
     }
+    if (profile.skills) alerts.push('Les compétences déclarées orientent certains exercices, mais elles ne sont pas encore évaluées par un test de niveau.');
     if (profile.track === 'income') alerts.push('Aucun montant de revenus n’est garanti : distingue chiffre d’affaires, bénéfice, charges et temps de travail.');
     if (profile.age < 18) alerts.push('Tu es mineur : vérifie les règles applicables avant tout contrat, activité indépendante ou revenu.');
     if (profile.country.toLowerCase() !== 'france' && ['business','income'].includes(profile.track)) alerts.push('Les ressources juridiques proposées concernent principalement la France ; vérifie les règles de ton pays.');
@@ -273,6 +287,33 @@
     copy.updatedAt = new Date(date).toISOString();
     return copy;
   }
+  function review(plan, weeklyHours, obstacle, date = new Date()) {
+    const hours = Number(weeklyHours);
+    if (!Number.isFinite(hours) || hours < 1 || hours > 60) throw new Error('Indique entre 1 et 60 heures par semaine.');
+    const at = new Date(date);
+    if (Number.isNaN(at.valueOf())) throw new Error('Date de bilan invalide.');
+    const copy = JSON.parse(JSON.stringify(plan));
+    const before = copy.profile.hoursPerWeek;
+    copy.profile.hoursPerWeek = hours;
+    const remaining = copy.weeks.filter(w => w.tasks.some(t => !t.completed));
+    const start = new Date(Date.UTC(at.getUTCFullYear(), at.getUTCMonth(), at.getUTCDate(), 12));
+    remaining.forEach((w, index) => {
+      w.dueDate = isoDate(new Date(start.valueOf() + (index + 1) * 7 * 86400000));
+      const unfinished = w.tasks.filter(t => !t.completed);
+      unfinished.forEach(t => { t.estimatedHours = Math.round(hours / unfinished.length * 10) / 10; });
+    });
+    const completedHours = copy.weeks.flatMap(w => w.tasks).filter(t => t.completed)
+      .reduce((sum,t) => sum + t.estimatedHours, 0);
+    copy.totalHours = Math.round(completedHours + remaining.length * hours);
+    copy.checkins = Array.isArray(copy.checkins) ? copy.checkins.slice(-19) : [];
+    copy.checkins.push({ date: isoDate(start), previousHours: before, hoursPerWeek: hours,
+      obstacle: short(obstacle, 400), weeksRemaining: remaining.length });
+    copy.revision = Number(copy.revision || 0) + 1;
+    copy.updatedAt = at.toISOString();
+    copy.alerts = copy.alerts.filter(a => !a.startsWith('Ton temps disponible ('));
+    copy.alerts.push('Bilan du ' + isoDate(start) + ' : échéances restantes repoussées à raison d’une semaine par bloc. Charge revue à ' + hours + ' h/semaine. Ce calendrier reste indicatif.');
+    return copy;
+  }
   function markdown(plan) {
     const safe = v => String(v == null ? '' : v).replace(/[\r\n]+/g, ' ').replace(/([\\*_\[\]`])/g, '\\$1');
     const p = plan.profile;
@@ -295,11 +336,15 @@
       lines.push('', '### Semaine ' + week.number + ' — ' + safe(week.phase) + ' (avant le ' + week.dueDate + ')');
       for (const t of week.tasks) lines.push('- [' + (t.completed ? 'x' : ' ') + '] ' + safe(t.title) + ' — ' + safe(t.description) + ' | preuve : ' + safe(t.evidence));
     }
+    if (Array.isArray(plan.checkins) && plan.checkins.length) {
+      lines.push('', '## Bilans de progression');
+      for (const c of plan.checkins) lines.push('- ' + c.date + ' : ' + c.hoursPerWeek + ' h/semaine ; obstacle : ' + safe(c.obstacle || 'aucun signalé'));
+    }
     lines.push('', '## Jalons', ...plan.milestones.map(m => '- Semaine ' + m.week + ' : ' + safe(m.title)));
     lines.push('', '## Ressources sélectionnées');
     for (const r of plan.resources) lines.push('- ' + safe(r.title) + ' : ' + r.url + ' — ' + safe(r.why));
     lines.push('', '---', plan.note, 'Ce carnet reflète ton dernier suivi local. La mise à jour automatique des liens et des informations externes n’est pas activée.');
     return lines.join('\n');
   }
-  return { buildPlan, normalize, classify, completion, nextActions, toggle, markdown, CATALOG_VERSION };
+  return { buildPlan, normalize, classify, completion, nextActions, toggle, review, markdown, CATALOG_VERSION };
 });
