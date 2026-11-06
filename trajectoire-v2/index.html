@@ -68,8 +68,8 @@
               <div class="field"><label for="months">Délai souhaité</label><select id="months" name="months"><option value="1">1 mois</option><option value="2">2 mois</option><option value="3">3 mois</option><option value="4">4 mois</option><option value="6" selected>6 mois</option><option value="9">9 mois</option><option value="12">12 mois</option><option value="18">18 mois</option><option value="24">24 mois</option></select></div>
               <div class="field"><label for="age">Âge</label><input id="age" name="age" autocomplete="off" type="number" min="13" max="100" value="20" required></div>\n              <div class="field"><label for="situation">Situation actuelle</label><select id="situation" name="situation"><option value="etudiant">Étudiant·e</option><option value="salarie">Salarié·e / alternance</option><option value="recherche">En recherche d’emploi</option><option value="independant">Indépendant·e</option><option value="autre">Autre situation</option></select></div>
               <div class="field"><label for="level">Niveau actuel</label><select id="level" name="level"><option value="debutant">Débutant·e</option><option value="intermediaire">Intermédiaire</option><option value="avance">Avancé·e</option></select></div>
-              <div class="field"><label for="hoursPerWeek">Temps disponible / semaine (h)</label><input id="hoursPerWeek" name="hoursPerWeek" type="number" min="1" max="60" value="8" required></div>
-              <div class="field"><label for="budget">Budget disponible (€)</label><input id="budget" name="budget" type="number" min="0" max="1000000" value="0" required></div>
+              <div class="field"><label for="hoursPerWeek">Temps disponible / semaine (h)</label><input id="hoursPerWeek" name="hoursPerWeek" autocomplete="off" type="number" min="1" max="60" value="8" required></div>
+              <div class="field"><label for="budget">Budget disponible (€)</label><input id="budget" name="budget" autocomplete="off" type="number" min="0" max="1000000" value="0" required></div>
               <div class="field"><label for="country">Pays</label><input id="country" name="country" autocomplete="country-name" maxlength="80" value="France"></div>
               <div class="field"><label for="skills">Compétences déjà acquises</label><input id="skills" name="skills" autocomplete="off" maxlength="450" placeholder="Ex. : HTML, Excel, marketing…"></div>
               <div class="field field-wide"><label for="constraints">Contraintes à respecter</label><textarea id="constraints" name="constraints" autocomplete="off" maxlength="450" rows="2" placeholder="Ex. : cours le matin, peu de temps le week-end, connexion limitée…"></textarea></div>
@@ -102,8 +102,8 @@
             <section class="surface spaced no-print" aria-labelledby="review-title">
               <div class="section-heading"><div><span class="section-kicker">BILAN & ADAPTATION</span><h2 id="review-title">Réviser mon rythme</h2><p>Ton temps a changé ? Réorganise les échéances restantes sans perdre les tâches terminées.</p></div></div>
               <form id="review-form" class="review-form">
-                <div class="field"><label for="review-hours">Nouvelle disponibilité (h/semaine)</label><input id="review-hours" name="hours" type="number" min="1" max="60" required></div>
-                <div class="field"><label for="review-obstacle">Obstacle ou apprentissage récent</label><input id="review-obstacle" name="obstacle" type="text" maxlength="400" placeholder="Ex. : examens cette semaine ; réduire la charge…"></div>
+                <div class="field"><label for="review-hours">Nouvelle disponibilité (h/semaine)</label><input id="review-hours" name="hours" autocomplete="off" type="number" min="1" max="60" required></div>
+                <div class="field"><label for="review-obstacle">Obstacle ou apprentissage récent</label><input id="review-obstacle" name="obstacle" autocomplete="off" type="text" maxlength="400" placeholder="Ex. : examens cette semaine ; réduire la charge…"></div>
                 <button class="button button-primary" type="submit">Adapter les échéances ↗</button>
               </form><p class="review-hint">Les tâches déjà réalisées restent validées. Les dates futures sont estimatives ; tes notes restent locales.</p>
             </section>
