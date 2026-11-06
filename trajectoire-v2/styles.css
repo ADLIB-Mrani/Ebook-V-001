@@ -25,3 +25,5 @@
 .coaching-tip{display:block;color:#d7eeaa!important;margin:8px 0;line-height:1.6;font-weight:600}
 @media(max-width:760px){.goal-toolbar{display:block;padding:14px}.goal-toolbar-actions{margin-top:13px}.goal-toolbar-actions .button{flex:1;white-space:normal}.quiz-question{grid-template-columns:1fr}.quiz-option{font-size:12px}}
 @media print{.goal-toolbar,.diagnostic-form,.diagnostic-result{display:none!important}}
+
+.proposal-actions{display:flex;flex-wrap:wrap;gap:9px;align-self:center}.proposal-actions .button{min-width:100px}.source-card p a{overflow-wrap:anywhere}
