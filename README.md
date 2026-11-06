@@ -1,4 +1,4 @@
-> **🧭 Nouvelle application : [Trajectoire V2](trajectoire-v2/README.md)** — parcours personnalisés, suivi, ressources gratuites et ebook évolutif. Lancer [l'application](trajectoire-v2/index.html). La V1 reste disponible dans `automation-platform/`.
+> **🧭 Nouvelle application : [Trajectoire V2](trajectoire-v2/README.md)** — parcours personnalisés, suivi, ressources gratuites et ebook évolutif. Ouvrir [le site déployé](https://adlib-mrani.github.io/Ebook-V-001/trajectoire-v2/) ou [le code](trajectoire-v2/index.html). La V1 reste disponible dans `automation-platform/`.
 
 ---
 
