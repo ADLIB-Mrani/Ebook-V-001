@@ -88,3 +88,27 @@ Le seul chemin raisonnable pour une exécution automatique serait une file d'act
 Écrans éditables : onboarding, tableau de bord, Studio de sources, parcours, ebook et mobile.
 
 **Coût obligatoire du prototype : 0 €**, hors matériel, électricité et connexion Internet que tu utilises déjà. Les offres étudiantes et services tiers peuvent avoir des plafonds.
+
+
+## Conseils personnalisés avec IA locale (Ollama, facultatif)
+
+Un **modèle local** peut analyser les notes et extraits précédemment importés sans facture d'API. Cette fonctionnalité nécessite un ordinateur capable d'exécuter Ollama et un modèle déjà téléchargé (le téléchargement d'un modèle consomme de la connexion et de l'espace disque). Cela n'est pas nécessaire pour utiliser Trajectoire.
+
+1. Télécharger et démarrer Ollama depuis https://ollama.com/ (site externe). Installer un modèle compatible en suivant sa documentation. Exemple de modèle à vérifier selon tes ressources : `qwen2.5:3b`.
+2. Dans Trajectoire, exporter **un seul objectif** en JSON via « Sauvegarder ». Dans Studio de sources, exporter le manifeste, puis obtenir `analyse.json` avec `regroupement_bridge.py` (en mode sans réseau ou avec extraction explicite).
+3. Lancer localement :
+
+```sh
+python3 trajectoire-v2/tools/local_ai_planner.py \
+  --analysis analyse.json \
+  --backup trajectoire-sauvegarde-v1.json \
+  --output suggestions.json \
+  --model qwen2.5:3b
+```
+
+4. Dans Studio de sources, choisir **Importer les conseils IA** et sélectionner `suggestions.json`. Lire chaque suggestion, puis **Accepter** ou **Ignorer**. Les seules URL conservées sont celles du corpus de départ.
+5. Les conseils acceptés apparaissent dans les tâches et les éditions Markdown, EPUB et PDF de ton ebook.
+
+Le script ne contacte que `127.0.0.1:11434` ou `localhost:11434`, sans clé API payante. Une **absence de serveur Ollama** produit une erreur explicite ; aucun appel facturable de secours n'est lancé.
+
+**Limites :** les modèles locaux peuvent halluciner, les extraits récupérés restent non vérifiés et les informations Web ne sont pas rafraîchies automatiquement. Les documents sont traités comme des données non fiables, et aucune commande ou manipulation de système n'est exécutée à partir des conseils générés.
