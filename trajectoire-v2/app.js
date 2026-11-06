@@ -5,6 +5,7 @@
   const S = window.TrajectoireSources;
   const W = window.TrajectoireWorkspace;
   const D = window.TrajectoireDiagnostic;
+  const A = window.TrajectoireAIReview;
   const INDEX_KEY = 'trajectoire.v2.workspace';
   let workspace = W.empty();
   let lastDiagnosticGoal = null;
@@ -102,7 +103,7 @@
     const isLate = !task.completed && week.dueDate < new Date().toISOString().slice(0,10);
     return `<label class="task-row ${task.completed ? 'done' : ''}">
       <input type="checkbox" data-task="${fmt(task.id)}" ${task.completed ? 'checked' : ''} aria-label="Marquer ${fmt(task.title)} comme terminée">
-      <span class="task-copy"><strong>${fmt(task.title)}</strong><p>${fmt(task.description)}</p>${task.coachingTip ? '<small class="coaching-tip">Conseil après diagnostic : '+fmt(task.coachingTip)+'</small>' : ''}
+      <span class="task-copy"><strong>${fmt(task.title)}</strong><p>${fmt(task.description)}</p>${task.coachingTip ? '<small class="coaching-tip">Conseil après diagnostic : '+fmt(task.coachingTip)+'</small>' : ''}${task.aiTip ? '<small class="coaching-tip">Conseil IA local approuvé : '+fmt(task.aiTip)+'</small>' : ''}
       <small>Preuve : ${fmt(task.evidence)} · ${fmt(task.estimatedHours)} h · Semaine ${fmt(week.number)} ${isLate ? '<span class="warning">· Échéance dépassée</span>' : ''}</small></span>
     </label>`;
   }
@@ -177,6 +178,21 @@
         fmt(src.id) + '">Supprimer</button></article>';
     }).join('') : '<p>Aucune source enregistrée. Ajoute un lien et des notes pour démarrer.</p>';
     $('source-suggestions').innerHTML = '<p class="source-info">Clique sur « Proposer des associations » pour voir des correspondances éventuelles.</p>';
+    renderAI();
+  }
+  function renderAI() {
+    const proposals=Array.isArray(plan.aiPending)?plan.aiPending:[];
+    $('ai-proposals').innerHTML=proposals.length ? proposals.map(item=>{
+      const task=plan.weeks.flatMap(w=>w.tasks).find(t=>t.id===item.taskId);
+      if(!task)return '';
+      return '<article class="source-card"><div><span class="section-kicker">PROPOSITION NON VALIDÉE · '+
+        fmt(item.model||'LLM local')+'</span><h3>'+fmt(task.title)+'</h3><p>'+fmt(item.advice)+'</p>'+
+        '<small>'+fmt(item.reason||'Justification à examiner')+'</small>'+
+        (item.sourceUrls.length?'<p>Références : '+item.sourceUrls.map(url=>
+          '<a href="'+fmt(safeUrl(url))+'" target="_blank" rel="noopener noreferrer">'+fmt(url)+'</a>').join(' · ')+'</p>':'')+
+        '</div><div class="proposal-actions"><button class="button button-primary" type="button" data-ai-accept="'+fmt(item.taskId)+'">Accepter</button>'+
+        '<button class="button button-outline" type="button" data-ai-reject="'+fmt(item.taskId)+'">Ignorer</button></div></article>';
+    }).join(''):'<p class="source-info">Aucun conseil IA en attente. Tu peux utiliser le parcours standard gratuitement, sans modèle local.</p>';
   }
   function renderSuggestions() {
     const data = S.suggestions(plan);
@@ -213,7 +229,7 @@
       <section><h3>04. Le programme semaine par semaine</h3>
         ${plan.weeks.map(w => '<h4>Semaine ' + fmt(w.number) + ' · ' + fmt(w.phase) + ' · ' + fmt(w.dueDate) + '</h4>' +
           w.tasks.map(t => '<div class="book-task"><span>' + (t.completed ? '☑' : '☐') + '</span><div><strong>' +
-            fmt(t.title) + '</strong> — ' + fmt(t.description) + '<br><small>Preuve : ' + fmt(t.evidence) + (t.coachingTip ? ' · Conseil : ' + fmt(t.coachingTip) : '') + '</small></div></div>').join('')).join('')}
+            fmt(t.title) + '</strong> — ' + fmt(t.description) + '<br><small>Preuve : ' + fmt(t.evidence) + (t.coachingTip ? ' · Conseil : ' + fmt(t.coachingTip) : '') + (t.aiTip ? ' · Conseil IA local approuvé : ' + fmt(t.aiTip) : '') + '</small></div></div>').join('')).join('')}
       </section>
       ${Array.isArray(plan.diagnostics) && plan.diagnostics.length ? '<section><h3>Mini-diagnostics (indicatifs)</h3>' +
         plan.diagnostics.map(d => '<p>' + fmt(d.date.slice(0,10)) + ' · ' + fmt(d.score) + '/' +
@@ -385,6 +401,31 @@
       notify('Extraits importés, signalés non vérifiés. Ebook mis à jour.');
     } catch(error){notify(error.message||'Extraction non reconnue.');}
     finally{event.target.value='';}
+  });
+  $('import-ai').addEventListener('change',async event=>{
+    const file=event.target.files[0];
+    if(!file||!plan)return;
+    if(file.size>1000000){notify('Fichier trop volumineux (1 Mo maximum).');event.target.value='';return;}
+    try{
+      const data=JSON.parse(await file.text());
+      plan=A.importProposals(plan,data);
+      persist();renderAll();
+      notify('Conseils IA locaux importés : vérifie-les avant validation.');
+    }catch(error){notify(error.message||'Conseils non reconnus.');}
+    finally{event.target.value='';}
+  });
+  $('ai-proposals').addEventListener('click',event=>{
+    const accept=event.target.closest('[data-ai-accept]');
+    const reject=event.target.closest('[data-ai-reject]');
+    if((!accept&&!reject)||!plan)return;
+    const btn=accept||reject;
+    const taskId=accept?btn.dataset.aiAccept:btn.dataset.aiReject;
+    if(accept&&!window.confirm('Ajouter ce conseil non vérifié à ta tâche ?'))return;
+    try{
+      plan=A.decide(plan,taskId,Boolean(accept));
+      persist();renderAll();
+      notify(accept?'Conseil approuvé et ajouté au carnet.':'Conseil ignoré.');
+    }catch(error){notify(error.message||'Impossible de traiter ce conseil.');}
   });
   $('manifest-btn').addEventListener('click', () => {
     if (!plan) return;
