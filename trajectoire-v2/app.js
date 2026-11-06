@@ -6,6 +6,7 @@
   const W = window.TrajectoireWorkspace;
   const D = window.TrajectoireDiagnostic;
   const A = window.TrajectoireAIReview;
+  const EPUB = window.TrajectoireEPUB;
   const INDEX_KEY = 'trajectoire.v2.workspace';
   let workspace = W.empty();
   let lastDiagnosticGoal = null;
@@ -474,6 +475,14 @@
   $('md-btn').addEventListener('click', () => {
     if (!plan) return;
     saveFile(E.markdown(plan), 'trajectoire-ebook-v' + plan.revision + '.md', 'text/markdown;charset=utf-8');
+  });
+  $('epub-btn').addEventListener('click', () => {
+    if (!plan) return;
+    try {
+      const bytes=EPUB.create(plan,E);
+      saveFile(bytes,'trajectoire-ebook-v'+plan.revision+'.epub','application/epub+zip');
+      notify('Ebook EPUB généré à partir de tes dernières actions.');
+    } catch (error) { notify(error.message || 'Export EPUB impossible.'); }
   });
   $('print-btn').addEventListener('click', () => {
     if (!plan) return;
