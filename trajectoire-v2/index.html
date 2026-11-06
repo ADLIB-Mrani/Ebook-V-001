@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="./styles.css">
   <script src="./engine.js" defer></script>
   <script src="./sources.js" defer></script>
+  <script src="./workspace.js" defer></script>
+  <script src="./diagnostic.js" defer></script>
   <script src="./app.js" defer></script>
 </head>
 <body>
@@ -41,6 +43,7 @@
       </header>
       <main id="main" tabindex="-1">
         <section id="setup" class="setup-view" aria-labelledby="intro-title">
+          <button id="return-dashboard" type="button" class="button button-outline" hidden>← Revenir à mes objectifs</button>
           <div class="hero-grid">
             <div>
               <span class="microbadge">✦ UN PLAN ADAPTÉ À TA RÉALITÉ</span>
@@ -74,6 +77,10 @@
         </section>
 
         <section id="workspace" hidden>
+          <div class="goal-toolbar">
+            <div class="field"><label for="goal-switch">Mes objectifs enregistrés <span id="goal-count" class="small-count"></span></label><select id="goal-switch" aria-label="Changer d'objectif actif"></select></div>
+            <div class="goal-toolbar-actions"><button id="backup-all" type="button" class="button button-outline">↓ Sauvegarder tous</button><button id="delete-goal" type="button" class="button button-outline">Supprimer cet objectif</button></div>
+          </div>
           <div class="welcome-header">
             <div><span class="section-kicker">TA FEUILLE DE ROUTE</span><h1 id="dash-title">Un objectif. Un plan.</h1><p id="dash-subtitle"></p></div>
             <div class="welcome-actions"><button id="backup-btn" type="button" class="button button-outline">↓ Sauvegarder</button><label class="button button-outline upload-label" for="import-file">↑ Importer<input id="import-file" type="file" accept="application/json,.json" hidden></label></div>
@@ -97,6 +104,11 @@
                 <div class="field"><label for="review-obstacle">Obstacle ou apprentissage récent</label><input id="review-obstacle" name="obstacle" type="text" maxlength="400" placeholder="Ex. : examens cette semaine ; réduire la charge…"></div>
                 <button class="button button-primary" type="submit">Adapter les échéances ↗</button>
               </form><p class="review-hint">Les tâches déjà réalisées restent validées. Les dates futures sont estimatives ; tes notes restent locales.</p>
+            </section>
+            <section class="surface spaced no-print" aria-labelledby="diagnostic-title">
+              <div class="section-heading"><div><span class="section-kicker">MINI-DIAGNOSTIC · GRATUIT ET LOCAL</span><h2 id="diagnostic-title">Évaluer mes bases</h2><p>Quatre questions courtes pour identifier les notions à travailler en priorité. Ce test ne remplace pas une évaluation pratique.</p></div></div>
+              <form id="diagnostic-form" class="diagnostic-form"><div id="diagnostic-questions"></div><button class="button button-primary" type="submit">Afficher mon bilan ↗</button></form>
+              <div id="diagnostic-result" role="status" aria-live="polite" class="diagnostic-result" hidden></div>
             </section>
           </section>
           <section id="view-roadmap" class="panel-view" hidden aria-label="Parcours détaillé">
