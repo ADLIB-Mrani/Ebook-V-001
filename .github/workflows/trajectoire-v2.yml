@@ -29,11 +29,12 @@ jobs:
           node --check trajectoire-v2/sources.js
           node --check trajectoire-v2/workspace.js
           node --check trajectoire-v2/diagnostic.js
+          node --check trajectoire-v2/ai-review.js
           node --check trajectoire-v2/sw.js
           node -e "JSON.parse(require('fs').readFileSync('trajectoire-v2/manifest.webmanifest','utf8'))"
       - name: Python syntax and safe bridge tests
         run: |
-          python3 -m py_compile trajectoire-v2/tools/regroupement_bridge.py
+          python3 -m py_compile trajectoire-v2/tools/regroupement_bridge.py trajectoire-v2/tools/local_ai_planner.py
           python3 -m unittest discover -s trajectoire-v2/tools -p 'test_*.py'
       - name: Unit tests without paid dependencies
-        run: node --test trajectoire-v2/engine.test.cjs trajectoire-v2/sources.test.cjs trajectoire-v2/workspace.test.cjs
+        run: node --test trajectoire-v2/engine.test.cjs trajectoire-v2/sources.test.cjs trajectoire-v2/workspace.test.cjs trajectoire-v2/ai-review.test.cjs
