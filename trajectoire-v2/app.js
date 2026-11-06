@@ -213,8 +213,13 @@
       <section><h3>04. Le programme semaine par semaine</h3>
         ${plan.weeks.map(w => '<h4>Semaine ' + fmt(w.number) + ' · ' + fmt(w.phase) + ' · ' + fmt(w.dueDate) + '</h4>' +
           w.tasks.map(t => '<div class="book-task"><span>' + (t.completed ? '☑' : '☐') + '</span><div><strong>' +
-            fmt(t.title) + '</strong> — ' + fmt(t.description) + '<br><small>Preuve : ' + fmt(t.evidence) + '</small></div></div>').join('')).join('')}
+            fmt(t.title) + '</strong> — ' + fmt(t.description) + '<br><small>Preuve : ' + fmt(t.evidence) + (t.coachingTip ? ' · Conseil : ' + fmt(t.coachingTip) : '') + '</small></div></div>').join('')).join('')}
       </section>
+      ${Array.isArray(plan.diagnostics) && plan.diagnostics.length ? '<section><h3>Mini-diagnostics (indicatifs)</h3>' +
+        plan.diagnostics.map(d => '<p>' + fmt(d.date.slice(0,10)) + ' · ' + fmt(d.score) + '/' +
+        fmt(d.total) + ' réponses correctes · niveau suggéré : ' + fmt(d.level) +
+        ' · notions à revoir : ' + fmt((d.workOn||[]).map(x=>x.topic).join(', ')) + '</p>').join('') +
+        '<p>Une évaluation pratique reste nécessaire.</p></section>' : ''}
       ${Array.isArray(plan.checkins) && plan.checkins.length ? '<section><h3>Bilans de progression</h3>' +
         plan.checkins.map(c => '<p><strong>' + fmt(c.date) + '</strong> · ' + fmt(c.hoursPerWeek) +
         ' h/semaine · ' + fmt(c.obstacle || 'Aucun obstacle renseigné') + '</p>').join('') + '</section>' : ''}
