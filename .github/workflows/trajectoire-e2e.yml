@@ -1,0 +1,44 @@
+name: Trajectoire V2 browsers
+on:
+  pull_request:
+    paths:
+      - 'trajectoire-v2/**'
+      - '.github/workflows/trajectoire-e2e.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'trajectoire-v2/**'
+      - '.github/workflows/trajectoire-e2e.yml'
+concurrency:
+  group: trajectoire-e2e-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: trajectoire-v2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright for tests only (not the published site)
+        run: |
+          npm install --ignore-scripts --no-fund --no-audit
+          npx playwright install --with-deps chromium
+      - name: End-to-end journeys on desktop and mobile
+        run: npm run test:e2e:ci
+      - name: Upload debugging report if a test fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trajectoire-playwright-report
+          path: |
+            trajectoire-v2/playwright-report/
+            trajectoire-v2/test-results/
+          retention-days: 3

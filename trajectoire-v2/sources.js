@@ -52,7 +52,7 @@
     validPlan(plan);
     const pending=plan.weeks.flatMap(w=>w.tasks.filter(t=>!t.completed).map(t=>({...t,week:w.number})));
     return (plan.sources||[]).filter(s=>!s.linkedTaskId).map(s=>{
-      const words=(s.title+' '+s.note).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').match(/[a-z0-9]{4,}/g)||[];
+      const words=(s.title+' '+s.note+' '+(s.excerpt||'')).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').match(/[a-z0-9]{4,}/g)||[];
       let best=null,score=-1;
       for(const t of pending){
         const corpus=(t.title+' '+t.description+' '+t.evidence).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
@@ -61,7 +61,7 @@
       }
       return {sourceId:s.id,sourceTitle:s.title,sourceType:s.type,suggestedTaskId:best?.id||null,
         suggestedTaskTitle:best?.title||'Aucune tâche disponible',week:best?.week||null,
-        reason:score>0?'Correspondance indicative de mots-clés avec une action':'Rapprochement proposé sans correspondance de contenu',
+        reason:score>0?(s.excerpt?'Correspondance de mots-clés incluant un extrait externe non vérifié':'Correspondance indicative de mots-clés avec les notes et le titre'):'Rapprochement proposé sans correspondance de contenu',
         sourceStatus:s.status,confirmed:false};
     });
   }

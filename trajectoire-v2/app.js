@@ -3,6 +3,13 @@
   'use strict';
   const E = window.TrajectoireEngine;
   const S = window.TrajectoireSources;
+  const W = window.TrajectoireWorkspace;
+  const D = window.TrajectoireDiagnostic;
+  const A = window.TrajectoireAIReview;
+  const EPUB = window.TrajectoireEPUB;
+  const INDEX_KEY = 'trajectoire.v2.workspace';
+  let workspace = W.empty();
+  let lastDiagnosticGoal = null;
   const STORAGE_KEY = 'trajectoire.v2.plan';
   const $ = id => document.getElementById(id);
   let plan = null;
@@ -35,18 +42,36 @@
       Array.isArray(value.resources) && value.resources.length <= 30 &&
       Array.isArray(value.milestones) && Array.isArray(value.alerts));
   }
-  function persist() {
+  function saveWorkspace() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(plan));
+      localStorage.setItem(INDEX_KEY, JSON.stringify(workspace));
+      if(plan) localStorage.setItem(STORAGE_KEY, JSON.stringify(plan));
+      else localStorage.removeItem(STORAGE_KEY);
     } catch {
-      notify('Stockage local indisponible. Exporte une sauvegarde JSON.');
+      notify('Stockage local indisponible : exporte tes objectifs en JSON.');
     }
+  }
+  function persist() {
+    workspace = W.upsert(workspace, plan);
+    saveWorkspace();
   }
   function restore() {
     try {
       const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-      if (validatePlan(raw)) plan = raw;
-    } catch { /* les anciennes sauvegardes ne cassent pas l'application */ }
+      const stored = JSON.parse(localStorage.getItem(INDEX_KEY) || 'null');
+      workspace = W.normalize(stored, validatePlan(raw) ? raw : null);
+      plan = W.active(workspace);
+    } catch { workspace = W.empty(); plan = null; }
+  }
+  function newId() {
+    return 'goal-' + ((window.crypto && window.crypto.randomUUID && window.crypto.randomUUID()) || (Date.now() + '-' + Math.floor(Math.random() * 1000000)));
+  }
+  function renderGoals() {
+    if(!plan) return;
+    $('goal-switch').innerHTML = workspace.plans.map(item =>
+      '<option value="' + fmt(item.id) + '">' + fmt(item.profile.goal.slice(0, 75)) + '</option>').join('');
+    $('goal-switch').value = plan.id;
+    $('goal-count').textContent = '(' + workspace.plans.length + '/' + W.MAX_GOALS + ')';
   }
   function selectView(view) {
     if (!plan) {
@@ -65,23 +90,42 @@
     if (activeView === 'book') renderBook();
     if (activeView === 'sources') renderSources();
     if (activeView === 'roadmap') renderRoadmap();
+    if (activeView === 'overview') renderSummary();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   function showWorkspace() {
     $('setup').hidden = !!plan;
     $('workspace').hidden = !plan;
+    $('return-dashboard').hidden = workspace.plans.length === 0;
     if (!plan) return;
+    renderDiagnostic();
     renderAll();
   }
   function taskCard(task, week) {
     const isLate = !task.completed && week.dueDate < new Date().toISOString().slice(0,10);
     return `<label class="task-row ${task.completed ? 'done' : ''}">
       <input type="checkbox" data-task="${fmt(task.id)}" ${task.completed ? 'checked' : ''} aria-label="Marquer ${fmt(task.title)} comme terminée">
-      <span class="task-copy"><strong>${fmt(task.title)}</strong><p>${fmt(task.description)}</p>
+      <span class="task-copy"><strong>${fmt(task.title)}</strong><p>${fmt(task.description)}</p>${task.coachingTip ? '<small class="coaching-tip">Conseil après diagnostic : '+fmt(task.coachingTip)+'</small>' : ''}${task.aiTip ? '<small class="coaching-tip">Conseil IA local approuvé : '+fmt(task.aiTip)+'</small>' : ''}
       <small>Preuve : ${fmt(task.evidence)} · ${fmt(task.estimatedHours)} h · Semaine ${fmt(week.number)} ${isLate ? '<span class="warning">· Échéance dépassée</span>' : ''}</small></span>
     </label>`;
   }
-  function renderSummary() {
+  function renderDiagnostic() {
+    if(!plan) return;
+    const result = $('diagnostic-result');
+    const last = Array.isArray(plan.diagnostics) ? plan.diagnostics.at(-1) : null;
+    result.hidden = !last;
+    if(last) result.textContent = 'Dernier bilan : ' + last.score + '/' + last.total +
+      ' réponses correctes. Niveau de départ suggéré : ' + last.level +
+      '. Ceci ne certifie pas un niveau professionnel.';
+    if(lastDiagnosticGoal === plan.id && $('diagnostic-questions').childElementCount) return;
+    lastDiagnosticGoal = plan.id;
+    const quiz = D.quiz(plan.profile.track);
+    $('diagnostic-questions').innerHTML = quiz.map((q,i) =>
+      '<fieldset class="quiz-question"><legend>' + (i+1) + '. ' + fmt(q.question) + '</legend>' +
+      q.options.map((o,j) => '<label class="quiz-option"><input type="radio" name="diag-' + i +
+        '" value="' + j + '" required><span>' + fmt(o) + '</span></label>').join('') + '</fieldset>').join('');
+  }
+  function renderSummary(options = {}) {
     $('dash-title').textContent = plan.profile.goal;
     $('dash-subtitle').textContent = plan.track + ' · ' + plan.profile.months + ' mois · ' + plan.profile.hoursPerWeek + ' h / semaine';
     const c = E.completion(plan);
@@ -93,7 +137,7 @@
     $('review-hours').value = plan.profile.hoursPerWeek;
     $('revision-date').textContent = 'Mise à jour ' + new Date(plan.updatedAt).toLocaleDateString('fr-FR');
     const actions = E.nextActions(plan, 3);
-    $('next-actions').innerHTML = actions.length ? actions.map(t => {
+    if (!options.preserveActions) $('next-actions').innerHTML = actions.length ? actions.map(t => {
       const week = plan.weeks.find(w => w.number === t.week);
       return taskCard(t, week);
     }).join('') : '<p>Bravo ! Toutes les actions du parcours sont cochées. Réévalue tes acquis et prépare la suite.</p>';
@@ -136,6 +180,21 @@
         fmt(src.id) + '">Supprimer</button></article>';
     }).join('') : '<p>Aucune source enregistrée. Ajoute un lien et des notes pour démarrer.</p>';
     $('source-suggestions').innerHTML = '<p class="source-info">Clique sur « Proposer des associations » pour voir des correspondances éventuelles.</p>';
+    renderAI();
+  }
+  function renderAI() {
+    const proposals=Array.isArray(plan.aiPending)?plan.aiPending:[];
+    $('ai-proposals').innerHTML=proposals.length ? proposals.map(item=>{
+      const task=plan.weeks.flatMap(w=>w.tasks).find(t=>t.id===item.taskId);
+      if(!task)return '';
+      return '<article class="source-card"><div><span class="section-kicker">PROPOSITION NON VALIDÉE · '+
+        fmt(item.model||'LLM local')+'</span><h3>'+fmt(task.title)+'</h3><p>'+fmt(item.advice)+'</p>'+
+        '<small>'+fmt(item.reason||'Justification à examiner')+'</small>'+
+        (item.sourceUrls.length?'<p>Références : '+item.sourceUrls.map(url=>
+          '<a href="'+fmt(safeUrl(url))+'" target="_blank" rel="noopener noreferrer">'+fmt(url)+'</a>').join(' · ')+'</p>':'')+
+        '</div><div class="proposal-actions"><button class="button button-primary" type="button" data-ai-accept="'+fmt(item.taskId)+'">Accepter</button>'+
+        '<button class="button button-outline" type="button" data-ai-reject="'+fmt(item.taskId)+'">Ignorer</button></div></article>';
+    }).join(''):'<p class="source-info">Aucun conseil IA en attente. Tu peux utiliser le parcours standard gratuitement, sans modèle local.</p>';
   }
   function renderSuggestions() {
     const data = S.suggestions(plan);
@@ -172,8 +231,13 @@
       <section><h3>04. Le programme semaine par semaine</h3>
         ${plan.weeks.map(w => '<h4>Semaine ' + fmt(w.number) + ' · ' + fmt(w.phase) + ' · ' + fmt(w.dueDate) + '</h4>' +
           w.tasks.map(t => '<div class="book-task"><span>' + (t.completed ? '☑' : '☐') + '</span><div><strong>' +
-            fmt(t.title) + '</strong> — ' + fmt(t.description) + '<br><small>Preuve : ' + fmt(t.evidence) + '</small></div></div>').join('')).join('')}
+            fmt(t.title) + '</strong> — ' + fmt(t.description) + '<br><small>Preuve : ' + fmt(t.evidence) + (t.coachingTip ? ' · Conseil : ' + fmt(t.coachingTip) : '') + (t.aiTip ? ' · Conseil IA local approuvé : ' + fmt(t.aiTip) : '') + '</small></div></div>').join('')).join('')}
       </section>
+      ${Array.isArray(plan.diagnostics) && plan.diagnostics.length ? '<section><h3>Mini-diagnostics (indicatifs)</h3>' +
+        plan.diagnostics.map(d => '<p>' + fmt(d.date.slice(0,10)) + ' · ' + fmt(d.score) + '/' +
+        fmt(d.total) + ' réponses correctes · niveau suggéré : ' + fmt(d.level) +
+        ' · notions à revoir : ' + fmt((d.workOn||[]).map(x=>x.topic).join(', ')) + '</p>').join('') +
+        '<p>Une évaluation pratique reste nécessaire.</p></section>' : ''}
       ${Array.isArray(plan.checkins) && plan.checkins.length ? '<section><h3>Bilans de progression</h3>' +
         plan.checkins.map(c => '<p><strong>' + fmt(c.date) + '</strong> · ' + fmt(c.hoursPerWeek) +
         ' h/semaine · ' + fmt(c.obstacle || 'Aucun obstacle renseigné') + '</p>').join('') + '</section>' : ''}
@@ -188,6 +252,8 @@
       <p><small>${fmt(plan.note)} Catalogue mis à jour éditorialement le ${fmt(plan.catalogVersion)}. Le document reflète tes actions enregistrées, pas des informations Web en direct.</small></p>`;
   }
   function renderAll() {
+    renderGoals();
+    renderDiagnostic();
     renderSummary();
     renderResources();
     renderRoadmap();
@@ -209,8 +275,9 @@
     try {
       const data = Object.fromEntries(new FormData(event.currentTarget).entries());
       if (data.track === 'auto') delete data.track;
+      if (workspace.plans.length >= W.MAX_GOALS) throw new Error('Limite de 8 objectifs atteinte. Exporte tes objectifs avant d’en supprimer un.');
       const fresh = E.buildPlan(data);
-      if (plan && !window.confirm('Remplacer le plan actuel ? Exporte une sauvegarde pour conserver ton suivi.')) return;
+      fresh.id = newId();
       plan = fresh;
       persist();
       activeView = 'overview';
@@ -219,12 +286,40 @@
     } catch (error) { notify(error.message || 'Impossible de créer le plan.'); }
   });
   $('new-goal').addEventListener('click', () => {
-    if (plan && !window.confirm('Créer un autre parcours ? Pense à sauvegarder ton plan actuel en JSON.')) return;
-    plan = null;
-    try { localStorage.removeItem(STORAGE_KEY); } catch {}
     $('workspace').hidden = true;
     $('setup').hidden = false;
+    $('return-dashboard').hidden = workspace.plans.length === 0;
     $('goal').focus();
+  });
+  $('return-dashboard').addEventListener('click', () => {
+    plan = W.active(workspace);
+    showWorkspace();
+  });
+  $('goal-switch').addEventListener('change', event => {
+    try {
+      workspace = W.choose(workspace, event.target.value);
+      plan = W.active(workspace);
+      activeView = 'overview';
+      lastDiagnosticGoal = null;
+      saveWorkspace();
+      showWorkspace();
+    } catch(error) {notify(error.message || 'Impossible de changer d’objectif.');}
+  });
+  $('delete-goal').addEventListener('click', () => {
+    if(!plan || !window.confirm('Supprimer cet objectif de ce navigateur ? Exporte ta sauvegarde si tu souhaites le conserver.'))return;
+    workspace = W.remove(workspace,plan.id);
+    plan = W.active(workspace);
+    lastDiagnosticGoal = null;
+    activeView = 'overview';
+    saveWorkspace();
+    showWorkspace();
+    notify('Objectif supprimé localement.');
+  });
+  $('backup-all').addEventListener('click',()=>{
+    try {
+      saveFile(W.exportAll(workspace), 'trajectoire-tous-les-objectifs.json', 'application/json;charset=utf-8');
+      notify('Tous tes objectifs ont été sauvegardés dans un fichier JSON.');
+    } catch(error){notify(error.message);}
   });
   document.querySelectorAll('[data-view]').forEach(el => el.addEventListener('click', () => selectView(el.dataset.view)));
   document.querySelectorAll('[data-goto]').forEach(el => el.addEventListener('click', () => selectView(el.dataset.goto)));
@@ -232,11 +327,31 @@
     const target = event.target;
     if (!plan || !target || !target.matches('[data-task]')) return;
     try {
-      plan = E.toggle(plan, target.dataset.task, target.checked);
+      const checked = target.checked;
+      plan = E.toggle(plan, target.dataset.task, checked);
       persist();
-      renderAll();
-      notify(target.checked ? 'Une preuve de plus. Ebook actualisé !' : 'Action réouverte. Le carnet est actualisé.');
+      // Garder le champ coché dans le DOM : remplacer le nœud pendant l'événement
+      // fait perdre le focus clavier et casse l'interaction navigateur.
+      target.closest('.task-row')?.classList.toggle('done', checked);
+      renderSummary({preserveActions:true});
+      if (activeView !== 'roadmap') renderRoadmap();
+      notify(checked ? 'Action validée. Le carnet évolue !' : 'Action réouverte. Le carnet a été actualisé.');
     } catch (error) { notify(error.message || 'Erreur de mise à jour.'); }
+  });
+  $('diagnostic-form').addEventListener('submit', event => {
+    event.preventDefault();
+    if(!plan)return;
+    try {
+      const form = new FormData(event.currentTarget);
+      const answers = D.quiz(plan.profile.track).map((_,i)=>Number(form.get('diag-'+i)));
+      if(answers.some((_,i)=>!form.has('diag-'+i)))throw new Error('Réponds aux 4 questions.');
+      const result = D.grade(plan.profile.track,answers);
+      if(!window.confirm('Bilan : ' + result.score + '/' + result.total +
+        '. Appliquer les conseils de niveau ' + result.level + ' à ton parcours ?')) return;
+      plan = D.apply(plan,result);
+      persist();renderAll();
+      notify('Conseils adaptés : ton carnet est en version ' + plan.revision + '.');
+    }catch(error){notify(error.message || 'Impossible de calculer le bilan.');}
   });
   $('review-form').addEventListener('submit', event => {
     event.preventDefault();
@@ -294,6 +409,31 @@
     } catch(error){notify(error.message||'Extraction non reconnue.');}
     finally{event.target.value='';}
   });
+  $('import-ai').addEventListener('change',async event=>{
+    const file=event.target.files[0];
+    if(!file||!plan)return;
+    if(file.size>1000000){notify('Fichier trop volumineux (1 Mo maximum).');event.target.value='';return;}
+    try{
+      const data=JSON.parse(await file.text());
+      plan=A.importProposals(plan,data);
+      persist();renderAll();
+      notify('Conseils IA locaux importés : vérifie-les avant validation.');
+    }catch(error){notify(error.message||'Conseils non reconnus.');}
+    finally{event.target.value='';}
+  });
+  $('ai-proposals').addEventListener('click',event=>{
+    const accept=event.target.closest('[data-ai-accept]');
+    const reject=event.target.closest('[data-ai-reject]');
+    if((!accept&&!reject)||!plan)return;
+    const btn=accept||reject;
+    const taskId=accept?btn.dataset.aiAccept:btn.dataset.aiReject;
+    if(accept&&!window.confirm('Ajouter ce conseil non vérifié à ta tâche ?'))return;
+    try{
+      plan=A.decide(plan,taskId,Boolean(accept));
+      persist();renderAll();
+      notify(accept?'Conseil approuvé et ajouté au carnet.':'Conseil ignoré.');
+    }catch(error){notify(error.message||'Impossible de traiter ce conseil.');}
+  });
   $('manifest-btn').addEventListener('click', () => {
     if (!plan) return;
     saveFile(S.exportManifest(plan), 'trajectoire-regroupement-sources.json','application/json;charset=utf-8');
@@ -311,16 +451,38 @@
     if (file.size > 1000000) { notify('Fichier trop volumineux (limite : 1 Mo).'); event.target.value=''; return; }
     try {
       const imported = JSON.parse(await file.text());
-      if (!validatePlan(imported)) throw new Error('Format de sauvegarde invalide.');
-      if (plan && !window.confirm('Remplacer ton plan local par cette sauvegarde ?')) return;
-      plan = imported; activeView = 'overview';
-      persist(); showWorkspace(); notify('Sauvegarde restaurée.');
+      if (imported?.schema === 'trajectoire-workspace-v1') {
+        const valid = W.normalize(imported);
+        if (!valid.plans.length || valid.plans.length !== imported.plans.length) throw new Error('Sauvegarde de plusieurs objectifs invalide.');
+        if (!window.confirm('Restaurer tous les objectifs ? Cela remplacera ceux de ce navigateur.')) return;
+        workspace = valid;
+        plan = W.active(workspace);
+        saveWorkspace();
+      } else {
+        if (!W.isPlan(imported)) throw new Error('Format de sauvegarde invalide.');
+        if (workspace.plans.some(p => p.id === imported.id) &&
+          !window.confirm('Cet objectif existe déjà. Remplacer sa version locale ?')) return;
+        workspace = W.upsert(workspace, imported);
+        plan = W.active(workspace);
+        saveWorkspace();
+      }
+      lastDiagnosticGoal = null;
+      activeView = 'overview';
+      showWorkspace(); notify('Sauvegarde restaurée.');
     } catch (error) { notify(error.message || 'Import impossible.'); }
     finally { event.target.value = ''; }
   });
   $('md-btn').addEventListener('click', () => {
     if (!plan) return;
     saveFile(E.markdown(plan), 'trajectoire-ebook-v' + plan.revision + '.md', 'text/markdown;charset=utf-8');
+  });
+  $('epub-btn').addEventListener('click', () => {
+    if (!plan) return;
+    try {
+      const bytes=EPUB.create(plan,E);
+      saveFile(bytes,'trajectoire-ebook-v'+plan.revision+'.epub','application/epub+zip');
+      notify('Ebook EPUB généré à partir de tes dernières actions.');
+    } catch (error) { notify(error.message || 'Export EPUB impossible.'); }
   });
   $('print-btn').addEventListener('click', () => {
     if (!plan) return;

@@ -1,0 +1,13 @@
+{
+  "name": "trajectoire-v2-tests",
+  "private": true,
+  "version": "0.3.0",
+  "description": "End-to-end browser tests for a static privacy-first app",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ci": "playwright test --reporter=line"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1"
+  }
+}
