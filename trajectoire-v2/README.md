@@ -1,5 +1,7 @@
 # Trajectoire V2 — coach d'objectifs à **0 € obligatoire**
 
+**Site public : https://adlib-mrani.github.io/Ebook-V-001/trajectoire-v2/**
+
 Une V2 isolée du projet `automation-platform/` existant, pour tester un produit fonctionnel sans risquer de casser la V1.
 
 ## Déjà utilisable
@@ -13,7 +15,11 @@ Une V2 isolée du projet `automation-platform/` existant, pour tester un produit
 - **Script Python facultatif** d'extraction Web ou de transcriptions YouTube sur demande explicite et domaines autorisés, sans OpenAI API ; import des résultats dans le carnet (statut non vérifié).
 - **Maquettes Figma éditables** : [Trajectoire V2 UX/UI + Regroupement](https://www.figma.com/design/aNXPdz5Rx7O7X5kEPt6rZ4).
 - Ebook HTML mis à jour à chaque changement de tâche, **imprimable en PDF** depuis le navigateur et exportable en Markdown.
-- Sauvegarde et import JSON (à conserver en lieu sûr).
+- **Jusqu'à 8 objectifs locaux** avec sélection et sauvegarde JSON de l'ensemble (aucun compte ni sync cloud).
+- **Mini-diagnostic de 4 questions** par domaine, conseils ciblés, historique dans l'ebook ; résultat indicatif et non certifiant.
+- **IA locale facultative** avec Ollama sur ordinateur compatible : suggestions tirées du corpus importé, jamais exécutées ou appliquées sans validation.
+- **Ebook EPUB 3 hors ligne**, en plus du Markdown et du PDF via navigateur ; le contenu est généré au moment de l'export.
+- Sauvegarde/import JSON (à conserver en lieu sûr).
 - Interface responsive, navigation au clavier, affichage imprimable, **PWA installable et utilisable hors ligne après une première visite réussie**, sans dépendances JS ni clé API.
 
 ### Lancer
@@ -25,12 +31,27 @@ python3 -m http.server 8000
 # Ouvrir http://localhost:8000/trajectoire-v2/
 ```
 
-Les scripts sont entièrement statiques. Pour tester le moteur avec Node.js 18+ :
+Les scripts de l'interface sont entièrement statiques. Pour tester les modules avec Node.js 22+ :
 
 ```sh
-node --test trajectoire-v2/engine.test.cjs
+node --test trajectoire-v2/*.test.cjs
 node --check trajectoire-v2/app.js
 ```
+
+## Tests réels
+
+La suite GitHub Actions **Trajectoire V2 quality** vérifie le moteur, les conseils IA importés et la structure ZIP des EPUB. La suite **Trajectoire V2 browsers** lance Chromium en desktop et mobile émulé pour tester création, progression, persistance, sources, diagnostic et exports. Les tests réels de scraping externe ou de modèle Ollama ne sont pas effectués automatiquement.
+
+Pour lancer Playwright localement sur un PC disposant de Node et Python :
+
+```sh
+cd trajectoire-v2
+npm install --no-audit --no-fund
+npx playwright install chromium
+npm run test:e2e
+```
+
+La dépendance Playwright est réservée aux **tests** et n'est jamais chargée par le site publié.
 
 ## Héberger à coût obligatoire nul
 
@@ -40,7 +61,7 @@ node --check trajectoire-v2/app.js
 
 L'URL ne fonctionnera qu'une fois Pages activé et la branche fusionnée. Ne change pas la branche de publication avant d'avoir confirmé le mode de déploiement du dépôt.
 
-**Limites du tout-statique :** localStorage n'est pas un compte multiappareils ; vider les données du navigateur efface le suivi sans sauvegarde. Aucune collecte, recherche web en direct, authentification, découverte automatique des ressources ni notification serveur. L'ebook est **évolutif en fonction des progrès**, pas un ebook qui vérifie seul l'actualité du web.
+**Limites du tout-statique :** plusieurs objectifs ne remplacent pas des comptes. localStorage n'est pas un compte multiappareils ; vider les données du navigateur efface le suivi sans sauvegarde. Aucune collecte, recherche web en direct, authentification, découverte automatique des ressources ni notification serveur. L'ebook est **évolutif en fonction des progrès**, pas un ebook qui vérifie seul l'actualité du web.
 
 ## Ce que le moteur fait réellement
 
@@ -85,3 +106,16 @@ Une cible comme « gagner 5 000 € par mois » reste un objectif, **jamais un r
 ## Intégration Regroupement
 
 Le guide étape par étape est dans [REGROUPEMENT.md](REGROUPEMENT.md). La PWA ne récupère jamais de données sur des URL distantes sans action explicite. Le script local `tools/regroupement_bridge.py` permet une extraction optionnelle ; aucune exécution de commandes ni utilisation payante d'OpenAI n'est activée.
+
+
+## Option IA locale (aucune facture de fournisseur)
+
+Le script `tools/local_ai_planner.py` accepte l'export des sources et un plan Trajectoire, puis utilise **Ollama sur localhost uniquement**. Il ne télécharge aucun modèle automatiquement et n'envoie rien à OpenAI, Azure ou un autre service. La capacité de ton ordinateur et le modèle installé déterminent si cela fonctionne.
+
+Les conseils générés sont exportés en JSON ; les actions ne changent **qu'après validation explicite** dans le Studio de sources. Voir [REGROUPEMENT.md](REGROUPEMENT.md) pour le mode d'emploi.
+
+## Stockage et confidentialité
+
+Les profils et les objectifs restent dans le stockage local du navigateur. Choisis **Sauvegarder tous** pour pouvoir les restaurer ailleurs. Une sauvegarde JSON peut contenir tes objectifs personnels : ne la publie pas. Aucun suivi multiappareil ni notifications à distance n'est inclus.
+
+Voir [CONFIDENTIALITE.md](CONFIDENTIALITE.md).
