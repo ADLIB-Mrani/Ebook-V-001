@@ -13,6 +13,7 @@
   <script src="./sources.js" defer></script>
   <script src="./workspace.js" defer></script>
   <script src="./diagnostic.js" defer></script>
+  <script src="./ai-review.js" defer></script>
   <script src="./app.js" defer></script>
 </head>
 <body>
@@ -134,6 +135,12 @@
             <section class="surface spaced">
               <div class="section-heading"><div><span class="section-kicker">03 / RECOMMANDATIONS</span><h2>Associer les sources aux actions</h2><p>Correspondances heuristiques à examiner manuellement. Une association n'implique pas que la source soit exacte ou fiable.</p></div><button id="analyze-sources" type="button" class="button button-outline">Proposer des associations ↗</button></div>
               <div id="source-suggestions"></div>
+            </section>
+            <section class="surface spaced" aria-labelledby="ai-review-title">
+              <div class="section-heading"><div><span class="section-kicker">04 / CONSEILS IA LOCALE · FACULTATIF</span><h2 id="ai-review-title">Propositions à approuver</h2><p>Tu peux utiliser Ollama sur ton propre ordinateur, sans clé API. Importe ensuite les conseils JSON : rien n'est appliqué automatiquement.</p></div><label class="button button-outline upload-label" for="import-ai">↑ Importer les conseils IA<input id="import-ai" type="file" accept="application/json,.json" hidden></label></div>
+              <div class="source-caution">Les conseils générés par IA peuvent être inexacts. Les sources importées sont non vérifiées : examine chaque recommandation avant de l'accepter. Aucune commande ni achat ne sera exécuté.</div>
+              <div id="ai-proposals" aria-live="polite"></div>
+              <p class="source-note">Guide : <a href="https://github.com/ADLIB-Mrani/Ebook-V-001/blob/main/trajectoire-v2/REGROUPEMENT.md" target="_blank" rel="noopener noreferrer">Regroupement et IA locale</a>. L’installation d’Ollama est facultative et nécessite un ordinateur compatible.</p>
             </section>
           </section>
           <section id="view-resources" class="panel-view" hidden aria-label="Ressources">
