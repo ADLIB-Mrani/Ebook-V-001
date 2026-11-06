@@ -349,6 +349,13 @@
       for (const c of plan.checkins) lines.push('- ' + c.date + ' : ' + c.hoursPerWeek + ' h/semaine ; obstacle : ' + safe(c.obstacle || 'aucun signalé'));
     }
     lines.push('', '## Jalons', ...plan.milestones.map(m => '- Semaine ' + m.week + ' : ' + safe(m.title)));
+    if (Array.isArray(plan.sources) && plan.sources.length) {
+      lines.push('', '## Sources personnelles (à vérifier)');
+      for (const src of plan.sources) {
+        lines.push('- ' + safe(src.title) + ' — ' + src.url +
+          ' ; statut : ' + safe(src.status) + ' ; notes utilisateur : ' + safe(src.note || 'Aucune') + (src.excerpt ? ' ; extrait externe non vérifié : ' + safe(src.excerpt) : ''));
+      }
+    }
     lines.push('', '## Ressources sélectionnées');
     for (const r of plan.resources) lines.push('- ' + safe(r.title) + ' : ' + r.url + ' — ' + safe(r.why));
     lines.push('', '---', plan.note, 'Ce carnet reflète ton dernier suivi local. La mise à jour automatique des liens et des informations externes n’est pas activée.');
