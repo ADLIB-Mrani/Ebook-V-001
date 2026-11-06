@@ -1,6 +1,6 @@
 /* Cache limité à l'application. Jamais de profils ni d'API tierce en cache. */
-const VERSION = 'trajectoire-v2-2026-11-06-7';
-const FILES = ['./', './index.html', './styles.css', './engine.js', './sources.js', './workspace.js', './diagnostic.js', './ai-review.js', './app.js', './manifest.webmanifest', './icon.svg'];
+const VERSION = 'trajectoire-v2-2026-11-06-8';
+const FILES = ['./', './index.html', './styles.css', './engine.js', './sources.js', './workspace.js', './diagnostic.js', './ai-review.js', './ebook-epub.js', './app.js', './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(VERSION).then(cache => cache.addAll(FILES)).then(() => self.skipWaiting()));
 });
