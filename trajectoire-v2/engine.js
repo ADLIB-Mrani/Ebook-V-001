@@ -342,7 +342,14 @@
     ];
     for (const week of plan.weeks) {
       lines.push('', '### Semaine ' + week.number + ' — ' + safe(week.phase) + ' (avant le ' + week.dueDate + ')');
-      for (const t of week.tasks) lines.push('- [' + (t.completed ? 'x' : ' ') + '] ' + safe(t.title) + ' — ' + safe(t.description) + ' | preuve : ' + safe(t.evidence));
+      for (const t of week.tasks) lines.push('- [' + (t.completed ? 'x' : ' ') + '] ' + safe(t.title) + ' — ' + safe(t.description) + ' | preuve : ' + safe(t.evidence) + (t.coachingTip ? ' | conseil : ' + safe(t.coachingTip) : ''));
+    }
+    if (Array.isArray(plan.diagnostics) && plan.diagnostics.length) {
+      lines.push('', '## Mini-diagnostics indicatifs');
+      for (const d of plan.diagnostics) lines.push('- ' + safe(d.date?.slice(0,10)) + ' : ' +
+        d.score + '/' + d.total + ' réponses correctes ; niveau suggéré : ' + safe(d.level) +
+        ' ; notions à travailler : ' + safe((d.workOn||[]).map(x=>x.topic).join(', ') || 'approfondir la pratique'));
+      lines.push('Ce questionnaire court ne remplace ni un projet pratique ni une validation professionnelle.');
     }
     if (Array.isArray(plan.checkins) && plan.checkins.length) {
       lines.push('', '## Bilans de progression');
