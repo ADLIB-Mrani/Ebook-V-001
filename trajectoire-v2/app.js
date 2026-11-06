@@ -89,6 +89,7 @@
     if (activeView === 'book') renderBook();
     if (activeView === 'sources') renderSources();
     if (activeView === 'roadmap') renderRoadmap();
+    if (activeView === 'overview') renderSummary();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   function showWorkspace() {
@@ -123,7 +124,7 @@
       q.options.map((o,j) => '<label class="quiz-option"><input type="radio" name="diag-' + i +
         '" value="' + j + '" required><span>' + fmt(o) + '</span></label>').join('') + '</fieldset>').join('');
   }
-  function renderSummary() {
+  function renderSummary(options = {}) {
     $('dash-title').textContent = plan.profile.goal;
     $('dash-subtitle').textContent = plan.track + ' · ' + plan.profile.months + ' mois · ' + plan.profile.hoursPerWeek + ' h / semaine';
     const c = E.completion(plan);
@@ -135,7 +136,7 @@
     $('review-hours').value = plan.profile.hoursPerWeek;
     $('revision-date').textContent = 'Mise à jour ' + new Date(plan.updatedAt).toLocaleDateString('fr-FR');
     const actions = E.nextActions(plan, 3);
-    $('next-actions').innerHTML = actions.length ? actions.map(t => {
+    if (!options.preserveActions) $('next-actions').innerHTML = actions.length ? actions.map(t => {
       const week = plan.weeks.find(w => w.number === t.week);
       return taskCard(t, week);
     }).join('') : '<p>Bravo ! Toutes les actions du parcours sont cochées. Réévalue tes acquis et prépare la suite.</p>';
@@ -325,10 +326,15 @@
     const target = event.target;
     if (!plan || !target || !target.matches('[data-task]')) return;
     try {
-      plan = E.toggle(plan, target.dataset.task, target.checked);
+      const checked = target.checked;
+      plan = E.toggle(plan, target.dataset.task, checked);
       persist();
-      renderAll();
-      notify(target.checked ? 'Une preuve de plus. Ebook actualisé !' : 'Action réouverte. Le carnet est actualisé.');
+      // Garder le champ coché dans le DOM : remplacer le nœud pendant l'événement
+      // fait perdre le focus clavier et casse l'interaction navigateur.
+      target.closest('.task-row')?.classList.toggle('done', checked);
+      renderSummary({preserveActions:true});
+      if (activeView !== 'roadmap') renderRoadmap();
+      notify(checked ? 'Action validée. Le carnet évolue !' : 'Action réouverte. Le carnet a été actualisé.');
     } catch (error) { notify(error.message || 'Erreur de mise à jour.'); }
   });
   $('diagnostic-form').addEventListener('submit', event => {
