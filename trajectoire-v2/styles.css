@@ -9,3 +9,6 @@
 .source-list{display:grid;gap:12px}.source-card{display:flex;align-items:center;justify-content:space-between;gap:25px;padding:17px;border:1px solid #314057;background:#18273d;border-radius:13px;margin-bottom:10px}
 .source-card h3{font-size:16px;margin:7px 0}.source-card p,.source-info{color:#aebdd0;font-size:12px;margin:8px 0;white-space:pre-wrap;overflow-wrap:anywhere}.source-card small{font-size:11px;color:#88a5b0}.source-card a{color:var(--lime);font-size:12px;font-weight:700;overflow-wrap:anywhere}.source-card .button{flex:none}.source-info{padding:10px}
 @media(max-width:760px){.source-card{display:block}.source-card .button{margin-top:12px}.source-editor{padding:18px}}
+
+/* WCAG 2.1 AA audit fixes: sufficient contrast, solid decorative surfaces, visible focus */
+.sidebar-group{color:#95a8c2}.art-card{background:#1b2f43}.nav-btn span{color:#d3e0ed}.art-star{color:#daff9b}.brandmark{color:#06131f}.art-card span{color:#d2fa8e}
