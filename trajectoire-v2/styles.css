@@ -12,3 +12,16 @@
 
 /* WCAG 2.1 AA audit fixes: sufficient contrast, solid decorative surfaces, visible focus */
 .sidebar-group{color:#95a8c2}.art-card{background:#1b2f43}.nav-btn span{color:#d3e0ed}.art-star{color:#daff9b}.brandmark{color:#06131f}.art-card span{color:#d2fa8e}
+
+/* Multiple goals, evidence-based learning diagnostic */
+.goal-toolbar{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:15px;padding:16px 20px;background:#15243a;border:1px solid #30415c;border-radius:15px;margin:6px 0 23px}
+.goal-toolbar .field{min-width:min(100%,330px);flex:1;max-width:650px}.goal-toolbar .field select{min-height:45px}.goal-toolbar-actions{display:flex;flex-wrap:wrap;gap:9px}.goal-toolbar .button{min-height:45px}
+.small-count{font-size:10px;color:#bddb8f;margin-left:6px}.diagnostic-form{display:grid;gap:17px}
+.quiz-question{margin:0;padding:16px;border:1px solid #354965;border-radius:12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.quiz-question legend{color:#e7f2fa;font-size:13px;font-weight:700;padding:0 6px}
+.quiz-option{display:flex;gap:10px;align-items:center;padding:12px;background:#192a41;border-radius:9px;font-size:12px;cursor:pointer;color:#d2dff0}
+.quiz-option input{accent-color:#c6f278;min-width:16px;min-height:16px}.quiz-option:has(input:checked){outline:2px solid #c6f278;background:#21354b}
+.diagnostic-result{margin-top:14px;padding:14px 17px;background:#1c3140;color:#dbf7d6;border:1px solid #3a6658;border-radius:10px;font-size:12px}
+.coaching-tip{display:block;color:#d7eeaa!important;margin:8px 0;line-height:1.6;font-weight:600}
+@media(max-width:760px){.goal-toolbar{display:block;padding:14px}.goal-toolbar-actions{margin-top:13px}.goal-toolbar-actions .button{flex:1;white-space:normal}.quiz-question{grid-template-columns:1fr}.quiz-option{font-size:12px}}
+@media print{.goal-toolbar,.diagnostic-form,.diagnostic-result{display:none!important}}
