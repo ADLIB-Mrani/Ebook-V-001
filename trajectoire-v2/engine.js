@@ -342,7 +342,7 @@
     ];
     for (const week of plan.weeks) {
       lines.push('', '### Semaine ' + week.number + ' — ' + safe(week.phase) + ' (avant le ' + week.dueDate + ')');
-      for (const t of week.tasks) lines.push('- [' + (t.completed ? 'x' : ' ') + '] ' + safe(t.title) + ' — ' + safe(t.description) + ' | preuve : ' + safe(t.evidence) + (t.coachingTip ? ' | conseil : ' + safe(t.coachingTip) : ''));
+      for (const t of week.tasks) lines.push('- [' + (t.completed ? 'x' : ' ') + '] ' + safe(t.title) + ' — ' + safe(t.description) + ' | preuve : ' + safe(t.evidence) + (t.coachingTip ? ' | conseil : ' + safe(t.coachingTip) : '') + (t.aiTip ? ' | conseil IA local accepté : ' + safe(t.aiTip) : ''));
     }
     if (Array.isArray(plan.diagnostics) && plan.diagnostics.length) {
       lines.push('', '## Mini-diagnostics indicatifs');
