@@ -3,6 +3,11 @@
   'use strict';
   const E = window.TrajectoireEngine;
   const S = window.TrajectoireSources;
+  const W = window.TrajectoireWorkspace;
+  const D = window.TrajectoireDiagnostic;
+  const INDEX_KEY = 'trajectoire.v2.workspace';
+  let workspace = W.empty();
+  let lastDiagnosticGoal = null;
   const STORAGE_KEY = 'trajectoire.v2.plan';
   const $ = id => document.getElementById(id);
   let plan = null;
@@ -35,18 +40,36 @@
       Array.isArray(value.resources) && value.resources.length <= 30 &&
       Array.isArray(value.milestones) && Array.isArray(value.alerts));
   }
-  function persist() {
+  function saveWorkspace() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(plan));
+      localStorage.setItem(INDEX_KEY, JSON.stringify(workspace));
+      if(plan) localStorage.setItem(STORAGE_KEY, JSON.stringify(plan));
+      else localStorage.removeItem(STORAGE_KEY);
     } catch {
-      notify('Stockage local indisponible. Exporte une sauvegarde JSON.');
+      notify('Stockage local indisponible : exporte tes objectifs en JSON.');
     }
+  }
+  function persist() {
+    workspace = W.upsert(workspace, plan);
+    saveWorkspace();
   }
   function restore() {
     try {
       const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-      if (validatePlan(raw)) plan = raw;
-    } catch { /* les anciennes sauvegardes ne cassent pas l'application */ }
+      const stored = JSON.parse(localStorage.getItem(INDEX_KEY) || 'null');
+      workspace = W.normalize(stored, validatePlan(raw) ? raw : null);
+      plan = W.active(workspace);
+    } catch { workspace = W.empty(); plan = null; }
+  }
+  function newId() {
+    return 'goal-' + ((window.crypto && window.crypto.randomUUID && window.crypto.randomUUID()) || (Date.now() + '-' + Math.floor(Math.random() * 1000000)));
+  }
+  function renderGoals() {
+    if(!plan) return;
+    $('goal-switch').innerHTML = workspace.plans.map(item =>
+      '<option value="' + fmt(item.id) + '">' + fmt(item.profile.goal.slice(0, 75)) + '</option>').join('');
+    $('goal-switch').value = plan.id;
+    $('goal-count').textContent = '(' + workspace.plans.length + '/' + W.MAX_GOALS + ')';
   }
   function selectView(view) {
     if (!plan) {
@@ -70,16 +93,34 @@
   function showWorkspace() {
     $('setup').hidden = !!plan;
     $('workspace').hidden = !plan;
+    $('return-dashboard').hidden = workspace.plans.length === 0;
     if (!plan) return;
+    renderDiagnostic();
     renderAll();
   }
   function taskCard(task, week) {
     const isLate = !task.completed && week.dueDate < new Date().toISOString().slice(0,10);
     return `<label class="task-row ${task.completed ? 'done' : ''}">
       <input type="checkbox" data-task="${fmt(task.id)}" ${task.completed ? 'checked' : ''} aria-label="Marquer ${fmt(task.title)} comme terminée">
-      <span class="task-copy"><strong>${fmt(task.title)}</strong><p>${fmt(task.description)}</p>
+      <span class="task-copy"><strong>${fmt(task.title)}</strong><p>${fmt(task.description)}</p>${task.coachingTip ? '<small class="coaching-tip">Conseil après diagnostic : '+fmt(task.coachingTip)+'</small>' : ''}
       <small>Preuve : ${fmt(task.evidence)} · ${fmt(task.estimatedHours)} h · Semaine ${fmt(week.number)} ${isLate ? '<span class="warning">· Échéance dépassée</span>' : ''}</small></span>
     </label>`;
+  }
+  function renderDiagnostic() {
+    if(!plan) return;
+    const result = $('diagnostic-result');
+    const last = Array.isArray(plan.diagnostics) ? plan.diagnostics.at(-1) : null;
+    result.hidden = !last;
+    if(last) result.textContent = 'Dernier bilan : ' + last.score + '/' + last.total +
+      ' réponses correctes. Niveau de départ suggéré : ' + last.level +
+      '. Ceci ne certifie pas un niveau professionnel.';
+    if(lastDiagnosticGoal === plan.id && $('diagnostic-questions').childElementCount) return;
+    lastDiagnosticGoal = plan.id;
+    const quiz = D.quiz(plan.profile.track);
+    $('diagnostic-questions').innerHTML = quiz.map((q,i) =>
+      '<fieldset class="quiz-question"><legend>' + (i+1) + '. ' + fmt(q.question) + '</legend>' +
+      q.options.map((o,j) => '<label class="quiz-option"><input type="radio" name="diag-' + i +
+        '" value="' + j + '" required><span>' + fmt(o) + '</span></label>').join('') + '</fieldset>').join('');
   }
   function renderSummary() {
     $('dash-title').textContent = plan.profile.goal;
@@ -188,6 +229,8 @@
       <p><small>${fmt(plan.note)} Catalogue mis à jour éditorialement le ${fmt(plan.catalogVersion)}. Le document reflète tes actions enregistrées, pas des informations Web en direct.</small></p>`;
   }
   function renderAll() {
+    renderGoals();
+    renderDiagnostic();
     renderSummary();
     renderResources();
     renderRoadmap();
@@ -209,8 +252,9 @@
     try {
       const data = Object.fromEntries(new FormData(event.currentTarget).entries());
       if (data.track === 'auto') delete data.track;
+      if (workspace.plans.length >= W.MAX_GOALS) throw new Error('Limite de 8 objectifs atteinte. Exporte tes objectifs avant d’en supprimer un.');
       const fresh = E.buildPlan(data);
-      if (plan && !window.confirm('Remplacer le plan actuel ? Exporte une sauvegarde pour conserver ton suivi.')) return;
+      fresh.id = newId();
       plan = fresh;
       persist();
       activeView = 'overview';
@@ -219,12 +263,40 @@
     } catch (error) { notify(error.message || 'Impossible de créer le plan.'); }
   });
   $('new-goal').addEventListener('click', () => {
-    if (plan && !window.confirm('Créer un autre parcours ? Pense à sauvegarder ton plan actuel en JSON.')) return;
-    plan = null;
-    try { localStorage.removeItem(STORAGE_KEY); } catch {}
     $('workspace').hidden = true;
     $('setup').hidden = false;
+    $('return-dashboard').hidden = workspace.plans.length === 0;
     $('goal').focus();
+  });
+  $('return-dashboard').addEventListener('click', () => {
+    plan = W.active(workspace);
+    showWorkspace();
+  });
+  $('goal-switch').addEventListener('change', event => {
+    try {
+      workspace = W.choose(workspace, event.target.value);
+      plan = W.active(workspace);
+      activeView = 'overview';
+      lastDiagnosticGoal = null;
+      saveWorkspace();
+      showWorkspace();
+    } catch(error) {notify(error.message || 'Impossible de changer d’objectif.');}
+  });
+  $('delete-goal').addEventListener('click', () => {
+    if(!plan || !window.confirm('Supprimer cet objectif de ce navigateur ? Exporte ta sauvegarde si tu souhaites le conserver.'))return;
+    workspace = W.remove(workspace,plan.id);
+    plan = W.active(workspace);
+    lastDiagnosticGoal = null;
+    activeView = 'overview';
+    saveWorkspace();
+    showWorkspace();
+    notify('Objectif supprimé localement.');
+  });
+  $('backup-all').addEventListener('click',()=>{
+    try {
+      saveFile(W.exportAll(workspace), 'trajectoire-tous-les-objectifs.json', 'application/json;charset=utf-8');
+      notify('Tous tes objectifs ont été sauvegardés dans un fichier JSON.');
+    } catch(error){notify(error.message);}
   });
   document.querySelectorAll('[data-view]').forEach(el => el.addEventListener('click', () => selectView(el.dataset.view)));
   document.querySelectorAll('[data-goto]').forEach(el => el.addEventListener('click', () => selectView(el.dataset.goto)));
@@ -237,6 +309,21 @@
       renderAll();
       notify(target.checked ? 'Une preuve de plus. Ebook actualisé !' : 'Action réouverte. Le carnet est actualisé.');
     } catch (error) { notify(error.message || 'Erreur de mise à jour.'); }
+  });
+  $('diagnostic-form').addEventListener('submit', event => {
+    event.preventDefault();
+    if(!plan)return;
+    try {
+      const form = new FormData(event.currentTarget);
+      const answers = D.quiz(plan.profile.track).map((_,i)=>Number(form.get('diag-'+i)));
+      if(answers.some((_,i)=>!form.has('diag-'+i)))throw new Error('Réponds aux 4 questions.');
+      const result = D.grade(plan.profile.track,answers);
+      if(!window.confirm('Bilan : ' + result.score + '/' + result.total +
+        '. Appliquer les conseils de niveau ' + result.level + ' à ton parcours ?')) return;
+      plan = D.apply(plan,result);
+      persist();renderAll();
+      notify('Conseils adaptés : ton carnet est en version ' + plan.revision + '.');
+    }catch(error){notify(error.message || 'Impossible de calculer le bilan.');}
   });
   $('review-form').addEventListener('submit', event => {
     event.preventDefault();
@@ -311,10 +398,24 @@
     if (file.size > 1000000) { notify('Fichier trop volumineux (limite : 1 Mo).'); event.target.value=''; return; }
     try {
       const imported = JSON.parse(await file.text());
-      if (!validatePlan(imported)) throw new Error('Format de sauvegarde invalide.');
-      if (plan && !window.confirm('Remplacer ton plan local par cette sauvegarde ?')) return;
-      plan = imported; activeView = 'overview';
-      persist(); showWorkspace(); notify('Sauvegarde restaurée.');
+      if (imported?.schema === 'trajectoire-workspace-v1') {
+        const valid = W.normalize(imported);
+        if (!valid.plans.length || valid.plans.length !== imported.plans.length) throw new Error('Sauvegarde de plusieurs objectifs invalide.');
+        if (!window.confirm('Restaurer tous les objectifs ? Cela remplacera ceux de ce navigateur.')) return;
+        workspace = valid;
+        plan = W.active(workspace);
+        saveWorkspace();
+      } else {
+        if (!W.isPlan(imported)) throw new Error('Format de sauvegarde invalide.');
+        if (workspace.plans.some(p => p.id === imported.id) &&
+          !window.confirm('Cet objectif existe déjà. Remplacer sa version locale ?')) return;
+        workspace = W.upsert(workspace, imported);
+        plan = W.active(workspace);
+        saveWorkspace();
+      }
+      lastDiagnosticGoal = null;
+      activeView = 'overview';
+      showWorkspace(); notify('Sauvegarde restaurée.');
     } catch (error) { notify(error.message || 'Import impossible.'); }
     finally { event.target.value = ''; }
   });
